@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="250" viewBox="0 0 1000 250" role="img" aria-label="designx — a camada de design do metodo Expx">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8957e5"/><stop offset="100%" stop-color="#8957e5" stop-opacity="0.5"/>
+    </linearGradient>
+    <pattern id="p" width="26" height="26" patternUnits="userSpaceOnUse">
+      <path d="M26 0H0v26" fill="none" stroke="#f6f8fa" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1000" height="250" rx="14" fill="#ffffff"/>
+  <rect width="1000" height="250" rx="14" fill="url(#p)"/>
+  <rect x="0" y="0" width="6" height="250" rx="3" fill="url(#g)"/>
+
+  <text x="56" y="98" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="64" font-weight="700" fill="#1f2328">designx</text>
+  <rect x="330" y="62" width="123" height="30" rx="15" fill="none" stroke="#8957e5" stroke-width="1.5"/>
+  <text x="391" y="82" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13.5" fill="#8957e5">metodo Expx</text>
+
+  <text x="57" y="134" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="17" fill="#59636e">Detecta, cartografa e audita o design system do projeto</text>
+
+  <g font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11.5">
+    <rect x="56" y="162" width="140" height="34" rx="8" fill="#eaeef2"/>
+    <text x="126" y="184" text-anchor="middle" fill="#1f2328">detectar DS existente</text>
+    <rect x="206" y="162" width="26" height="34" rx="8" fill="#eaeef2"/>
+    <text x="219" y="184" text-anchor="middle" fill="#8957e5">ou</text>
+    <rect x="242" y="162" width="180" height="34" rx="8" fill="#eaeef2"/>
+    <text x="332" y="184" text-anchor="middle" fill="#1f2328">cartografar o vocabulario</text>
+    <rect x="432" y="162" width="120" height="34" rx="8" fill="#eaeef2"/>
+    <text x="492" y="184" text-anchor="middle" fill="#1f2328">integrar sprintx</text>
+    <rect x="562" y="162" width="120" height="34" rx="8" fill="#eaeef2"/>
+    <text x="622" y="184" text-anchor="middle" fill="#1f2328">integrar runx</text>
+    <rect x="692" y="162" width="105" height="34" rx="8" fill="#eaeef2"/>
+    <text x="744" y="184" text-anchor="middle" fill="#1f2328">auditar UI</text>
+  </g>
+  <g stroke="#8957e5" stroke-width="1.5" fill="none" opacity="0.7">
+    <path d="M200 179h6"/><path d="M425 179h6"/><path d="M555 179h6"/><path d="M685 179h6"/>
+  </g>
+
+  <text x="944" y="218" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" fill="#59636e">Claude Code  +  OpenCode</text>
+</svg>
