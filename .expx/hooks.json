@@ -1,0 +1,8 @@
+{
+  "expx_hooks": 1,
+  "hooks": {
+    "designx-cartografa": { "modo": "bloqueio", "tipo": "metodo" },
+    "designx-audit": { "modo": "aviso", "tipo": "metodo" },
+    "designx-token-check": { "modo": "aviso", "tipo": "metodo" }
+  }
+}
