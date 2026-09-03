@@ -44,6 +44,10 @@ tasks:
     tom_estetico: denso-operacional
 ```
 
+> Vale nos dois formatos de plano: `sprint-NN/tasks.md` com `kind: tasks` (tres arquivos) e
+> com `kind: plano` (condensado, sprint de fase unica). Os campos sao da task, e a lista
+> `tasks:` e identica nos dois — a designx nao precisa distinguir.
+
 ### Campos novos
 
 | Campo | Tipo | Obrigatorio |

@@ -99,10 +99,16 @@ escopo: src/components/relatorios/
 
 ## Campos novos opcionais em kinds existentes
 
+> **Os dois formatos de plano.** Os campos de task abaixo vivem dentro de um item da lista
+> `tasks:`, e essa lista existe nos dois kinds que a sprintx e a runx usam para gravar plano:
+> `tasks` (formato de tres arquivos) e `plano` (formato condensado, uma sprint de fase unica
+> num arquivo so). Como os campos sao da TASK e nao do arquivo, valem igual nos dois — nada
+> muda para a designx alem de saber que o kind pode ser um ou outro.
+
 | Campo | Kind | Tipo | Descricao |
 |---|---|---|---|
-| `design_refs` | `tasks` | `string[]` | Componentes/padroes do DS referenciados |
-| `tom_estetico` | `tasks` | enum | Intencao visual da task |
+| `design_refs` | `tasks` / `plano` | `string[]` | Componentes/padroes do DS referenciados |
+| `tom_estetico` | `tasks` / `plano` | enum | Intencao visual da task |
 | `design_deps` | `orquestrador` | `string[]` | Tasks que dependem de design system |
 | `violacao_design` | `relatorio_tecnico` | boolean | Se a ocorrencia era violacao de design |
 | `padrao_violado` | `relatorio_tecnico` | string | Qual padrao do DS foi violado |

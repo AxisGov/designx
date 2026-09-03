@@ -30,6 +30,10 @@ tasks:
     design_refs: [padrao-detalhe-modal]
 ```
 
+> Vale nos dois formatos de plano: `sprint-NN/tasks.md` com `kind: tasks` (tres arquivos) e
+> com `kind: plano` (condensado, ocorrencia de uma sprint e uma fase). Os campos sao da task,
+> e a lista `tasks:` e identica nos dois — a designx nao precisa distinguir.
+
 ### Instrucao na skill
 
 > Tasks de UI devem declarar `design_refs` apontando para o padrao do DS
