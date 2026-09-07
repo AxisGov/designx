@@ -23,8 +23,10 @@ Agente de leitura apenas. Audita codigo de UI contra o DS e boas praticas.
 
 1. Conformidade com o DS (tokens, componentes, padroes)
 2. As 18 boas praticas (B1-B5, A1-A9, M1-M4)
-3. Deteccao rapida (grep commands)
+3. Os 10 tells de IA (T1-T10, references/08-tells-ia.md) — dois na mesma tela = REPROVADO
+4. Stamp vs. tela: `/* designx · ... */` existe, corresponde a realidade, e o LOG.md varia
+5. Deteccao rapida (grep commands)
 
 ## Saida
 
-Veredito com achados por severidade (bloqueio/alto/medio/baixo). Cada achado segue Observacao → Problema → Fix. Grave `adocao_tokens` no AUDIT.md; achados nao enderecados entram no DIVIDA.md (prioridade Severidade x Frequencia / Esforco).
+Veredito com achados por severidade (bloqueio/alto/medio/baixo). Cada achado segue Observacao → Problema → Fix; tells citam o codigo (`T3`). Grave `adocao_tokens` no AUDIT.md; achados nao enderecados entram no DIVIDA.md (prioridade Severidade x Frequencia / Esforco).

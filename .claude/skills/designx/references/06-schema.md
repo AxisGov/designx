@@ -8,7 +8,7 @@ Extensao ao contrato `expx-schema` v1 para a camada designx.
 
 `sprintx` · `runx` · `buildx` · **`designx`**
 
-`designx` e aceito apenas para os kinds `design_system`, `design_audit` e `design_debt`.
+`designx` e aceito apenas para os kinds `design_system`, `design_audit`, `design_debt` e `design_log`.
 
 ## ferramenta no rastro — valor novo
 
@@ -22,6 +22,7 @@ Adicionar **`designx`** a lista existente.
 | `design_audit_executado` | agente `auditor-design` |
 | `design_violacao_detectada` | hook `designx-audit` |
 | `design_debt_registrado` | agente `auditor-design` (abertura/atualizacao de item no DIVIDA.md) |
+| `design_log_anexado` | implementador (F6/E3 apos carimbar a tela) |
 
 ---
 
@@ -60,9 +61,16 @@ atualizado_em: 2026-08-30
 | `tokens` | nao | string | Caminho relativo para tokens CSS |
 | `componentes` | nao | string | Caminho relativo para componentes |
 | `padroes` | nao | string | Caminho relativo para padroes de tela |
+| `exports` | nao | string[] | Formatos exportados: `tokens.css`, `tailwind-theme`, `dtcg`, `shadcn` |
 | `auditavel` | sim | boolean | Se true, designx audita contra este DS |
 | `consistente` | sim | boolean | Se true, sem drift detectado |
 | `drift_detectado` | sim | number | Inconsistencias encontradas |
+
+### Secoes opcionais do corpo
+
+**`## Exports`** — quando o DS precisa ser portatil entre ferramentas, o corpo carrega os formatos lado a lado: `tokens.css` (canonico), Tailwind `@theme`, DTCG `tokens.json`, variaveis shadcn/ui. O `tokens.css` e a fonte da verdade; os demais sao derivados e regenerados.
+
+**`## Provenance`** — de onde o sistema veio: origem (`usuario` / `cartografia_automatica` / `referencia_usuario`), data, e — quando `referencia_usuario` — a fonte (URL ou "imagem") e nota de confianca. Design system sem historia e design system sem dono.
 
 ---
 
@@ -139,6 +147,36 @@ itens_abertos: 4
 
 ---
 
+## Kind: `design_log`
+
+Arquivo: `docs/design-system/LOG.md` — registro de rotacao das telas geradas. Uma entrada por tela carimbada (F6 sprintx / E3 runx), mais recente primeiro. E o que impede que telas consecutivas geradas pelo metodo saiam com o mesmo fingerprint.
+
+```yaml
+---
+expx_schema: 1
+expx_tool: designx
+kind: design_log
+criado_em: 2026-09-07
+entradas: 12
+---
+```
+
+### Entradas (corpo do arquivo)
+
+```markdown
+- 2026-09-07 · exportacao-csv/T-02.01 · padrao-lista · denso-operacional · refs: componente-busca
+- 2026-09-06 · onboarding/T-01.03 · padrao-form-multi · editorial · refs: padrao-form
+```
+
+### Regras de rotacao
+
+- O F3 consulta as ultimas 3-5 entradas antes de fixar `tom_estetico` e `design_refs`.
+- O par (padrao, tom) nao pode repetir por **3 entradas consecutivas** — repetido e `variedade_repetida` (medio).
+- Manter as ultimas 20 entradas; as mais antigas saem.
+- Tela corrigida pelo runx atualiza a entrada existente em vez de criar outra.
+
+---
+
 ## Campos novos opcionais em kinds existentes
 
 > **Os dois formatos de plano.** Os campos de task abaixo vivem dentro de um item da lista
@@ -176,3 +214,7 @@ itens_abertos: 4
 | `padrao_ignorado` | medio | Tela sem seguir padrao do DS |
 | `tom_estetico_inconsistente` | medio | Tom diferente do global |
 | `design_refs_ausente` | baixo | Task toca UI sem declarar refs |
+| `tell_ia_detectado` | alto | Um dos 10 tells nomeados (ver references/08-tells-ia.md) |
+| `stamp_mentiroso` | alto | Stamp da tela nao corresponde ao que a tela e |
+| `stamp_ausente` | medio | Tela gerada pelo metodo sem stamp de procedencia |
+| `variedade_repetida` | medio | Mesmo par (tom, padrao) em 3+ telas consecutivas do LOG |

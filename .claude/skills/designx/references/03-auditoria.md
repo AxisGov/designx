@@ -29,6 +29,10 @@ Como o `auditor-design` verifica conformidade.
 
 Ver `references/00-boas-praticas.md` para a lista completa com deteccao.
 
+### 2.5 Os 10 tells de IA
+
+Ver `references/08-tells-ia.md`. Cada tell e um achado nomeado (`T3 — grid de 3 colunas iguais`). **Dois tells na mesma tela = REPROVADO**, mesmo sem violacao de bloqueio — dois padroes de convergencia juntos sao confirmacao de geracao sem revisao.
+
 ### 3. Deteccao rapida
 
 ```bash
@@ -47,12 +51,39 @@ grep -rn "text-primary\b" src --include=*.tsx | grep -v "dark:" | head -20
 grep -rn "outline-none\|outline:\s*none" src --include=*.tsx | grep -v "ring"
 grep -rln "animate-\|transition-" src --include=*.tsx | grep -vL "motion-reduce"
 
+# Tells de IA (T1, T2, T5, T6, T7, T9, T10)
+grep -rnE "gradient.*(purple|violet|indigo|fuchsia)" src --include=*.tsx
+grep -rnE "bg-clip-text|background-clip:\s*text" src --include=*.tsx
+grep -rnE "border-l-[4-8]|border-r-[4-8]" src --include=*.tsx
+grep -rnE "min-h-screen|min-h-\[100vh\]" src --include=*.tsx
+grep -rnE "blur-3xl.*rounded-full|rounded-full.*blur-3xl" src --include=*.tsx
+grep -rn "transition-all\|hover:scale-105" src --include=*.tsx
+grep -rniE "acme|nexus|jane doe|john smith|lorem ipsum" src --include=*.tsx
+
 # Medio
 grep -rn "onChange=.*setSearch" src --include=*.tsx
 grep -rLn "tabular-nums" src --include=*.tsx
 ```
 
-A6 (contraste) e A8 (alvo + aria-label) exigem inspecao dos pares de token e dos botoes so-icone — nao tem grep confiavel.
+T3 (grid-cols-3) e T4 (card-in-card) exigem inspecao. A6 (contraste) e A8 (alvo + aria-label) tambem — nao tem grep confiavel.
+
+### 3.5 Stamp vs. tela
+
+Tela gerada pelo metodo carimba a primeira linha do CSS (ou do arquivo de componente):
+
+```css
+/* designx · padrao: padrao-lista · tom: denso-operacional · refs: componente-busca · ds: nome@1.2.0 */
+```
+
+O auditor verifica tres coisas:
+
+1. **Stamp existe?** Tela gerada sem stamp = `stamp_ausente` (medio).
+2. **Stamp mente?** O stamp diz `padrao-lista` mas a tela e um form multi-etapa = `stamp_mentiroso` (alto). E o que pega o drift pos-edicao que volta ao default de IA.
+3. **Variou?** Cruzar o LOG.md: mesmo par (padrao, tom) em 3+ entradas consecutivas = `variedade_repetida` (medio).
+
+```bash
+grep -rn "designx ·" src --include=*.css --include=*.tsx | head -20
+```
 
 ## Metrica de adocao de tokens
 

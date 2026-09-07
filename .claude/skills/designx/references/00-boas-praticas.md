@@ -99,7 +99,7 @@ Light usa solid 50/600/700; dark usa /10 + 300/400. Nunca hex novo.
 grep -rn "font-family.*Inter" src --include=*.tsx
 ```
 
-**Solucao:** Escolher fonte com personalidade para titulos. Corpo pode ser generico.
+**Solucao:** Escolher fonte com personalidade para titulos. Corpo pode ser generico. Este e o tell-zero; os outros nove padroes concretos de convergencia estao em `references/08-tells-ia.md`.
 
 ### A4 — Solid accent com variante dark
 
@@ -173,6 +173,8 @@ grep -rln "animate-\|transition-" src --include=*.tsx | grep -vL "motion-reduce"
 **Bug sem ela:** Ruido visual que cansa. Transicoes em tudo nao tem destaque em nada.
 
 **Solucao:** Animacao so em: entrada de pagina (stagger), hover de interacao, feedback de acao. Nunca em scroll, nunca em carregamento decorativo.
+
+**Idiomas (ver references/07-qa-checklist.md, secao 3):** silent success em vez de toast comemorativo; optimistic update + Undo em vez de confirmacao; tooltip hover 800ms / focus 0ms; um efeito por hover; overshoot so em interacao fisica; anima so `transform` e `opacity`.
 
 ### M3 — Densidade: controles h-9, rows ~52px
 

@@ -25,23 +25,36 @@ Deteccao:
 grep -rnE "#[0-9a-fA-F]{6}\b" src --include=*.tsx
 ```
 
-## 2. Estados do componente
+## 2. Estados do componente — 8, nao 5
 
-Todo componente interativo renderiza os cinco estados — nao so o feliz:
+Todo elemento interativo em producao tem **oito estados**. A maioria da UI gerada estiliza dois (default, hover) e esquece o resto — e e ali que a interface quebra.
 
-- [ ] default
-- [ ] hover
-- [ ] focus (ring visivel — A7)
-- [ ] active/pressed
-- [ ] disabled
+| Estado | Quando | Tratamento |
+|---|---|---|
+| Default | Em repouso | Estilo base |
+| Hover | Ponteiro sobre (so `@media (hover: hover)`) | Mudanca pequena: cor, 1px translate, borda |
+| Focus | Teclado ou foco programatico | Ring visivel, `:focus-visible` — instantaneo, sem fade |
+| Active/Pressed | Durante o clique | Pressionado: mais escuro, `translate(0 1px)` |
+| Disabled | Nao interativo | Opacidade 0.5 + `cursor: not-allowed` + `aria-disabled` |
+| Loading | Processando | Spinner/progresso inline, label legivel |
+| Error | Falhou | Borda vermelha, mensagem, `aria-invalid` |
+| Success | Concluido | Confirmacao discreta, auto-dismiss |
 
-E os tres estados de dados em toda lista (A5):
+Falta qualquer um em elemento de producao = elemento inacabado. Os tres ultimos cobrem o A5 de listas (loading/error/empty).
 
-- [ ] loading (spinner/skeleton)
-- [ ] error (com retry)
-- [ ] empty (dentro da tabela — B4)
+## 3. Idiomas de microinteracao
 
-## 3. Layout
+Gosto codificado — o que separa UI revisada de UI emitida:
+
+- [ ] **Silent success:** acao cujo efeito o usuario ja ve nao ganha toast comemorativo. Toast e para falha e efeito invisivel.
+- [ ] **Optimistic update + Undo** em vez de dialogo de confirmacao para acoes reversiveis.
+- [ ] **Tooltip:** hover atrasa 800ms; focus mostra em 0ms — nunca iguais.
+- [ ] **Overshoot/bounce** (`cubic-bezier(0.34, 1.56, ...)`) so em interacao fisica (drag). Nunca em estado de UI.
+- [ ] **Um efeito por hover** — cor OU translate OU borda. Nunca dois no mesmo elemento.
+- [ ] **Anima so `transform` e `opacity`** — nunca width/height/top/left/margin/padding.
+- [ ] **Focus ring instantaneo** — usuario de teclado precisa do indicador imediato; fade no focus e a11y violada.
+
+## 4. Layout
 
 - [ ] Alinhamento com o grid do DS
 - [ ] Comportamento responsivo nos breakpoints declarados
@@ -49,7 +62,7 @@ E os tres estados de dados em toda lista (A5):
 - [ ] Larguras min/max respeitadas
 - [ ] Paginacao adaptativa, nao fixa (B1)
 
-## 4. Conteudo
+## 5. Conteudo
 
 - [ ] Conteudo real cabe no layout (sem lorem ipsum em producao)
 - [ ] Truncacao funciona onde especificado
@@ -57,7 +70,7 @@ E os tres estados de dados em toda lista (A5):
 - [ ] Valor ausente renderiza `—`, nunca `0,00`
 - [ ] Mensagens de erro corretas e especificas
 
-## 5. Acessibilidade
+## 6. Acessibilidade
 
 - [ ] Contraste WCAG AA nos pares fg/bg dos tokens, light e dark (A6)
 - [ ] Focus indicators visiveis em todo interativo (A7)
@@ -66,7 +79,7 @@ E os tres estados de dados em toda lista (A5):
 - [ ] `prefers-reduced-motion` respeitado (A9)
 - [ ] Roles/ARIA corretos em componentes compostos (dialog, select, tabs)
 
-## 6. Teclado
+## 7. Teclado
 
 - [ ] Toda acao alcancavel por teclado
 - [ ] `Esc` fecha modal/popover; foco volta ao trigger

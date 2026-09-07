@@ -55,6 +55,29 @@ Verifique:
 - [ ] M3: Densidade correta (h-9, ~52px rows)
 - [ ] M4: tabular-nums em numeros comparaveis
 
+### 2.5 Os 10 tells de IA (references/08-tells-ia.md)
+
+Achados nomeados — cite o codigo do tell no veredito (`T3 — grid de 3 colunas iguais`):
+
+- [ ] T1: Hero com gradiente roxo
+- [ ] T2: Headline com gradiente (bg-clip-text)
+- [ ] T3: Grid de 3 colunas iguais com icone acima
+- [ ] T4: Card dentro de card
+- [ ] T5: Card com faixa lateral (border-l-4)
+- [ ] T6: Hero centrado full-viewport (min-h-screen)
+- [ ] T7: Aurora blobs (blur-3xl rounded-full)
+- [ ] T8: Emoji como icone / duas bibliotecas de icones
+- [ ] T9: transition-all ou hover:scale-105 uniforme
+- [ ] T10: Nomes placeholder (Acme, Jane Doe, lorem ipsum)
+
+**Dois tells na mesma tela = REPROVADO**, mesmo sem bloqueio.
+
+### 2.6 Stamp vs. tela
+
+1. Stamp `/* designx · ... */` existe? Ausente = `stamp_ausente` (medio).
+2. Stamp corresponde a tela? Diz padrao-lista mas a tela e form = `stamp_mentiroso` (alto).
+3. LOG.md: mesmo par (padrao, tom) em 3+ entradas consecutivas = `variedade_repetida` (medio).
+
 ### 3. Deteccao rapida
 
 ```bash
@@ -78,6 +101,18 @@ grep -rln "animate-\|transition-" src --include=*.tsx | grep -vL "motion-reduce"
 grep -rn "onChange=.*setSearch" src --include=*.tsx
 grep -rLn "tabular-nums" src --include=*.tsx
 grep -rn "ArrowLeft\|ChevronLeft" src/pages --include=*.tsx
+
+# Tells de IA (T1, T2, T5, T6, T7, T9, T10)
+grep -rnE "gradient.*(purple|violet|indigo|fuchsia)" src --include=*.tsx
+grep -rnE "bg-clip-text|background-clip:\s*text" src --include=*.tsx
+grep -rnE "border-l-[4-8]|border-r-[4-8]" src --include=*.tsx
+grep -rnE "min-h-screen|min-h-\[100vh\]" src --include=*.tsx
+grep -rnE "blur-3xl.*rounded-full|rounded-full.*blur-3xl" src --include=*.tsx
+grep -rn "transition-all\|hover:scale-105" src --include=*.tsx
+grep -rniE "acme|nexus|jane doe|john smith|lorem ipsum" src --include=*.tsx
+
+# Stamp
+grep -rn "designx ·" src --include=*.css --include=*.tsx | head -20
 ```
 
 A6 (contraste) e A8 (alvo/aria-label) exigem inspecao — pares de token e botoes so-icone, um a um.

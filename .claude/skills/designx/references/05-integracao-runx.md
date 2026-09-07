@@ -41,13 +41,20 @@ tasks:
 
 ## E3 — Fix
 
-O implementador segue o padrao do DS ao corrigir.
+O implementador segue o padrao do DS ao corrigir e atualiza o stamp da tela (ou cria, se a tela nao tem):
+
+```css
+/* designx · padrao: padrao-detalhe-modal · tom: denso-operacional · refs: padrao-detalhe-modal · ds: <nome>@<versao> */
+```
+
+A entrada correspondente no `docs/design-system/LOG.md` e atualizada, nao duplicada.
 
 ### Instrucao na skill
 
 > Antes de corrigir componente de UI, leia `docs/design-system/RESUMO.md`.
 > Siga o padrao declarado em `design_refs`. Se o DS nao tem componente
 > para o caso, crie seguindo as boas praticas (references/00-boas-praticas.md).
+> Ao terminar, atualize o stamp da tela e a entrada no LOG.md.
 
 ## E4 — QA
 

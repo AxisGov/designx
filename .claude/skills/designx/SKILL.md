@@ -4,7 +4,7 @@ description: Camada de design para sprintx e runx. Detecta ou cartografa o desig
 license: MIT
 compatibility: Requer uma skill de metodo instalada (sprintx ou runx). Funciona em qualquer stack visual — Tailwind, CSS modules, styled-components. Nao depende de framework especifico.
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
   part-of: "metodo-expx"
   body-language: "pt-BR"
   contract: "CONTRATO-designx-v1"
@@ -99,6 +99,8 @@ tasks:
     tom_estetico: denso-operacional
 ```
 
+**Consulta o log de rotação.** Antes de fixar `tom_estetico` e `design_refs`, o plano le `docs/design-system/LOG.md` (kind `design_log`): as ultimas 3-5 entradas informam a escolha. O par (tom, padrao) nao pode repetir por 3 telas consecutivas — telas geradas em sequencia convergem para o mesmo fingerprint sem essa checagem.
+
 ### F5 — Auditoria
 
 `auditor-design` roda como gate adicional. Se reprova, sprint nao avanca.
@@ -106,6 +108,16 @@ tasks:
 ### F6 — Execucao
 
 Implementador le RESUMO.md antes de escrever UI.
+
+**Carimba a tela gerada.** A primeira linha do CSS (ou do `<style>`/topo do arquivo de componente) recebe o stamp de procedencia:
+
+```css
+/* designx · padrao: padrao-lista · tom: denso-operacional · refs: componente-busca · ds: nome@1.2.0 */
+```
+
+O stamp e o registro duravel do que foi escolhido. O auditor-design verifica stamp vs. realidade — stamp que mente e achado critico (`stamp_mentiroso`). Apos carimbar, o implementador anexa a entrada no `docs/design-system/LOG.md`.
+
+**Auto-critica antes de entregar (5 eixos, score 1-5):** hierarquia (primario/secundario/terciario legivel em 2 segundos?), execucao (detalhes no spec do DS?), especificidade (parece desta feature ou uma tela generica?), restricao (tudo que esta ai ganha o lugar?), variedade (o fingerprint difere da ultima tela no LOG?). Score < 3 em qualquer eixo = revisar antes de declarar pronto.
 
 ---
 
@@ -115,7 +127,7 @@ Implementador le RESUMO.md antes de escrever UI.
 |---|---|
 | E1 | Se `melhoria-ui/ux`, investigador consulta DS |
 | E2 | Fix referencia padrao correto do DS |
-| E3 | Implementador segue padrao do DS |
+| E3 | Implementador segue padrao do DS e carimba a tela (stamp designx) |
 | E4 | QA inclui checklist de design (`references/07-qa-checklist.md`) |
 | E5 | Relatorio menciona `violacao_design` |
 
@@ -166,6 +178,12 @@ Toda regra tem evidencia: o que acontece sem ela. Violar e violacao do metodo, n
 | `editorial` | Conteudo longo, tipografia expressiva | Blogs, docs, wikis |
 | `minimalista-refinado` | Espaco generoso, poucos elementos | Landing pages, portfolios |
 | `brutalista` | Raw, sem polimento, function over form | Ferramentas internas, hackathons |
+
+---
+
+## 5.5 Os 10 tells de IA
+
+Alem das 18 regras (principios), o auditor procura **padroes concretos de convergencia** — o que todo LLM emite sem intervencao: hero com gradiente roxo, headline com gradiente, grid de 3 colunas iguais, card-in-card, faixa lateral, hero centrado full-viewport, aurora blobs, emoji como icone, `transition-all`, nomes placeholder. Ver `references/08-tells-ia.md` para os dez com nome, fix e deteccao. Dois tells na mesma tela = REPROVADO mesmo sem bloqueio.
 
 ---
 
@@ -264,6 +282,20 @@ escopo: src/components/relatorios/
 ---
 ```
 
+### `design_log` — `docs/design-system/LOG.md`
+
+```yaml
+---
+expx_schema: 1
+expx_tool: designx
+kind: design_log
+criado_em: 2026-09-07
+entradas: 12
+---
+```
+
+Corpo: uma entrada por tela gerada, mais recente primeiro — `data · trabalho · padrao · tom · refs`. E o que o F3 consulta para rotacionar e o auditor usa para flagrar `variedade_repetida`.
+
 ---
 
 ## 9. Violasoes no painel
@@ -277,6 +309,12 @@ escopo: src/components/relatorios/
 | `padrao_ignorado` | medio | Tela sem seguir padrao do DS |
 | `tom_estetico_inconsistente` | medio | Tom diferente do global |
 | `design_refs_ausente` | baixo | Task toca UI sem declarar refs |
+| `tell_ia_detectado` | alto | Um dos 10 tells nomeados (references/08-tells-ia.md) |
+| `stamp_mentiroso` | alto | Stamp da tela nao corresponde ao que a tela e |
+| `stamp_ausente` | medio | Tela gerada pelo metodo sem stamp de procedencia |
+| `variedade_repetida` | medio | Mesmo par (tom, padrao) em 3+ telas consecutivas do LOG |
+
+Contrato completo em `references/06-schema.md` — kinds `design_system`, `design_audit`, `design_debt` e `design_log` (rotacao de telas).
 
 ---
 
@@ -329,13 +367,14 @@ Ver `references/06-schema.md` para o kind `design_debt`.
     SKILL.md                    este arquivo
     references/
       00-boas-praticas.md       as 18 regras com evidencia
-      01-deteccao.md            como detectar o DS
+      01-deteccao.md            como detectar o DS (pre-flight de sinais)
       02-cartografia.md         como gerar o DS
       03-auditoria.md           como auditar conformidade
       04-integracao-sprintx.md  pontos de integracao com sprintx
       05-integracao-runx.md     pontos de integracao com runx
       06-schema.md              kinds e campos novos
       07-qa-checklist.md        checklist de QA de design (runx E4)
+      08-tells-ia.md            os 10 tells de IA nomeados
     assets/
       tokens.css.exemplo        tokens de exemplo para cartografia
   commands/designx*.md          comandos do Claude Code

@@ -79,6 +79,18 @@ atualizado_em: AAAA-MM-DD
 
 `consistente` e `true` quando `drift_detectado` e 0.
 
+O corpo do arquivo gerado termina com o bloco de procedencia:
+
+```markdown
+## Provenance
+
+- origem: cartografia_automatica
+- data: AAAA-MM-DD
+- metodo: leitura de codigo, evidencia em arquivo:linha
+```
+
+Design system sem historia e design system sem dono — o bloco registra de onde veio.
+
 ## Ciclo de vida
 
 ```
