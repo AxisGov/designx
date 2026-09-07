@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="400" viewBox="0 0 960 400" role="img" aria-label="Onde o designx toca sprintx e runx">
+  <defs>
+    <pattern id="pg" width="26" height="26" patternUnits="userSpaceOnUse">
+      <path d="M26 0H0v26" fill="none" stroke="#f6f8fa" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="960" height="400" rx="14" fill="#ffffff"/>
+  <rect width="960" height="400" rx="14" fill="url(#pg)"/>
+  <rect x="0" y="0" width="6" height="400" rx="3" fill="#8957e5"/>
+
+  <text x="40" y="46" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="24" font-weight="700" fill="#1f2328">Onde o designx toca sprintx e runx</text>
+  <text x="40" y="70" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="13" fill="#59636e">a camada não faz nada sozinha — ela modifica quem executa</text>
+
+  <!-- lane sprintx -->
+  <text x="40" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" font-weight="700" fill="#59636e">sprintx — feature nova (F1…F6)</text>
+  <g font-family="ui-monospace,SFMono-Regular,Menlo,monospace">
+    <rect x="40" y="106" width="200" height="58" rx="8" fill="#f6f8fa" stroke="#d1d9e0"/>
+    <text x="54" y="129" font-size="12.5" font-weight="700" fill="#1f2328">F1 · Ingestão</text>
+    <text x="54" y="147" font-size="10.5" fill="#59636e">cartografia + RESUMO.md</text>
+
+    <rect x="260" y="106" width="200" height="58" rx="8" fill="#f6f8fa" stroke="#d1d9e0"/>
+    <text x="274" y="129" font-size="12.5" font-weight="700" fill="#1f2328">F3 · Plano</text>
+    <text x="274" y="147" font-size="10.5" fill="#59636e">design_refs + tom estético</text>
+
+    <rect x="480" y="106" width="200" height="58" rx="8" fill="#f6f8fa" stroke="#d1d9e0"/>
+    <text x="494" y="129" font-size="12.5" font-weight="700" fill="#1f2328">F5 · Auditoria</text>
+    <text x="494" y="147" font-size="10.5" fill="#59636e">gate: auditor-design</text>
+
+    <rect x="700" y="106" width="200" height="58" rx="8" fill="#f6f8fa" stroke="#d1d9e0"/>
+    <text x="714" y="129" font-size="12.5" font-weight="700" fill="#1f2328">F6 · Execução</text>
+    <text x="714" y="147" font-size="10.5" fill="#59636e">lê o RESUMO antes da UI</text>
+  </g>
+
+  <!-- conectores sprintx -> barra -->
+  <g stroke="#8957e5" stroke-width="1.5" opacity="0.5">
+    <path d="M140 164v50"/><path d="M360 164v50"/><path d="M580 164v50"/><path d="M800 164v50"/>
+  </g>
+  <text x="588" y="194" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" fill="#8250df">gate</text>
+
+  <!-- barra designx -->
+  <rect x="40" y="214" width="860" height="64" rx="10" fill="#f3edfd" stroke="#8957e5" stroke-width="1.5"/>
+  <text x="60" y="252" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="16" font-weight="700" fill="#8250df">designx</text>
+  <g font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" fill="#1f2328">
+    <rect x="160" y="231" width="150" height="30" rx="7" fill="#ffffff" stroke="#d1d9e0"/>
+    <text x="235" y="250" text-anchor="middle">DESIGN-SYSTEM.md</text>
+    <rect x="320" y="231" width="105" height="30" rx="7" fill="#ffffff" stroke="#d1d9e0"/>
+    <text x="372" y="250" text-anchor="middle">RESUMO.md</text>
+    <rect x="435" y="231" width="85" height="30" rx="7" fill="#ffffff" stroke="#d1d9e0"/>
+    <text x="477" y="250" text-anchor="middle">AUDIT.md</text>
+    <rect x="530" y="231" width="95" height="30" rx="7" fill="#ffffff" stroke="#d1d9e0"/>
+    <text x="577" y="250" text-anchor="middle">DIVIDA.md</text>
+  </g>
+  <text x="645" y="250" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10.5" fill="#8250df">a camada lê e audita — nunca implementa</text>
+
+  <!-- lane runx -->
+  <text x="40" y="304" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" font-weight="700" fill="#59636e">runx — ocorrência em produção (E1…E5)</text>
+
+  <!-- conectores barra -> runx -->
+  <g stroke="#8957e5" stroke-width="1.5" opacity="0.5">
+    <path d="M140 278v34"/><path d="M360 278v34"/><path d="M580 278v34"/><path d="M800 278v34"/>
+  </g>
+  <text x="588" y="300" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" fill="#8250df">veredito independente</text>
+
+  <g font-family="ui-monospace,SFMono-Regular,Menlo,monospace">
+    <rect x="40" y="312" width="200" height="58" rx="8" fill="#f6f8fa" stroke="#d1d9e0"/>
+    <text x="54" y="335" font-size="12.5" font-weight="700" fill="#1f2328">E1 · Investigação</text>
+    <text x="54" y="353" font-size="10.5" fill="#59636e">consulta o DS (evidência)</text>
+
+    <rect x="260" y="312" width="200" height="58" rx="8" fill="#f6f8fa" stroke="#d1d9e0"/>
+    <text x="274" y="335" font-size="12.5" font-weight="700" fill="#1f2328">E2 · Plano</text>
+    <text x="274" y="353" font-size="10.5" fill="#59636e">fix referencia design_refs</text>
+
+    <rect x="480" y="312" width="200" height="58" rx="8" fill="#f6f8fa" stroke="#d1d9e0"/>
+    <text x="494" y="335" font-size="12.5" font-weight="700" fill="#1f2328">E3 · Fix</text>
+    <text x="494" y="353" font-size="10.5" fill="#59636e">segue o padrão do DS</text>
+
+    <rect x="700" y="312" width="200" height="58" rx="8" fill="#f6f8fa" stroke="#d1d9e0"/>
+    <text x="714" y="335" font-size="12.5" font-weight="700" fill="#1f2328">E4 · QA</text>
+    <text x="714" y="353" font-size="10.5" fill="#59636e">checklist 07-qa-checklist.md</text>
+  </g>
+</svg>

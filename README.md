@@ -9,7 +9,8 @@
 <p>
   <img alt="harness: Claude Code" src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/badge-claude.svg">
   <img alt="harness: OpenCode" src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/badge-opencode.svg">
-  <img alt="14 boas praticas" src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/badge-14regras.svg">
+  <img alt="18 boas praticas" src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/badge-18regras.svg">
+  <img alt="acessibilidade WCAG AA" src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/badge-a11y.svg">
   <img alt="cartografia visual" src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/badge-cartografia.svg">
   <img alt="schema expx v1" src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/badge-schema.svg">
   <img alt="docs pt-BR" src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/badge-lang.svg">
@@ -19,11 +20,11 @@
 <p>
   <a href="https://bittencourtthulio.github.io/expxdev/#designx"><strong>📘 Documentacao do metodo</strong></a>
   &nbsp;·&nbsp;
-  <a href="https://bittencourtthulio.github.io/expxdev/#designx">14 boas praticas</a>
+  <a href="#as-18-boas-praticas">18 boas praticas</a>
+  &nbsp;·&nbsp;
+  <a href="#a-auditoria">Auditoria</a>
   &nbsp;·&nbsp;
   <a href="https://bittencourtthulio.github.io/expxdev/#ecossistema">O ecossistema</a>
-  &nbsp;·&nbsp;
-  <a href="https://bittencourtthulio.github.io/expxdev/#schema">Contratos</a>
 </p>
 
 <strong>A camada de design do metodo Expx</strong> — detecta, cartografa e audita<br>
@@ -52,7 +53,7 @@ O metodo Expx e um conjunto de skills que se compoem, instaladas e mantidas pelo
 | **[memox](https://github.com/bittencourtthulio/MemoX)** | **camada** de memoria do projeto | — |
 | **[prodx](https://github.com/bittencourtthulio/prodx)** | **camada** de produto | — |
 
-**Camadas** (`legadox`, `stackx`, `memox`, `prodx`, `designx`) sozinhas nao fazem nada — elas modificam o comportamento da `sprintx` e da `runx`. A ausencia de qualquer irmã nunca quebra o fluxo: insumo que nao existe vira aviso do que falta, nunca invencao.
+**Camadas** (`legadox`, `stackx`, `memox`, `prodx`, `designx`) sozinhas nao fazem nada — elas modificam o comportamento da `sprintx` e da `runx`. A ausencia de qualquer irma nunca quebra o fluxo: insumo que nao existe vira aviso do que falta, nunca invencao.
 
 Detalhes do ecossistema inteiro no [README do expxdev](https://github.com/bittencourtthulio/expxdev).
 
@@ -62,11 +63,20 @@ Detalhes do ecossistema inteiro no [README do expxdev](https://github.com/bitten
 
 Agentes de IA convergem para escolhas genericas — Inter em toda fonte, purple gradients, layouts previsiveis. Isso e o tipo de "colateral" que o metodo Expx existe para impedir. Mas as skills existentes (`sprintx`, `runx`) nao tem nocao de UI: elas planejam e executam sem considerar padrao visual.
 
-`designx` resolve tres coisas:
+`designx` resolve quatro coisas:
 
 1. **Deteccao** — o projeto ja tem um design system? Onde? E confiavel?
 2. **Cartografia** — se nao tem, o que o codigo existente ja establish? (tokens, componentes, padroes)
 3. **Auditoria** — o que foi feito respeita o DS e as boas praticas de UI?
+4. **Divida** — o que nao foi corrigido fica registrado e priorizado, nao acumula mudamente
+
+---
+
+## Como a camada se encaixa
+
+<img src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/diagrama-fluxo.svg" alt="Diagrama: onde o designx toca sprintx e runx — F1/F3/F5/F6 no build, E1-E4 no run, com DESIGN-SYSTEM.md, RESUMO.md, AUDIT.md e DIVIDA.md no meio" width="100%">
+
+A camada expoe quatro artefatos de estado: `DESIGN-SYSTEM.md` (o sistema), `RESUMO.md` (o contexto carregado por quem executa), `AUDIT.md` (o veredito + metrica de adocao de tokens) e `DIVIDA.md` (o registro vivo do que ficou para tras).
 
 ---
 
@@ -137,13 +147,15 @@ Quero criar uma tela de listagem de clientes com busca e filtro.
 
 | Comando | O que faz |
 |---|---|
-| `/designx-audit` | audita conformidade de design contra o DS |
+| `/designx-audit` | audita conformidade de design contra o DS (emite veredito + adocao de tokens + divida) |
 | `/designx-cartography` | gera o DESIGN-SYSTEM.md via cartografia visual |
 | `/designx-status` | mostra o estado do design system e violacoes |
 
 ---
 
-## As 14 boas praticas
+## As 18 boas praticas
+
+<img src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/diagrama-regras.svg" alt="Quadro das 18 boas praticas organizadas por severidade: bloqueio (B1-B5), alto (A1-A9, incluindo as regras de acessibilidade A6-A9) e medio (M1-M4)" width="100%">
 
 Toda regra tem evidencia: o que acontece sem ela. Violar uma regra e violacao do metodo, nao preferencia de estilo.
 
@@ -167,6 +179,15 @@ Toda regra tem evidencia: o que acontece sem ela. Violar uma regra e violacao do
 | A4 | Solid accent com variante dark | Cor some em fundo escuro |
 | A5 | Loading/error/empty cobertos | Tela quebrada sem feedback |
 
+### Acessibilidade (alto)
+
+| # | Regra | Bug sem ela |
+|---|---|---|
+| A6 | Contraste WCAG AA — 4.5:1 texto, 3:1 grande | Texto ilegivel para baixa visao |
+| A7 | Focus ring visivel, nunca `outline: none` sem substituto | Teclado navega as cegas |
+| A8 | Alvo interativo >= 36px + nome acessivel (`aria-label`) | Clique impreciso; botao sem nome para screen reader |
+| A9 | `prefers-reduced-motion` respeitado | Enfeite vira barreira vestibular |
+
 ### Qualidade visual (medio)
 
 | # | Regra | Bug sem ela |
@@ -182,17 +203,41 @@ Toda regra tem evidencia: o que acontece sem ela. Violar uma regra e violacao do
 
 Se o projeto nao tem um design system declarado, `designx` roda uma **cartografia visual** — o agente `cartografo-visual` analisa o codigo existente e gera o `DESIGN-SYSTEM.md` candidato.
 
-```
-[1] Ausente
-     ↓ cartografa
-[2] Cartografiado (consistente: false)
-     ↓ usuario corrige drift
-[3] Cartografiado (consistente: true)
-     ↓ ou: usuario substitui por DS declarado
-[4] Declarado (origem: usuario)
-```
+<img src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/diagrama-ciclo.svg" alt="Diagrama do ciclo de vida do design system: ausente, cartografado, consistente, declarado e auditando — com saidas para o painel de violacoes e o registro de divida" width="100%">
 
 A cartografia e leitura apenas — o agente nao inventa, nao sugere, nao corrige. Espelha o estado atual, incluindo os problemas.
+
+### Tiers de token
+
+Todo token encontrado e classificado em um de tres tiers — e o componente nunca fala com o valor bruto:
+
+<img src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/diagrama-tokens.svg" alt="Diagrama dos tiers de token: global (raw), alias (semantico) e componente — com os padroes de drift de tier que a cartografia lista" width="100%">
+
+---
+
+## A auditoria
+
+O agente `auditor-design` verifica conformidade com o DS e as 18 regras. Cada achado sai em tres partes — **observacao** (o que se ve), **problema** (o que esta quebrado e por que importa) e **fix** (a mudanca especifica) — e a auditoria produz dois artefatos:
+
+<img src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/diagrama-auditoria.svg" alt="Diagrama da auditoria: escopo passa pelo auditor-design, gera veredito com observacao, problema e fix, e alimenta AUDIT.md com adocao de tokens e DIVIDA.md com prioridade severidade vezes frequencia sobre esforco" width="100%">
+
+### Adocao de tokens
+
+`adocao_tokens` e a fracao de propriedades visuais usando tokens em vez de valor bruto (cor e espacamento). O numero absoluto importa menos que a **tendencia entre auditorias** — adocao caindo e drift crescendo.
+
+### Registro de divida
+
+Achados nao enderecados entram no `DIVIDA.md` (kind `design_debt`) com prioridade **severidade x frequencia / esforco**:
+
+- **Quick wins** (esforco baixo, frequencia alta) entram na proxima sprint
+- **Estruturais** viram task propria com `design_refs`
+- **Write-offs** (baixo trafego + redesign planejado) ficam diferidos com justificativa
+
+O registro e vivo: itens resolvidos sao marcados, nunca apagados.
+
+### QA checklist
+
+No E4 da runx, o veredito de design e independente do funcional — os dois precisam ser APROVADO. O checklist completo (`references/07-qa-checklist.md`) cobre: precisao visual, os cinco estados do componente (default/hover/focus/active/disabled), layout, conteudo, acessibilidade e teclado.
 
 ---
 
@@ -205,8 +250,8 @@ A cartografia e leitura apenas — o agente nao inventa, nao sugere, nao corrige
 
 | Agente | Quando | Ferramentas | Papel |
 |---|---|---|---|
-| `cartografo-visual` | primeira ativacao | leitura apenas | Analisa e gera o DS |
-| `auditor-design` | F5 sprintx, E4 runx | leitura apenas | Audita conformidade |
+| `cartografo-visual` | primeira ativacao | leitura apenas | Analisa, classifica tiers e gera o DS |
+| `auditor-design` | F5 sprintx, E4 runx | leitura apenas | Audita conformidade e alimenta DIVIDA.md |
 
 **Todo hook de metodo nasce em `aviso`**, exceto `designx-cartografa` — que nasce em `bloqueio` porque sem DS a auditoria nao tem referencia. A excecao e justificada: auditar sem referencia e violacao falsa.
 
@@ -238,12 +283,27 @@ expx_schema: 1
 expx_tool: designx
 kind: design_audit
 trabalho_id: exportacao-csv
-auditado_em: 2026-08-30
+auditado_em: 2026-09-07
 veredito: aprovado
 violacoes: 0
 avisos: 2
+adocao_tokens: 0.87
 ---
 ```
+
+### `design_debt` — `docs/design-system/DIVIDA.md`
+
+```yaml
+---
+expx_schema: 1
+expx_tool: designx
+kind: design_debt
+criado_em: 2026-09-07
+itens_abertos: 4
+---
+```
+
+Cada item do registro carrega severidade, categoria, frequencia, esforco, prioridade calculada, status e evidencia (`arquivo:linha`).
 
 Contrato completo em [`references/06-schema.md`](.claude/skills/designx/references/06-schema.md).
 
@@ -256,6 +316,7 @@ Contrato completo em [`references/06-schema.md`](.claude/skills/designx/referenc
 | Nao cria UI | E camada de verificacao, nao de implementacao |
 | Nao edita componentes | Quem implementa e o sprintx/runx |
 | Nao escolhe o design system | Quem escolhe e o time |
+| Nao corrige drift na cartografia | O DS e espelho; a correcao e do time |
 | Nao impede trabalho sem DS | Sem DS = inerte (exceto cartografia) |
 | Substitui auditoria de codigo | `revisor-testes` e `qa` continuam existindo |
 | Gera screenshots | E camada de metodo, nao de ferramenta visual |
@@ -267,15 +328,22 @@ Contrato completo em [`references/06-schema.md`](.claude/skills/designx/referenc
 ```
 .claude/
   skills/designx/
-    SKILL.md                    identidade, integracao, boas praticas
-    references/                 6 documentos de referencia
+    SKILL.md                    identidade, integracao, 18 boas praticas
+    references/                 7 documentos de referencia
+      00-boas-praticas.md       as 18 regras com evidencia
+      01-deteccao.md            como detectar o DS
+      02-cartografia.md         como gerar o DS (tiers de token)
+      03-auditoria.md           como auditar conformidade
+      04-integracao-sprintx.md  pontos de integracao com sprintx
+      05-integracao-runx.md     pontos de integracao com runx
+      06-schema.md              kinds e campos novos (design_debt)
+      07-qa-checklist.md        checklist de QA de design (runx E4)
     assets/
-      tokens.css.exemplo        tokens de exemplo
+      tokens.css.exemplo        tokens de exemplo com os 3 tiers
   commands/designx*.md          comandos do Claude Code
   hooks/designx/                hooks da camada
   agents/                       cartografo-visual e auditor-design
 .opencode/
-  skills/designx/               a mesma skill
   command/designx*.md           comandos do OpenCode
   agent/                        os mesmos agentes
   plugin/designx.ts             ponte para hooks
