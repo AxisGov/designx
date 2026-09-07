@@ -4,7 +4,7 @@ description: Camada de design para sprintx e runx. Detecta ou cartografa o desig
 license: MIT
 compatibility: Requer uma skill de metodo instalada (sprintx ou runx). Funciona em qualquer stack visual — Tailwind, CSS modules, styled-components. Nao depende de framework especifico.
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   part-of: "metodo-expx"
   body-language: "pt-BR"
   contract: "CONTRATO-designx-v1"
@@ -116,12 +116,12 @@ Implementador le RESUMO.md antes de escrever UI.
 | E1 | Se `melhoria-ui/ux`, investigador consulta DS |
 | E2 | Fix referencia padrao correto do DS |
 | E3 | Implementador segue padrao do DS |
-| E4 | QA inclui checklist de design |
+| E4 | QA inclui checklist de design (`references/07-qa-checklist.md`) |
 | E5 | Relatorio menciona `violacao_design` |
 
 ---
 
-## 5. As 14 boas praticas
+## 5. As 18 boas praticas
 
 Toda regra tem evidencia: o que acontece sem ela. Violar e violacao do metodo, nao preferencia de estilo.
 
@@ -144,6 +144,10 @@ Toda regra tem evidencia: o que acontece sem ela. Violar e violacao do metodo, n
 | A3 | Fonte de display nao-generica | Toda tela parece a mesma | `grep -rn "font-family.*Inter" src` |
 | A4 | Solid accent com variante dark | Cor desaparece em fundo escuro | `grep -rn "text-primary" src \| grep -v dark` |
 | A5 | Loading/error/empty sempre cobertos | Tela quebrada sem feedback | Inspecionar componentes de lista |
+| A6 | Contraste WCAG AA (4.5:1 texto, 3:1 grande) | Texto ilegivel para baixa visao | Verificar pares fg/bg dos tokens |
+| A7 | Focus ring visivel, nunca `outline: none` sem substituto | Navegacao por teclado invisivel | `grep -rn "outline-none\|outline:\s*none" src` |
+| A8 | Alvo interativo minimo 36px com nome acessivel | Clique impreciso; botao sem nome para screen reader | Botoes so-icone: conferir `w-9 h-9` + `aria-label` |
+| A9 | `prefers-reduced-motion` respeitado | Animacao causa desconforto vestibular | `grep -rn "motion-reduce" src` ausente com `animate`/`transition` |
 
 ### Regras de qualidade visual (medio)
 
@@ -254,6 +258,7 @@ auditado_em: 2026-08-30
 veredito: aprovado
 violacoes: 0
 avisos: 2
+adocao_tokens: 0.87
 regra_mais_frequente: token_nao_utilizado
 escopo: src/components/relatorios/
 ---
@@ -267,6 +272,7 @@ escopo: src/components/relatorios/
 |---|---|---|
 | `design_system_ausente` | aviso | Trabalho toca UI mas nao ha DS |
 | `token_hardcoded` | alto | Cor/spacing hardcoded em vez de variavel |
+| `acessibilidade_violada` | alto | Contraste, foco, alvo ou reduced-motion fora da regra (A6-A9) |
 | `componente_nao_padronizado` | alto | UI criada do zero quando DS tem componente |
 | `padrao_ignorado` | medio | Tela sem seguir padrao do DS |
 | `tom_estetico_inconsistente` | medio | Tom diferente do global |
@@ -278,15 +284,25 @@ escopo: src/components/relatorios/
 
 ```
 [1] Ausente
-     ↓ cartografa
+      ↓ cartografa
 [2] Cartografiado (consistente: false)
-     ↓ usuario corrige drift
+      ↓ usuario corrige drift
 [3] Cartografiado (consistente: true)
-     ↓ ou: usuario substitui por DS declarado
+      ↓ ou: usuario substitui por DS declarado
 [4] Declarado (origem: usuario)
-     ↓ auditando
+      ↓ auditando
 [5] Violacoes detectadas → painel mostra
 ```
+
+### Registro de divida de design
+
+Drift nao corrigido vira divida e entra no registro `docs/design-system/DIVIDA.md` (kind `design_debt`), em vez de se acumular mudamente no frontmatter:
+
+- **Prioridade = Severidade x Frequencia / Esforco** — o item maior e o que causa mais dano por unidade de esforco.
+- **Quick wins** (esforco baixo, frequencia alta) entram na proxima sprint; **estruturais** viram task propria; **write-offs** (area de baixo trafego com redesign planejado) ficam documentados e diferidos.
+- O registro e vivo: status `aberto | em_progresso | resolvido | diferido`, revisado a cada auditoria.
+
+Ver `references/06-schema.md` para o kind `design_debt`.
 
 ---
 
@@ -312,13 +328,14 @@ escopo: src/components/relatorios/
   skills/designx/
     SKILL.md                    este arquivo
     references/
-      00-boas-praticas.md       as 14 regras com evidencia
+      00-boas-praticas.md       as 18 regras com evidencia
       01-deteccao.md            como detectar o DS
       02-cartografia.md         como gerar o DS
       03-auditoria.md           como auditar conformidade
       04-integracao-sprintx.md  pontos de integracao com sprintx
       05-integracao-runx.md     pontos de integracao com runx
       06-schema.md              kinds e campos novos
+      07-qa-checklist.md        checklist de QA de design (runx E4)
     assets/
       tokens.css.exemplo        tokens de exemplo para cartografia
   commands/designx*.md          comandos do Claude Code

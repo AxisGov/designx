@@ -7,19 +7,32 @@
  *
  * Formato: HSL triplet sem hsl(), sem virgulas — necessario para
  * variantes de opacidade do Tailwind (bg-primary/10, text-primary/60).
+ *
+ * Tiers (ver references/02-cartografia.md):
+ *   Tier 1 — Global (raw): valor bruto, sem semantica
+ *   Tier 2 — Alias (semantico): intencao, referencia um global
+ *   Tier 3 — Componente: escopo de uso especifico
+ * Componente nunca referencia raw direto — sempre via alias.
  */
 
 @layer base {
   :root {
-    /* === CORES SEMANTICAS === */
+    /* === TIER 1: GLOBAL (raw) === */
+    --gray-50: 210 40% 98%;
+    --gray-900: 222.2 84% 4.9%;
+    --gray-950: 222.2 47.4% 11.2%;
+
+    /* === TIER 2: ALIAS (semantico) === */
+
+    /* Superficies */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 222.2 84% 4.9%;        /* var(--gray-900) */
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    /* === MARCA === */
+    /* Marca */
     --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
     --primary-glow: 222.2 47.4% 21.2%;  /* variante dark */
@@ -29,7 +42,7 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    /* === ESTADO === */
+    /* Estado */
     --success: 142 72% 39%;
     --success-foreground: 0 0% 98%;
     --warning: 43 96% 56%;
@@ -37,15 +50,15 @@
     --destructive: 4 90% 58%;
     --destructive-foreground: 0 0% 98%;
 
-    /* === BORDA E FOCO === */
+    /* Borda e foco */
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
-    /* === RAIO === */
+    /* Raio */
     --radius: 0.5rem;
 
-    /* === CORES DE DESTAQUE (vocabulario fechado) === */
+    /* Cores de destaque (vocabulario fechado) */
     --emerald: 160 84% 39%;
     --sky: 199 89% 48%;
     --violet: 263 70% 50%;
@@ -53,6 +66,7 @@
     --rose: 347 77% 50%;
   }
 
+  /* === TIER 2: ALIAS — tema dark (sobrescreve o mesmo vocabulario) === */
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -87,6 +101,12 @@
     --amber: 38 92% 60%;
     --rose: 347 77% 60%;
   }
+
+  /* === TIER 3: COMPONENTE (escopo especifico) === */
+  /* Componente referencia alias, nunca raw:
+   *   certo:   --button-bg-primary: var(--primary)
+   *   errado:  --button-bg-primary: 222.2 47.4% 11.2%   (drift de tier)
+   */
 }
 
 /* === DENSIDADE (painel SaaS) === */

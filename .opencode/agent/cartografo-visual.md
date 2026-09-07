@@ -21,7 +21,7 @@ Agente de leitura apenas. Analisa o projeto e extrai o vocabulario visual.
 
 ## Areas
 
-1. Tokens CSS (variaveis --*)
+1. Tokens CSS (variaveis --*), classificados por tier: global/alias/componente
 2. Cores (hex, rgb, hsl)
 3. Tipografia (fontes, pesos, tamanhos)
 4. Espacamento (gap/padding/margin)

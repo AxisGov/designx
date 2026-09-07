@@ -31,6 +31,33 @@ Quando nenhum design system e encontrado, o agente `cartografo-visual` analisa o
 3. **Drift e listado, nao corrigido.** O DS espelha o estado atual.
 4. **Falha aberta.** Se nao conseguir rodar, designx fica inerte.
 
+## Tiers de token
+
+O cartografo classifica cada token encontrado em um de tres tiers. Tokens sem classificacao clara sao listados como `sem_tier` com evidencia — nao force o encaixe.
+
+| Tier | O que e | Exemplo |
+|---|---|---|
+| 1. Global (raw) | Valor bruto, sem semantica | `--blue-500: 222 47% 41%` |
+| 2. Alias (semantico) | Referencia um global com intencao | `--primary: var(--blue-700)` |
+| 3. Componente | Escopo de uso especifico | `--button-bg-primary` |
+
+Regras:
+
+- **Componente nunca referencia raw direto.** Se `color: var(--blue-500)` aparece em componente, e drift de tier (deveria passar por um alias). Listar como drift, nao corrigir.
+- **Redundancia e drift:** dois tokens com valores identicos e nomes diferentes entram no relatorio.
+- **Gap e token implicito:** o mesmo valor bruto repetido em 3+ lugares sugere token faltando. Listar como candidato, nao criar.
+
+### Naming convention
+
+Padrao de referencia para avaliar consistencia (nao para renomear o que existe):
+
+```
+{categoria}-{propriedade}-{variante}-{estado}
+ex.: --color-action-primary-hover
+```
+
+Nomes fora do padrao sao registrados como observacao, nao como drift bloqueante.
+
 ## O DESIGN-SYSTEM.md gerado
 
 ```yaml

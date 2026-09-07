@@ -27,7 +27,7 @@ Verifique:
 - Padroes de tela sao seguidos
 - Tom estetico e consistente
 
-### 2. Boas praticas (14 regras)
+### 2. Boas praticas (18 regras)
 
 #### Estrutura (bloqueio)
 - [ ] B1: Paginacao adaptativa, nunca fixa
@@ -42,6 +42,12 @@ Verifique:
 - [ ] A3: Fonte de display nao-generica
 - [ ] A4: Solid accent com variante dark
 - [ ] A5: Loading/error/empty sempre cobertos
+
+#### Acessibilidade (alto)
+- [ ] A6: Contraste WCAG AA nos pares de token (4.5:1 texto, 3:1 grande)
+- [ ] A7: Focus ring visivel, outline-none so com ring
+- [ ] A8: Alvo interativo >= 36px; botao so-icone com aria-label
+- [ ] A9: prefers-reduced-motion respeitado
 
 #### Qualidade visual (medio)
 - [ ] M1: Tom estetico declarado
@@ -64,11 +70,17 @@ grep -rn "h-\[[0-9]\+vh\]" src --include=*.tsx
 grep -rn "text-primary\b" src --include=*.tsx | grep -v "dark:" | head -20
 grep -rn "toast(" src/components src/pages --include=*.tsx
 
+# Acessibilidade (A7, A9)
+grep -rn "outline-none\|outline:\s*none" src --include=*.tsx | grep -v "ring"
+grep -rln "animate-\|transition-" src --include=*.tsx | grep -vL "motion-reduce"
+
 # Medio
 grep -rn "onChange=.*setSearch" src --include=*.tsx
 grep -rLn "tabular-nums" src --include=*.tsx
 grep -rn "ArrowLeft\|ChevronLeft" src/pages --include=*.tsx
 ```
+
+A6 (contraste) e A8 (alvo/aria-label) exigem inspecao — pares de token e botoes so-icone, um a um.
 
 ## Classificacao de achados
 
@@ -80,6 +92,8 @@ grep -rn "ArrowLeft\|ChevronLeft" src/pages --include=*.tsx
 | `baixo` | Melhoria sugestiva, nao bloqueante | Opcional |
 
 ## Formato do veredito
+
+Cada achado segue **Observacao → Problema → Fix**: o que se ve (factual), o que esta quebrado e por que importa, a mudanca especifica.
 
 ```markdown
 ## Design system audit — <escopo>
@@ -102,6 +116,12 @@ grep -rn "ArrowLeft\|ChevronLeft" src/pages --include=*.tsx
 [areas que passaram sem violacao]
 
 Veredito: APROVADO | REPROVADO
+Fix de maior impacto: <o que remove mais inconsistencia com menos trabalho>
 ```
 
-Feche com o **fix de maior impacto** — o que remove mais inconsistencia com menos trabalho — e ofereca para aplicar (somente se o usuario pedir).
+Feche com o **fix de maior impacto** e ofereca para aplicar (somente se o usuario pedir).
+
+## Pos-veredito
+
+- Calcule `adocao_tokens` (usos de token / total de valores visuais no escopo) e grave no AUDIT.md.
+- Achados medio/baixo nao enderecados entram no registro de divida `docs/design-system/DIVIDA.md` com prioridade Severidade x Frequencia / Esforco (ver `references/06-schema.md`). Atualize o registro — nao recrie.

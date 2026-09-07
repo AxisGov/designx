@@ -8,7 +8,7 @@ Extensao ao contrato `expx-schema` v1 para a camada designx.
 
 `sprintx` · `runx` · `buildx` · **`designx`**
 
-`designx` e aceito apenas para os kinds `design_system` e `design_audit`.
+`designx` e aceito apenas para os kinds `design_system`, `design_audit` e `design_debt`.
 
 ## ferramenta no rastro — valor novo
 
@@ -21,6 +21,7 @@ Adicionar **`designx`** a lista existente.
 | `design_system_cartografado` | hook `designx-cartografa` |
 | `design_audit_executado` | agente `auditor-design` |
 | `design_violacao_detectada` | hook `designx-audit` |
+| `design_debt_registrado` | agente `auditor-design` (abertura/atualizacao de item no DIVIDA.md) |
 
 ---
 
@@ -79,6 +80,7 @@ auditado_em: 2026-08-30
 veredito: aprovado
 violacoes: 0
 avisos: 2
+adocao_tokens: 0.87
 regra_mais_frequente: token_nao_utilizado
 escopo: src/components/relatorios/
 ---
@@ -92,8 +94,48 @@ escopo: src/components/relatorios/
 | `veredito` | sim | enum | `aprovado` · `reprovado` |
 | `violacoes` | sim | number | Bloqueios encontrados |
 | `avisos` | sim | number | Achados medio/baixo |
+| `adocao_tokens` | sim | number | Fracao (0-1) de propriedades visuais usando tokens em vez de valor bruto |
 | `regra_mais_frequente` | sim | string | Regra mais violada |
 | `escopo` | sim | string | Diretorios ou arquivos auditados |
+
+`adocao_tokens` e comparavel entre auditorias: numero de usos de token / (usos de token + valores brutos) nas categorias cor e espacamento. Tendencia importa mais que o valor absoluto.
+
+---
+
+## Kind: `design_debt`
+
+Arquivo: `docs/design-system/DIVIDA.md` — registro vivo da divida de design. Cada drift nao corrigido vira um item; auditorias subsequentes atualizam status, nao recriam o registro.
+
+```yaml
+---
+expx_schema: 1
+expx_tool: designx
+kind: design_debt
+criado_em: 2026-08-30
+atualizado_em: 2026-09-07
+itens_abertos: 4
+---
+```
+
+### Itens do registro (corpo do arquivo)
+
+```markdown
+## DIV-001 — Sheet usado como detalhe de registro
+
+- severidade: alto
+- categoria: visual | estrutural | acessibilidade | documentacao | implementacao
+- frequencia: 7 telas
+- esforco: baixo | medio | alto
+- prioridade: 14.0    # severidade_peso x frequencia / esforco_peso
+- status: aberto | em_progresso | resolvido | diferido
+- evidencia: src/pages/clientes/index.tsx:42
+```
+
+### Regras
+
+- **Prioridade = Severidade x Frequencia / Esforco.** Pesos: severidade bloqueio=4, alto=3, medio=2, baixo=1; esforco baixo=1, medio=2, alto=4. Maior prioridade = mais dano por unidade de esforco — resolve primeiro.
+- **Quick wins** (esforco baixo + frequencia alta) entram na proxima sprint. **Estruturais** viram task propria com `design_refs`. **Write-offs** (baixo trafego + redesign planejado) ficam `diferido` com justificativa.
+- O registro e revisado a cada auditoria; itens resolvidos sao marcados, nunca apagados.
 
 ---
 

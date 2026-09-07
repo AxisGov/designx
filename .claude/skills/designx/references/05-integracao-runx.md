@@ -51,20 +51,21 @@ O implementador segue o padrao do DS ao corrigir.
 
 ## E4 — QA
 
-O checklist de QA inclui itens de design quando a ocorrencia e visual.
+O checklist de QA inclui itens de design quando a ocorrencia e visual. O checklist completo esta materializado em `references/07-qa-checklist.md` (precisao visual, estados do componente, layout, conteudo, acessibilidade, teclado).
 
-### Checklist de design no QA
+### Resumo do checklist de design no QA
 
 - [ ] Tokens utilizados, nao hex hardcoded
 - [ ] Componente segue o padrao do DS
-- [ ] Estado vazio/loading/error cobertos
-- [ ] Acessibilidade preservada
+- [ ] Estados do componente: default/hover/focus/active/disabled
+- [ ] Loading/error/empty cobertos
+- [ ] Acessibilidade: contraste AA, foco visivel, alvo 36px, reduced-motion (A6-A9)
 - [ ] Tom estetico consistente
 
 ### Instrucao na skill
 
-> Se o tipo e melhoria-ui ou melhoria-ux, adicione ao checklist de QA
-> os itens de design acima. O veredito de design e independente do
+> Se o tipo e melhoria-ui ou melhoria-ux, adicione ao checklist de QA os itens
+> de `references/07-qa-checklist.md`. O veredito de design e independente do
 > veredito funcional — os dois precisam ser APROVADO.
 
 ## E5 — Relatorio

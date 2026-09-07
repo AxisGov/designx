@@ -1,8 +1,8 @@
-# Boas praticas de design — as 14 regras
+# Boas praticas de design — as 18 regras
 
 Toda regra tem evidencia: o que acontece sem ela. Violar uma regra e violacao do metodo, nao preferencia de estilo.
 
-Derivadas do cruzamento entre `saas-panel-design-system`, `frontend-design` (Anthropic) e metodo Expx.
+Derivadas do cruzamento entre `saas-panel-design-system`, `frontend-design` (Anthropic), `designer-skills` (WCAG/QA) e metodo Expx.
 
 ---
 
@@ -117,6 +117,46 @@ grep -rn "text-primary\b" src --include=*.tsx | grep -v "dark:"
 **Bug sem ela:** Tela quebrada sem feedback. Usuario clica e nada acontece.
 
 **Solucao:** Toda lista tem: loading spinner, error com retry, empty message. Sem excecao.
+
+### A6 — Contraste WCAG AA
+
+**Bug sem ela:** Texto ilegivel para usuarios com baixa visao. `muted-foreground` sobre `muted` a 2:1 passa no olho do designer em monitor calibrado e falha em qualquer outro.
+
+**Metrica:** 4.5:1 para texto normal, 3:1 para texto grande (18.66px bold ou 24px+). Aplica a pares foreground/background dos tokens, nos dois temas (light e dark).
+
+**Deteccao:** Verificar os pares fg/bg dos tokens em `tokens.css` com calculadora de contraste (ex: script no build). Pares comuns que falham: `muted-foreground` sobre `muted`, accent 300 sobre fundo dark.
+
+**Solucao:** Ajustar lightness do token ate passar; nunca escurecer ponto-a-ponto com hex.
+
+### A7 — Focus ring visivel, nunca outline none sem substituto
+
+**Bug sem ela:** Navegacao por teclado invisivel. Usuario que nao usa mouse "taba" pela pagina as cegas — foco some e a pagina parece travada.
+
+**Deteccao:**
+```bash
+grep -rn "outline-none\|outline:\s*none" src --include=*.tsx | grep -v "ring"
+```
+
+**Solucao:** Todo interativo usa `focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`. `outline-none` so com substituto `ring` junto.
+
+### A8 — Alvo interativo minimo 36px com nome acessivel
+
+**Bug sem ela:** Clique impreciso — botao de icone de 20px exige pontaria; e sem `aria-label`, screen reader anuncia "botao" sem dizer qual.
+
+**Deteccao:** Inspecionar botoes so-icone: o elemento clicavel (nao o icone) tem `w-9 h-9` ou padding equivalente? Tem `aria-label` quando o texto esta ausente?
+
+**Solucao:** Botao so-icone: `w-9 h-9` + `aria-label="Acao"`. Em tela touch, alvo minimo 44px. Menor que 24px e bloqueio de usabilidade, nao estilo.
+
+### A9 — prefers-reduced-motion respeitado
+
+**Bug sem ela:** Animacao causa desconforto vestibular (vertigem, nausea) em usuarios com `prefers-reduced-motion` ativo. Enfeite para alguns e barreira para outros.
+
+**Deteccao:**
+```bash
+grep -rln "animate-\|transition-" src --include=*.tsx | grep -vL "motion-reduce"
+```
+
+**Solucao:** Animacoes de entrada e deslocamento guardadas com `motion-reduce:transition-none motion-reduce:animate-none` (ou media query global). Transicoes de cor/opacidade leves podem ficar.
 
 ---
 

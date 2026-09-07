@@ -27,7 +27,10 @@ grep -rn "\-\-[a-z]" src/**/*.css src/**/*.scss 2>/dev/null
 Para cada variavel encontrada:
 - Nome e valor
 - Onde aparece (arquivo:linha)
+- **Tier:** global (raw), alias (semantico) ou componente — ver `references/02-cartografia.md`
 - Se e consistente com as demais
+
+Drift de tier: componente referenciando raw direto (sem passar por alias), dois tokens com valor identico e nome diferente, ou valor bruto repetido 3+ vezes (token implicito faltando).
 
 ### 2. Cores
 
@@ -108,7 +111,7 @@ ls tailwind.config.* postcss.config.* 2>/dev/null
 
 Gere um DESIGN-SYSTEM.md com frontmatter valido (exx_schema: 1, expx_tool: designx, kind: design_system) e o corpo em Markdown com:
 
-1. **Tokens encontrados** — tabela com nome, valor, onde aparece, consistente?
+1. **Tokens encontrados** — tabela com nome, valor, tier (global/alias/componente), onde aparece, consistente?
 2. **Cores em uso** — tabela com cor, frequencia, deveria ser token?
 3. **Tipografia** — fontes, pesos, tamanhos
 4. **Componentes** — lista com nome, caminho, reutilizavel?
