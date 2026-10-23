@@ -134,7 +134,7 @@ itens_abertos: 4
 - categoria: visual | estrutural | acessibilidade | documentacao | implementacao
 - frequencia: 7 telas
 - esforco: baixo | medio | alto
-- prioridade: 14.0    # severidade_peso x frequencia / esforco_peso
+- prioridade: 21.0    # 3 (alto) x 7 telas / 1 (baixo)
 - status: aberto | em_progresso | resolvido | diferido
 - evidencia: src/pages/clientes/index.tsx:42
 ```
