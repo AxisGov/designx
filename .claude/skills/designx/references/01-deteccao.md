@@ -38,6 +38,7 @@ cat .expx/expx-lock.json 2>/dev/null | jq '.skills | keys'
 expx_schema: 1
 expx_tool: designx
 kind: design_system
+trabalho_id: null
 nome: <string obrigatorio>
 versao: <string obrigatorio>
 origem: <usuario|skill_instalada|cartografia_automatica>

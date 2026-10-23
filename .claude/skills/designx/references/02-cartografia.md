@@ -65,6 +65,7 @@ Nomes fora do padrao sao registrados como observacao, nao como drift bloqueante.
 expx_schema: 1
 expx_tool: designx
 kind: design_system
+trabalho_id: null
 nome: <projeto>-design-system
 versao: 0.1.0
 origem: cartografia_automatica

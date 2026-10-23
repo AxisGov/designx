@@ -252,6 +252,7 @@ Leitura apenas. Classifica achados por severidade (bloqueio/alto/medio/baixo). E
 expx_schema: 1
 expx_tool: designx
 kind: design_system
+trabalho_id: null
 nome: meu-projeto-design-system
 versao: 0.1.0
 origem: cartografia_automatica
@@ -289,6 +290,7 @@ escopo: src/components/relatorios/
 expx_schema: 1
 expx_tool: designx
 kind: design_log
+trabalho_id: null
 criado_em: 2026-09-07
 entradas: 12
 ---

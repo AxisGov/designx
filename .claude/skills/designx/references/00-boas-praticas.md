@@ -153,8 +153,13 @@ grep -rn "outline-none\|outline:\s*none" src --include=*.tsx | grep -v "ring"
 
 **Deteccao:**
 ```bash
-grep -rln "animate-\|transition-" src --include=*.tsx | grep -vL "motion-reduce"
+grep -rnE --include='*.tsx' 'animate-|transition-' src
 ```
+
+O comando lista **todas as ocorrencias**, sem descartar um arquivo porque outra
+animacao nele já usa `motion-reduce`. Revise cada classe retornada e confirme
+se ela própria está protegida ou se existe proteção equivalente via CSS global
+ou media query.
 
 **Solucao:** Animacoes de entrada e deslocamento guardadas com `motion-reduce:transition-none motion-reduce:animate-none` (ou media query global). Transicoes de cor/opacidade leves podem ficar.
 
