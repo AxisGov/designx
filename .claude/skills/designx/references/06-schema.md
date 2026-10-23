@@ -35,6 +35,7 @@ Arquivo: `docs/design-system/DESIGN-SYSTEM.md`
 expx_schema: 1
 expx_tool: designx
 kind: design_system
+trabalho_id: null
 nome: saas-panel-design-system
 versao: 1.2.0
 origem: usuario
@@ -119,6 +120,7 @@ Arquivo: `docs/design-system/DIVIDA.md` — registro vivo da divida de design. C
 expx_schema: 1
 expx_tool: designx
 kind: design_debt
+trabalho_id: null
 criado_em: 2026-08-30
 atualizado_em: 2026-09-07
 itens_abertos: 4
@@ -156,6 +158,7 @@ Arquivo: `docs/design-system/LOG.md` — registro de rotacao das telas geradas. 
 expx_schema: 1
 expx_tool: designx
 kind: design_log
+trabalho_id: null
 criado_em: 2026-09-07
 entradas: 12
 ---

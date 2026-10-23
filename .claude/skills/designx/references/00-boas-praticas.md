@@ -153,13 +153,15 @@ grep -rn "outline-none\|outline:\s*none" src --include=*.tsx | grep -v "ring"
 
 **Deteccao:**
 ```bash
-grep -rEl --include='*.tsx' 'animate-|transition-' src |
-  while IFS= read -r arquivo; do
-    grep -q 'motion-reduce' "$arquivo" || printf '%s\n' "$arquivo"
-  done
+grep -rnE --include='*.tsx' 'animate-|transition-' src
 ```
 
-O comando lista arquivos candidatos; confirme manualmente se existe proteção equivalente via CSS global ou media query.\n\n**Solucao:** Animacoes de entrada e deslocamento guardadas com `motion-reduce:transition-none motion-reduce:animate-none` (ou media query global). Transicoes de cor/opacidade leves podem ficar.
+O comando lista **todas as ocorrencias**, sem descartar um arquivo porque outra
+animacao nele já usa `motion-reduce`. Revise cada classe retornada e confirme
+se ela própria está protegida ou se existe proteção equivalente via CSS global
+ou media query.
+
+**Solucao:** Animacoes de entrada e deslocamento guardadas com `motion-reduce:transition-none motion-reduce:animate-none` (ou media query global). Transicoes de cor/opacidade leves podem ficar.
 
 ---
 
