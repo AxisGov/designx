@@ -153,10 +153,13 @@ grep -rn "outline-none\|outline:\s*none" src --include=*.tsx | grep -v "ring"
 
 **Deteccao:**
 ```bash
-grep -rln "animate-\|transition-" src --include=*.tsx | grep -vL "motion-reduce"
+grep -rEl --include='*.tsx' 'animate-|transition-' src |
+  while IFS= read -r arquivo; do
+    grep -q 'motion-reduce' "$arquivo" || printf '%s\n' "$arquivo"
+  done
 ```
 
-**Solucao:** Animacoes de entrada e deslocamento guardadas com `motion-reduce:transition-none motion-reduce:animate-none` (ou media query global). Transicoes de cor/opacidade leves podem ficar.
+O comando lista arquivos candidatos; confirme manualmente se existe proteção equivalente via CSS global ou media query.\n\n**Solucao:** Animacoes de entrada e deslocamento guardadas com `motion-reduce:transition-none motion-reduce:animate-none` (ou media query global). Transicoes de cor/opacidade leves podem ficar.
 
 ---
 
