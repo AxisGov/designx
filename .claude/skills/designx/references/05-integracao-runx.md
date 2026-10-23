@@ -8,13 +8,13 @@ Pontos exatos onde designx modifica o comportamento da runx.
 
 Se `tipo_ocorrencia` e `melhoria-ui` ou `melhoria-ux`:
 
-1. O investigador consulta o DS para verificar se o comportamento atual e uma violacao do padrao.
+1. O `runx-investigador` consulta o DS para verificar se o comportamento atual e uma violacao do padrao.
 2. O achado entra na causa raiz como evidencia.
 3. Campo `violacao_design: true` no `01-CAUSA-RAIZ.md`.
 
 ### Instrucao na skill
 
-> Se o tipo e melhoria-ui ou melhoria-ux, o investigador deve consultar
+> Se o tipo e melhoria-ui ou melhoria-ux, o `runx-investigador` deve consultar
 > `docs/design-system/DESIGN-SYSTEM.md` e verificar se o comportamento
 > atual viola algum padrao do DS. O resultado entra como evidencia na
 > causa raiz.

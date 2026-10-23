@@ -125,7 +125,7 @@ O stamp e o registro duravel do que foi escolhido. O auditor-design verifica sta
 
 | Estagio | O que designx adiciona |
 |---|---|
-| E1 | Se `melhoria-ui/ux`, investigador consulta DS |
+| E1 | Se `melhoria-ui/ux`, `runx-investigador` consulta DS |
 | E2 | Fix referencia padrao correto do DS |
 | E3 | Implementador segue padrao do DS e carimba a tela (stamp designx) |
 | E4 | QA inclui checklist de design (`references/07-qa-checklist.md`) |

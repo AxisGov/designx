@@ -318,7 +318,7 @@ Contrato completo em [`references/06-schema.md`](.claude/skills/designx/referenc
 | Nao escolhe o design system | Quem escolhe e o time |
 | Nao corrige drift na cartografia | O DS e espelho; a correcao e do time |
 | Nao impede trabalho sem DS | Sem DS = inerte (exceto cartografia) |
-| Substitui auditoria de codigo | `revisor-testes` e `qa` continuam existindo |
+| Substitui auditoria de codigo | `sprintx-revisor-testes`, `runx-revisor-testes` e `qa` continuam existindo |
 | Gera screenshots | E camada de metodo, nao de ferramenta visual |
 
 ---
