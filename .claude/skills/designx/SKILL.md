@@ -151,7 +151,7 @@ Toda regra tem evidencia: o que acontece sem ela. Violar e violacao do metodo, n
 
 | # | Regra | Bug sem ela | Deteccao |
 |---|---|---|---|
-| A1 | hex hardcoded = proibido | Dark mode inutilizavel | `grep -rnE "#[0-9a-fA-F]{6}" src` |
+| A1 | hex hardcoded = proibido | Dark mode inutilizavel | `grep -rnE "#([0-9a-fA-F]{3,4}\|[0-9a-fA-F]{6}\|[0-9a-fA-F]{8})\b" src` |
 | A2 | Vocabulario fechado de cores de destaque | Coesao visual perdida | Verificar cores fora do token map |
 | A3 | Fonte de display nao-generica | Toda tela parece a mesma | `grep -rn "font-family.*Inter" src` |
 | A4 | Solid accent com variante dark | Cor desaparece em fundo escuro | `grep -rn "text-primary" src \| grep -v dark` |

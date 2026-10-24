@@ -33,7 +33,7 @@ esac
 # Verificacao 1: hex hardcoded
 HEX_VIOLATIONS=""
 if command -v grep &>/dev/null; then
-  HEX_VIOLATIONS=$(grep -nE "#[0-9a-fA-F]{6}\b" "$ARQUIVO" 2>/dev/null | head -5 || true)
+  HEX_VIOLATIONS=$(grep -nE "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b" "$ARQUIVO" 2>/dev/null | head -5 || true)
 fi
 
 # Verificacao 2: sem import de token
@@ -63,7 +63,11 @@ fi
 RASTRO="docs/eventos/designx.jsonl"
 mkdir -p "$(dirname "$RASTRO")"
 TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-echo "{\"ts\":\"${TIMESTAMP}\",\"expx_eventos\":1,\"trabalho_id\":\"designx\",\"ferramenta\":\"designx\",\"origem\":\"hook\",\"evento\":\"design_violacao_detectada\",\"fase\":\"audit\",\"task\":null,\"agente\":\"principal\",\"resultado\":\"aviso\",\"detalhe\":\"${VIOLACOES}\",\"arquivos\":[\"${ARQUIVO}\"]}" >> "$RASTRO"
+# As ocorrencias vem do grep com aspas, barras e quebras de linha: o jq (o mesmo
+# que ja leu o evento) serializa, e cada evento sai numa linha JSON valida.
+jq -cn --arg ts "$TIMESTAMP" --arg detalhe "$VIOLACOES" --arg arquivo "$ARQUIVO" \
+  '{ts:$ts, expx_eventos:1, trabalho_id:"designx", ferramenta:"designx", origem:"hook", evento:"design_violacao_detectada", fase:"audit", task:null, agente:"principal", resultado:"aviso", detalhe:$detalhe, arquivos:[$arquivo]}' \
+  >> "$RASTRO"
 
 # Se modo e aviso, so registra
 if [ "$MODO" = "aviso" ]; then
