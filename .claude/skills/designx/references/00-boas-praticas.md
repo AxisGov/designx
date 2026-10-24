@@ -77,7 +77,7 @@ grep -rn "window.confirm" src --include=*.tsx
 
 **Deteccao:**
 ```bash
-grep -rnE "#[0-9a-fA-F]{6}\b" src --include=*.tsx
+grep -rnE "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b" src --include=*.tsx
 ```
 
 **Solucao:** Usar tokens CSS ou o vocabulario fechado de cores de destaque.
@@ -134,7 +134,7 @@ grep -rn "text-primary\b" src --include=*.tsx | grep -v "dark:"
 
 **Deteccao:**
 ```bash
-grep -rn "outline-none\|outline:\s*none" src --include=*.tsx | grep -v "ring"
+grep -rnE "outline-none|outline:\s*none" src --include=*.tsx | grep -vE "focus(-visible)?:ring-([1-9]|\[)"
 ```
 
 **Solucao:** Todo interativo usa `focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`. `outline-none` so com substituto `ring` junto.

@@ -33,7 +33,7 @@ esac
 # Verificacao 1: hex hardcoded
 HEX_VIOLATIONS=""
 if command -v grep &>/dev/null; then
-  HEX_VIOLATIONS=$(grep -nE "#[0-9a-fA-F]{6}\b" "$ARQUIVO" 2>/dev/null | head -5 || true)
+  HEX_VIOLATIONS=$(grep -nE "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b" "$ARQUIVO" 2>/dev/null | head -5 || true)
 fi
 
 # Verificacao 2: sem import de token

@@ -22,7 +22,7 @@ QA contra a especificacao do DS, nao contra memoria. Teste com conteudo real, na
 
 Deteccao:
 ```bash
-grep -rnE "#[0-9a-fA-F]{6}\b" src --include=*.tsx
+grep -rnE "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b" src --include=*.tsx
 ```
 
 ## 2. Estados do componente — 8, nao 5

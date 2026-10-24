@@ -85,7 +85,7 @@ Achados nomeados — cite o codigo do tell no veredito (`T3 — grid de 3 coluna
 grep -rn "PAGE_SIZE\s*=\s*[0-9]" src --include=*.tsx
 grep -rln "components/ui/sheet" src --include=*.tsx
 grep -rln "components/ui/tabs" src --include=*.tsx
-grep -rnE "#[0-9a-fA-F]{6}\b" src --include=*.tsx
+grep -rnE "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b" src --include=*.tsx
 grep -rn "window.confirm" src --include=*.tsx
 
 # Alto
@@ -94,7 +94,7 @@ grep -rn "text-primary\b" src --include=*.tsx | grep -v "dark:" | head -20
 grep -rn "toast(" src/components src/pages --include=*.tsx
 
 # Acessibilidade (A7, A9)
-grep -rn "outline-none\|outline:\s*none" src --include=*.tsx | grep -v "ring"
+grep -rnE "outline-none|outline:\s*none" src --include=*.tsx | grep -vE "focus(-visible)?:ring-([1-9]|\[)"
 grep -rln "animate-\|transition-" src --include=*.tsx | grep -vL "motion-reduce"
 
 # Medio
