@@ -15,8 +15,8 @@ Gradiente purple-to-blue (ou cyan-to-magenta) em fundo de hero, geralmente com t
 **Fix:** um accent solido. Sem gradiente de fundo em hero. Calor vem de tint nos neutros, nao de gradiente.
 
 **Deteccao:**
-```bash
-grep -rnE "gradient.*(purple|violet|indigo|fuchsia)" src --include=*.tsx
+```text
+Grep {"pattern": "gradient.*(purple|violet|indigo|fuchsia)", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 ## T2 — Headline com gradiente
@@ -26,8 +26,8 @@ grep -rnE "gradient.*(purple|violet|indigo|fuchsia)" src --include=*.tsx
 **Fix:** ink solido. Vida no titulo vem de peso, itálico ou display face — nunca de preenchimento gradiente.
 
 **Deteccao:**
-```bash
-grep -rnE "bg-clip-text|background-clip:\s*text" src --include=*.tsx
+```text
+Grep {"pattern": "bg-clip-text|background-clip:\\s*text", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 ## T3 — Grid de 3 colunas iguais
@@ -36,7 +36,7 @@ Tres colunas identicas, cada uma com icone acima de titulo de duas linhas acima 
 
 **Fix:** quebre o grid. Varie larguras. Misture alturas. Tire um card e use espaco negativo. Ico inline, nao acima. Ou abandone os cards e use ritmo tipografico.
 
-**Deteccao:** `grep -rn "grid-cols-3" src` como pista; confirmar icone-acima-titulo por inspecao.
+**Deteccao:** `Grep {"pattern": "grid-cols-3", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}` como pista; confirmar icone-acima-titulo por inspecao.
 
 ## T4 — Card dentro de card
 
@@ -53,8 +53,8 @@ Borda grossa colorida em uma aresta (esquerda geralmente, 4-6px, roxo ou verde).
 **Fix:** hairline em volta inteira, ou sem borda, ou pequeno quadrado de accent ao lado do titulo. Nunca faixa grossa assimetrica.
 
 **Deteccao:**
-```bash
-grep -rnE "border-l-[4-8]|border-r-[4-8]" src --include=*.tsx
+```text
+Grep {"pattern": "border-l-[4-8]|border-r-[4-8]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 ## T6 — Hero centrado full-viewport
@@ -64,8 +64,8 @@ grep -rnE "border-l-[4-8]|border-r-[4-8]" src --include=*.tsx
 **Fix:** hero com a altura do conteudo. Vies a esquerda ou direita. Mais do que uma frase nele.
 
 **Deteccao:**
-```bash
-grep -rnE "min-h-screen|min-h-\[100vh\]" src --include=*.tsx
+```text
+Grep {"pattern": "min-h-screen|min-h-\\[100vh\\]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 ## T7 — Aurora blobs
@@ -75,8 +75,8 @@ Esferas 3D genericas ou circulos coloridos borrados (`blur-3xl rounded-full`) fl
 **Fix:** corte. O hero nao precisa de profundidade; precisa de ancora tipografica.
 
 **Deteccao:**
-```bash
-grep -rnE "blur-3xl.*rounded-full|rounded-full.*blur-3xl" src --include=*.tsx
+```text
+Grep {"pattern": "blur-3xl.*rounded-full|rounded-full.*blur-3xl", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 ## T8 — Emoji como icone
@@ -86,8 +86,8 @@ Glifo de emoji (✨ 🚀 ⚡ 🔥 🎯 ✅) como icone de card de feature, passo
 **Fix:** uma biblioteca so (Lucide, Phosphor, Heroicons), SVG proprio, ou drop do icone e lideranca tipografica.
 
 **Deteccao:**
-```bash
-grep -rnE "✨|🚀|⚡|🔥|🎯|✅" src --include=*.tsx
+```text
+Grep {"pattern": "✨|🚀|⚡|🔥|🎯|✅", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 ## T9 — transition-all e hover-scale uniforme
@@ -97,9 +97,9 @@ grep -rnE "✨|🚀|⚡|🔥|🎯|✅" src --include=*.tsx
 **Fix:** transicione só as propriedades que mudam. Hover com um efeito unico (cor OU translate 1px OU borda — nunca dois+).
 
 **Deteccao:**
-```bash
-grep -rn "transition-all" src --include=*.tsx
-grep -rn "hover:scale-105" src --include=*.tsx
+```text
+Grep {"pattern": "transition-all", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "hover:scale-105", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 ## T10 — Nome placeholder e cliche
@@ -109,8 +109,8 @@ grep -rn "hover:scale-105" src --include=*.tsx
 **Fix:** conteudo real do dominio. Se o dominio nao existe ainda, nome plausivel do nicho, nunca cliche de template.
 
 **Deteccao:**
-```bash
-grep -rniE "acme|nexus|jane doe|john smith|lorem ipsum" src --include=*.tsx
+```text
+Grep {"pattern": "acme|nexus|jane doe|john smith|lorem ipsum", "path": "src", "glob": "**/*.tsx", "-i": true, "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 ---

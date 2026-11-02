@@ -14,13 +14,13 @@ Quando nenhum design system e encontrado, o agente `cartografo-visual` analisa o
 
 | Area | O que procura | Comando |
 |---|---|---|
-| Tokens CSS | Variaveis `--*` em CSS/SCSS | `grep -rn "\-\-[a-z]" src/**/*.css` |
-| Cores | hex, rgb, hsl em componentes | `grep -rnE "#[0-9a-fA-F]{3,8}\|rgb\|hsl" src/**/*.tsx` |
-| Tipografia | font-family, pesos, tamanhos | `grep -rn "font-family\|font-size\|text-\[" src/` |
+| Tokens CSS | Variaveis `--*` em CSS/SCSS | `Grep {"pattern": "--[a-z]", "path": "src", "glob": "**/*.{css,scss}", "output_mode": "content", "-n": true, "head_limit": 0}` |
+| Cores | hex, rgb, hsl em componentes | `Grep {"pattern": "#[0-9a-fA-F]{3,8}", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}`, e o mesmo com `rgb` e com `hsl` |
+| Tipografia | font-family, pesos, tamanhos | `Grep {"pattern": "font-family", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}`, e o mesmo com `font-size` e com `text-\\[` |
 | Espacamento | padrao de gap/padding/margin | Analisar classes Tailwind |
 | Componentes | primitivas existentes | Listar `src/components/ui/` |
 | Padroes de tela | layouts recorrentes | Analisar imports e estrutura |
-| Bordas vs sombras | elevacao predominante | `grep -rn "shadow\|border" src/**/*.tsx` |
+| Bordas vs sombras | elevacao predominante | `Grep {"pattern": "shadow", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}`, e o mesmo com `border` |
 | Dark mode | se existe, como | Verificar `dark:` classes |
 | Framework visual | Tailwind, CSS modules, etc. | `package.json` + configs |
 
