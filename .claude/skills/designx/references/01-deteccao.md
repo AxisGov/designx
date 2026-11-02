@@ -14,21 +14,23 @@ Como designx descobre se o projeto tem um design system.
 
 ## Verificacao manual
 
-```bash
+```text
 # DS declarado
-test -f docs/design-system/DESIGN-SYSTEM.md && echo "DS declarado"
+Glob {"pattern": "docs/design-system/DESIGN-SYSTEM.md"}
 
 # DS pronto (com RESUMO)
-test -f docs/design-system/RESUMO.md && echo "RESUMO pronto"
+Glob {"pattern": "docs/design-system/RESUMO.md"}
 
 # Tokens presentes
-grep -rl "primary-glow\|--primary" src/ 2>/dev/null | head -3
+Grep {"pattern": "primary-glow|--primary", "path": "src", "output_mode": "files_with_matches", "head_limit": 3}
 
 # Primitivas presentes
-ls src/components/ui/ 2>/dev/null | head -10
+Glob {"pattern": "src/components/ui/*"}
+# basta ver os 10 primeiros
 
 # Skill de DS no lock
-cat .expx/expx-lock.json 2>/dev/null | jq '.skills | keys'
+Read {"file_path": ".expx/expx-lock.json"}
+# leia `.skills | keys`
 ```
 
 ## O que o frontmatter valido precisa ter

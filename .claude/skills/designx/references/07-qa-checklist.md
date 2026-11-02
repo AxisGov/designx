@@ -21,8 +21,8 @@ QA contra a especificacao do DS, nao contra memoria. Teste com conteudo real, na
 - [ ] Icones no tamanho e cor certos (w-4 em botao, w-5 standalone)
 
 Deteccao:
-```bash
-grep -rnE "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b" src --include=*.tsx
+```text
+Grep {"pattern": "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
 ```
 
 ## 2. Estados do componente — 8, nao 5

@@ -14,13 +14,13 @@ Quando nenhum design system e encontrado, o agente `cartografo-visual` analisa o
 
 | Area | O que procura | Comando |
 |---|---|---|
-| Tokens CSS | Variaveis `--*` em CSS/SCSS | `grep -rn "\-\-[a-z]" src/**/*.css` |
-| Cores | hex, rgb, hsl em componentes | `grep -rnE "#[0-9a-fA-F]{3,8}\|rgb\|hsl" src/**/*.tsx` |
-| Tipografia | font-family, pesos, tamanhos | `grep -rn "font-family\|font-size\|text-\[" src/` |
+| Tokens CSS | Variaveis `--*` em CSS/SCSS | `Grep {"pattern": "--[a-z]", "path": "src", "glob": "**/*.{css,scss}"}` |
+| Cores | hex, rgb, hsl em componentes | `Grep` de `#[0-9a-fA-F]{3,8}`, de `rgb` e de `hsl` em `src`, glob `**/*.tsx` |
+| Tipografia | font-family, pesos, tamanhos | `Grep` de `font-family`, de `font-size` e de `text-\[` em `src` |
 | Espacamento | padrao de gap/padding/margin | Analisar classes Tailwind |
 | Componentes | primitivas existentes | Listar `src/components/ui/` |
 | Padroes de tela | layouts recorrentes | Analisar imports e estrutura |
-| Bordas vs sombras | elevacao predominante | `grep -rn "shadow\|border" src/**/*.tsx` |
+| Bordas vs sombras | elevacao predominante | `Grep` de `shadow` e de `border` em `src`, glob `**/*.tsx` |
 | Dark mode | se existe, como | Verificar `dark:` classes |
 | Framework visual | Tailwind, CSS modules, etc. | `package.json` + configs |
 

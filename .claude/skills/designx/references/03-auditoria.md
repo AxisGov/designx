@@ -35,34 +35,39 @@ Ver `references/08-tells-ia.md`. Cada tell e um achado nomeado (`T3 — grid de 
 
 ### 3. Deteccao rapida
 
-```bash
+```text
 # Bloqueios
-grep -rn "PAGE_SIZE\s*=\s*[0-9]" src --include=*.tsx
-grep -rln "components/ui/sheet" src --include=*.tsx
-grep -rln "components/ui/tabs" src --include=*.tsx
-grep -rnE "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b" src --include=*.tsx
-grep -rn "window.confirm" src --include=*.tsx
+Grep {"pattern": "PAGE_SIZE\\s*=\\s*[0-9]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "components/ui/sheet", "path": "src", "glob": "**/*.tsx", "output_mode": "files_with_matches"}
+Grep {"pattern": "components/ui/tabs", "path": "src", "glob": "**/*.tsx", "output_mode": "files_with_matches"}
+Grep {"pattern": "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "window.confirm", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
 
 # Alto
-grep -rn "h-\[[0-9]\+vh\]" src --include=*.tsx
-grep -rn "text-primary\b" src --include=*.tsx | grep -v "dark:" | head -20
+Grep {"pattern": "h-\\[[0-9]+vh\\]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "text-primary\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 20}
+# descarte as linhas que tambem casam com `dark:`
 
 # Acessibilidade (A7, A9)
-grep -rnE "outline-none|outline:\s*none" src --include=*.tsx | grep -vE "focus(-visible)?:ring-([1-9]|\[)"
-grep -rln "animate-\|transition-" src --include=*.tsx | grep -vL "motion-reduce"
+Grep {"pattern": "outline-none|outline:\\s*none", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+# descarte as linhas que tambem casam com `focus(-visible)?:ring-([1-9]|\[)`
+Grep {"pattern": "animate-|transition-", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+# descarte as linhas que tambem casam com `motion-reduce`; cada linha que sobra e achado, mesmo que o arquivo tenha `motion-reduce` em outra
 
 # Tells de IA (T1, T2, T5, T6, T7, T9, T10)
-grep -rnE "gradient.*(purple|violet|indigo|fuchsia)" src --include=*.tsx
-grep -rnE "bg-clip-text|background-clip:\s*text" src --include=*.tsx
-grep -rnE "border-l-[4-8]|border-r-[4-8]" src --include=*.tsx
-grep -rnE "min-h-screen|min-h-\[100vh\]" src --include=*.tsx
-grep -rnE "blur-3xl.*rounded-full|rounded-full.*blur-3xl" src --include=*.tsx
-grep -rn "transition-all\|hover:scale-105" src --include=*.tsx
-grep -rniE "acme|nexus|jane doe|john smith|lorem ipsum" src --include=*.tsx
+Grep {"pattern": "gradient.*(purple|violet|indigo|fuchsia)", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "bg-clip-text|background-clip:\\s*text", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "border-l-[4-8]|border-r-[4-8]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "min-h-screen|min-h-\\[100vh\\]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "blur-3xl.*rounded-full|rounded-full.*blur-3xl", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "transition-all|hover:scale-105", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "acme|nexus|jane doe|john smith|lorem ipsum", "path": "src", "glob": "**/*.tsx", "-i": true, "output_mode": "content", "-n": true}
 
 # Medio
-grep -rn "onChange=.*setSearch" src --include=*.tsx
-grep -rLn "tabular-nums" src --include=*.tsx
+Grep {"pattern": "onChange=.*setSearch", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Glob {"pattern": "src/**/*.tsx"}
+Grep {"pattern": "tabular-nums", "path": "src", "glob": "**/*.tsx", "output_mode": "files_with_matches"}
+# os arquivos do Glob que o Grep nao lista sao o achado
 ```
 
 T3 (grid-cols-3) e T4 (card-in-card) exigem inspecao. A6 (contraste) e A8 (alvo + aria-label) tambem — nao tem grep confiavel.
@@ -81,8 +86,8 @@ O auditor verifica tres coisas:
 2. **Stamp mente?** O stamp diz `padrao-lista` mas a tela e um form multi-etapa = `stamp_mentiroso` (alto). E o que pega o drift pos-edicao que volta ao default de IA.
 3. **Variou?** Cruzar o LOG.md: mesmo par (padrao, tom) em 3+ entradas consecutivas = `variedade_repetida` (medio).
 
-```bash
-grep -rn "designx ·" src --include=*.css --include=*.tsx | head -20
+```text
+Grep {"pattern": "designx ·", "path": "src", "glob": "**/*.{css,tsx}", "output_mode": "content", "-n": true, "head_limit": 20}
 ```
 
 ## Metrica de adocao de tokens

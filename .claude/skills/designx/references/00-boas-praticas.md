@@ -13,8 +13,8 @@ Derivadas do cruzamento entre `saas-panel-design-system`, `frontend-design` (Ant
 **Bug sem ela:** Tela pela metade em monitor grande. Uma tabela com `PAGE_SIZE = 10` em tela de 1440px mostra 10 linhas e metade da tela branca.
 
 **Deteccao:**
-```bash
-grep -rn "PAGE_SIZE\s*=\s*[0-9]" src --include=*.tsx
+```text
+Grep {"pattern": "PAGE_SIZE\\s*=\\s*[0-9]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
 ```
 
 **Solucao:** `usePagination(items, { auto: true })` + `<ListCard ref availableHeight>`.
@@ -24,8 +24,8 @@ grep -rn "PAGE_SIZE\s*=\s*[0-9]" src --include=*.tsx
 **Bug sem ela:** Usuario nao consegue comparar registros. Drawer (Sheet) cobre a tela por cima, e nao mostra sidebar de secoes.
 
 **Deteccao:**
-```bash
-grep -rln "components/ui/sheet" src --include=*.tsx
+```text
+Grep {"pattern": "components/ui/sheet", "path": "src", "glob": "**/*.tsx", "output_mode": "files_with_matches"}
 ```
 
 **Solucao:** `<DetailModal>` com sidebar de secoes. Sheet e legitimo apenas em paineis de configuracao e no sidebar principal.
@@ -35,8 +35,8 @@ grep -rln "components/ui/sheet" src --include=*.tsx
 **Bug sem ela:** Perda de contexto em painel denso. Tabs somem com a navegacao e o usuario perde onde esta.
 
 **Deteccao:**
-```bash
-grep -rln "components/ui/tabs" src --include=*.tsx
+```text
+Grep {"pattern": "components/ui/tabs", "path": "src", "glob": "**/*.tsx", "output_mode": "files_with_matches"}
 ```
 
 **Solucao:** `<PageSubnav>` (left rail). Tabs sao legitimos apenas para sub-tabs dentro de um builder.
@@ -61,8 +61,8 @@ grep -rln "components/ui/tabs" src --include=*.tsx
 **Bug sem ela:** Delete acidental sem confirmacao. `window.confirm` nao nomeia o registro nem a consequencia.
 
 **Deteccao:**
-```bash
-grep -rn "window.confirm" src --include=*.tsx
+```text
+Grep {"pattern": "window.confirm", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
 ```
 
 **Solucao:** `<AlertDialog>` nomeando o registro e a consequencia.
@@ -76,8 +76,8 @@ grep -rn "window.confirm" src --include=*.tsx
 **Bug sem ela:** Dark mode inutilizavel. Cor hardcoded nao tem variante dark e mata toda a paleta.
 
 **Deteccao:**
-```bash
-grep -rnE "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b" src --include=*.tsx
+```text
+Grep {"pattern": "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
 ```
 
 **Solucao:** Usar tokens CSS ou o vocabulario fechado de cores de destaque.
@@ -95,8 +95,8 @@ Light usa solid 50/600/700; dark usa /10 + 300/400. Nunca hex novo.
 **Bug sem ela:** Toda tela parece a mesma. Agentes de IA convergem para Inter, Roboto, Arial — resultado e uniformidade sem identidade.
 
 **Deteccao:**
-```bash
-grep -rn "font-family.*Inter" src --include=*.tsx
+```text
+Grep {"pattern": "font-family.*Inter", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
 ```
 
 **Solucao:** Escolher fonte com personalidade para titulos. Corpo pode ser generico. Este e o tell-zero; os outros nove padroes concretos de convergencia estao em `references/08-tells-ia.md`.
@@ -106,8 +106,9 @@ grep -rn "font-family.*Inter" src --include=*.tsx
 **Bug sem ela:** Cor desaparece em fundo escuro. Um verde com 31% de lightness some em fundo #1a1a2e.
 
 **Deteccao:**
-```bash
-grep -rn "text-primary\b" src --include=*.tsx | grep -v "dark:"
+```text
+Grep {"pattern": "text-primary\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+# descarte as linhas que tambem casam com `dark:`
 ```
 
 **Solucao:** `dark:text-primary-glow` para accents solidos em dark mode.
@@ -133,8 +134,9 @@ grep -rn "text-primary\b" src --include=*.tsx | grep -v "dark:"
 **Bug sem ela:** Navegacao por teclado invisivel. Usuario que nao usa mouse "taba" pela pagina as cegas — foco some e a pagina parece travada.
 
 **Deteccao:**
-```bash
-grep -rnE "outline-none|outline:\s*none" src --include=*.tsx | grep -vE "focus(-visible)?:ring-([1-9]|\[)"
+```text
+Grep {"pattern": "outline-none|outline:\\s*none", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+# descarte as linhas que tambem casam com `focus(-visible)?:ring-([1-9]|\[)`
 ```
 
 **Solucao:** Todo interativo usa `focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`. `outline-none` so com substituto `ring` junto.
@@ -152,8 +154,8 @@ grep -rnE "outline-none|outline:\s*none" src --include=*.tsx | grep -vE "focus(-
 **Bug sem ela:** Animacao causa desconforto vestibular (vertigem, nausea) em usuarios com `prefers-reduced-motion` ativo. Enfeite para alguns e barreira para outros.
 
 **Deteccao:**
-```bash
-grep -rnE --include='*.tsx' 'animate-|transition-' src
+```text
+Grep {"pattern": "animate-|transition-", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
 ```
 
 O comando lista **todas as ocorrencias**, sem descartar um arquivo porque outra
