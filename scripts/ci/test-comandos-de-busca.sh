@@ -13,7 +13,7 @@ d="$(cd "$(mktemp -d)" && pwd -P)"; trap 'rm -rf "$d"' EXIT
 mkdir -p "$d/src/a/b" "$d/src/components/ui" "$d/src/pages"
 printf ':root { --cor-base: #fff; }\n' > "$d/src/a/b/tema.css"
 printf 'export const X = () => <div style={{ color: "#abc" }} className="rgb(1,2,3) hsl(1,2%%,3%%)" />;\n' > "$d/src/a/b/Cor.tsx"
-printf 'export const Y = () => <div className="animate-spin" />;\nexport const W = () => <div className="animate-pulse motion-reduce:animate-none" />;\nexport const V = () => <div className="transition-transform motion-reduce:animate-none" />;\nexport const U = () => <div className="animate-bounce motion-reduce:animate-ping" />;\nexport const S = () => <><i className="animate-wiggle" /><b className="motion-reduce:animate-none" /></>;\nexport const R = () => <><i className="transition-colors" /><b className="motion-reduce:transition-none" /></>;\n' > "$d/src/a/b/Gira.tsx"
+printf 'export const Y = () => <div className="animate-spin" />;\nexport const W = () => <div className="animate-pulse motion-reduce:animate-none" />;\nexport const V = () => <div className="transition-transform motion-reduce:animate-none" />;\nexport const U = () => <div className="animate-bounce motion-reduce:animate-ping" />;\nexport const S = () => <><i className="animate-wiggle" /><b className="motion-reduce:animate-none" /></>;\nexport const R = () => <><i className="transition-colors" /><b className="motion-reduce:transition-none" /></>;\nexport const Q = () => <><i className={`animate-flash`} /><b className={'"'"'motion-reduce:animate-none'"'"'} /></>;\n' > "$d/src/a/b/Gira.tsx"
 printf 'export const P = () => <p className="text-primary dark:bg-zinc-900" />;\nexport const Q = () => <p className="text-primary dark:text-primary-foreground" />;\n' > "$d/src/a/b/Texto.tsx"
 python3 - "$RAIZ" "$d" <<'PY'
 import json, re, subprocess, sys
@@ -70,7 +70,9 @@ for f in arquivos:
 def protegida(linha):
     """A regra do agente: com animate-*, motion-reduce:animate-none; com transition-*, motion-reduce:transition-none."""
     # className por className: a protecao de outro elemento da mesma linha nao vale
-    grupos = re.findall(r'className="([^"]*)"', linha) or [linha]
+    # aspas duplas ou simples, {"..."}, {`...`} e o class do HTML; classe montada por funcao
+    # (cn(), clsx()) fica fora deste modelo e e julgada pelo auditor lendo o elemento
+    grupos = [m.group(2) for m in re.finditer(r'\b(?:className|class)=\{?\s*(["\'`])(.*?)\1', linha)] or [linha]
     for grupo in grupos:
         classes = grupo.split()
         anima = any(c.startswith("animate-") for c in classes)
@@ -97,6 +99,7 @@ for trecho, esperado, nao, rotulo in [
     ("animate-", "animate-bounce", "motion-reduce", "motion-reduce que repete a animacao continua achado"),
     ("animate-", "animate-wiggle", "motion-reduce", "protecao em outra className da linha nao vale (animacao)"),
     ("transition-", "transition-colors", "motion-reduce", "protecao em outra className da linha nao vale (transicao)"),
+    ("animate-", "animate-flash", "motion-reduce", "protecao em outra className com crase ou aspa simples nao vale"),
     ("text-primary", "dark:bg-zinc-900", "dark:text-", "accent sem dark:text- continua achado"),
 ]:
     ok, linhas = achou(trecho, esperado, nao)
