@@ -52,7 +52,7 @@ Grep {"pattern": "text-primary\\b", "path": "src", "glob": "**/*.tsx", "output_m
 Grep {"pattern": "outline-none|outline:\\s*none", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 # descarte as linhas que tambem casam com `focus(-visible)?:ring-([1-9]|\[)`, depois de conferir que o ring esta na mesma className do elemento com `outline-none`; a busca e por linha
 Grep {"pattern": "animate-|transition-", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
-# uma linha so sai se cada classe `animate-*` tiver `motion-reduce:animate-*` e cada `transition-*` tiver `motion-reduce:transition-*`, na mesma className; as demais sao achado, mesmo que o arquivo tenha `motion-reduce` em outra
+# uma linha so sai se, havendo `animate-*`, tiver `motion-reduce:animate-none`, e, havendo `transition-*`, tiver `motion-reduce:transition-none`, na mesma className; as demais sao achado, mesmo que o arquivo tenha `motion-reduce` em outra
 
 # Tells de IA (T1, T2, T5, T6, T7, T9, T10)
 Grep {"pattern": "gradient.*(purple|violet|indigo|fuchsia)", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}

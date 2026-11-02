@@ -163,7 +163,7 @@ Toda regra tem evidencia: o que acontece sem ela. Violar e violacao do metodo, n
 | A6 | Contraste WCAG AA (4.5:1 texto, 3:1 grande) | Texto ilegivel para baixa visao | Verificar pares fg/bg dos tokens |
 | A7 | Focus ring visivel, nunca `outline: none` sem substituto | Navegacao por teclado invisivel | `Grep {"pattern": "outline-none", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}` e `Grep {"pattern": "outline:\\s*none", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}`: o elemento sai só com o ring de foco na mesma className |
 | A8 | Alvo interativo minimo 36px com nome acessivel | Clique impreciso; botao sem nome para screen reader | Botoes so-icone: conferir `w-9 h-9` + `aria-label` |
-| A9 | `prefers-reduced-motion` respeitado | Animacao causa desconforto vestibular | `Grep {"pattern": "animate-", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}` e `Grep {"pattern": "transition-", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}`: a linha sai só se cada `animate-*` tiver `motion-reduce:animate-*` e cada `transition-*` tiver `motion-reduce:transition-*`, na mesma className |
+| A9 | `prefers-reduced-motion` respeitado | Animacao causa desconforto vestibular | `Grep {"pattern": "animate-", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}` e `Grep {"pattern": "transition-", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}`: a linha sai só se, havendo `animate-*`, tiver `motion-reduce:animate-none`, e, havendo `transition-*`, tiver `motion-reduce:transition-none`, na mesma className |
 
 ### Regras de qualidade visual (medio)
 
