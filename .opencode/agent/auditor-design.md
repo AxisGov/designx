@@ -25,7 +25,7 @@ Agente de leitura apenas. Audita codigo de UI contra o DS e boas praticas.
 2. As 18 boas praticas (B1-B5, A1-A9, M1-M4)
 3. Os 10 tells de IA (T1-T10, references/08-tells-ia.md) — dois na mesma tela = REPROVADO
 4. Stamp vs. tela: `/* designx · ... */` existe, corresponde a realidade, e o LOG.md varia
-5. Deteccao rapida (grep commands)
+5. Deteccao rapida: as buscas de `.claude/agents/auditor-design.md`, feitas com as ferramentas Grep e Glob (sem shell)
 
 ## Saida
 

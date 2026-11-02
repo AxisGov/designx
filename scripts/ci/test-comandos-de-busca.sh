@@ -18,7 +18,7 @@ python3 - "$RAIZ" "$d" <<'PY'
 import json, re, subprocess, sys
 from pathlib import Path
 raiz, arvore = Path(sys.argv[1]), sys.argv[2]
-arquivos = sorted((raiz / ".claude" / "agents").glob("*.md")) + [raiz / ".claude/skills/designx/SKILL.md"] + sorted((raiz / ".claude/skills/designx/references").glob("*.md"))
+arquivos = sorted((raiz / ".claude" / "agents").glob("*.md")) + sorted((raiz / ".opencode" / "agent").glob("*.md")) + [raiz / ".claude/skills/designx/SKILL.md"] + sorted((raiz / ".claude/skills/designx/references").glob("*.md"))
 CHAVES = {"pattern", "path", "glob", "output_mode", "-n", "-i", "head_limit", "type", "multiline"}
 falhas = []
 def rg(d):
@@ -33,10 +33,17 @@ chamadas = []
 for f in arquivos:
     texto = f.read_text(encoding="utf-8")
     nome = str(f.relative_to(raiz))
-    if f.parent.name == "agents" and re.search(r"^```(bash|sh)\b", texto, re.M):
+    if re.search(r"grep commands", texto, re.I):
+        falhas.append(f"{nome}: manda usar grep de shell")
+    if f.parent.name in ("agents", "agent") and re.search(r"^```(bash|sh)\b", texto, re.M):
         falhas.append(f"{nome}: bloco de shell num agente sem Bash")
-    for m in re.finditer(r"^\s*(?:grep|ls|cat|find) ", texto, re.M):
+    if re.search(r"`Grep` de ", texto):
+        falhas.append(f"{nome}: busca descrita em prosa (`Grep` de ...): use a entrada da ferramenta")
+    for m in re.finditer(r"^\s*(?:grep|ls|cat|find|test -[fd]) ", texto, re.M):
         falhas.append(f"{nome}: comando de shell de busca: {texto[m.start():texto.find(chr(10), m.start())].strip()}")
+    # o limite corta antes do descarte: os achados validos podiam sumir atras dos descartados
+    for m in re.finditer(r'"head_limit": \d+[^\n]*\n\s*# descarte', texto):
+        falhas.append(f"{nome}: head_limit antes do descarte")
     for m in re.finditer(r"Grep (\{[^`\n]*?\})(?=\s*(?:#|`|$))", texto, re.M):
         try:
             d = json.loads(m.group(1))

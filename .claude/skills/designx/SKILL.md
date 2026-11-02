@@ -23,8 +23,8 @@ Camada de design para o metodo Expx. Modifica o comportamento de `sprintx` e `ru
 Antes de escrever qualquer componente, verifique o estado do design system:
 
 ```text
-test -f docs/design-system/DESIGN-SYSTEM.md && echo "DS declarado"
-test -f docs/design-system/RESUMO.md && echo "RESUMO pronto"
+Glob {"pattern": "docs/design-system/DESIGN-SYSTEM.md"}   # DS declarado?
+Glob {"pattern": "docs/design-system/RESUMO.md"}   # RESUMO pronto?
 Grep {"pattern": "primary-glow|--primary", "path": "src", "output_mode": "files_with_matches", "head_limit": 3}   # tokens presentes?
 Glob {"pattern": "src/components/ui/*"}   # primitivas?
 # basta ver os 10 primeiros
@@ -152,15 +152,15 @@ Toda regra tem evidencia: o que acontece sem ela. Violar e violacao do metodo, n
 
 | # | Regra | Bug sem ela | Deteccao |
 |---|---|---|---|
-| A1 | hex hardcoded = proibido | Dark mode inutilizavel | o `Grep` de hex de `references/00-boas-praticas.md` (A1) |
+| A1 | hex hardcoded = proibido | Dark mode inutilizavel | a chamada `Grep` do A1, em `references/00-boas-praticas.md` |
 | A2 | Vocabulario fechado de cores de destaque | Coesao visual perdida | Verificar cores fora do token map |
 | A3 | Fonte de display nao-generica | Toda tela parece a mesma | `Grep {"pattern": "font-family.*Inter", "path": "src"}` |
 | A4 | Solid accent com variante dark | Cor desaparece em fundo escuro | `Grep {"pattern": "text-primary", "path": "src"}`, descartando as linhas com `dark:` |
 | A5 | Loading/error/empty sempre cobertos | Tela quebrada sem feedback | Inspecionar componentes de lista |
 | A6 | Contraste WCAG AA (4.5:1 texto, 3:1 grande) | Texto ilegivel para baixa visao | Verificar pares fg/bg dos tokens |
-| A7 | Focus ring visivel, nunca `outline: none` sem substituto | Navegacao por teclado invisivel | `Grep` de `outline-none` e de `outline:\s*none` em `src` |
+| A7 | Focus ring visivel, nunca `outline: none` sem substituto | Navegacao por teclado invisivel | `Grep {"pattern": "outline-none", "path": "src"}` e `Grep {"pattern": "outline:\\s*none", "path": "src"}` |
 | A8 | Alvo interativo minimo 36px com nome acessivel | Clique impreciso; botao sem nome para screen reader | Botoes so-icone: conferir `w-9 h-9` + `aria-label` |
-| A9 | `prefers-reduced-motion` respeitado | Animacao causa desconforto vestibular | `Grep` de `animate-` e de `transition-` em `src`: linha sem `motion-reduce` é achado |
+| A9 | `prefers-reduced-motion` respeitado | Animacao causa desconforto vestibular | `Grep {"pattern": "animate-", "path": "src"}` e `Grep {"pattern": "transition-", "path": "src"}`: linha sem `motion-reduce` é achado |
 
 ### Regras de qualidade visual (medio)
 

@@ -45,8 +45,8 @@ Grep {"pattern": "window.confirm", "path": "src", "glob": "**/*.tsx", "output_mo
 
 # Alto
 Grep {"pattern": "h-\\[[0-9]+vh\\]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
-Grep {"pattern": "text-primary\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 20}
-# descarte as linhas que tambem casam com `dark:`
+Grep {"pattern": "text-primary\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+# descarte as linhas que tambem casam com `dark:`; das que sobram, bastam as 20 primeiras
 
 # Acessibilidade (A7, A9)
 Grep {"pattern": "outline-none|outline:\\s*none", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
