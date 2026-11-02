@@ -22,7 +22,7 @@ Agente de leitura apenas do designx. Analisa um projeto e extrai o vocabulario v
 ### 1. Tokens CSS
 
 ```bash
-grep -rn "\-\-[a-z]" src/**/*.css src/**/*.scss 2>/dev/null
+grep -rn "\-\-[a-z]" src --include=*.css --include=*.scss 2>/dev/null
 ```
 
 Para cada variavel encontrada:
@@ -36,7 +36,7 @@ Drift de tier: componente referenciando raw direto (sem passar por alias), dois 
 ### 2. Cores
 
 ```bash
-grep -rnE "#[0-9a-fA-F]{3,8}\|rgb\|hsl" src/**/*.tsx src/**/*.css 2>/dev/null
+grep -rnE "#[0-9a-fA-F]{3,8}|rgb|hsl" src --include=*.tsx --include=*.css 2>/dev/null
 ```
 
 Para cada cor:
@@ -47,7 +47,7 @@ Para cada cor:
 ### 3. Tipografia
 
 ```bash
-grep -rn "font-family\|font-size\|font-weight\|text-\[" src/**/*.tsx src/**/*.css 2>/dev/null
+grep -rn "font-family\|font-size\|font-weight\|text-\[" src --include=*.tsx --include=*.css 2>/dev/null
 ```
 
 Para cada padrao:
@@ -58,7 +58,7 @@ Para cada padrao:
 ### 4. Espacamento
 
 ```bash
-grep -rn "gap-\|p-\|m-\|space-" src/**/*.tsx 2>/dev/null | head -50
+grep -rn "gap-\|p-\|m-\|space-" src --include=*.tsx 2>/dev/null | head -50
 ```
 
 Qual o multiplo predominante? (4px, 8px, inconsistente?)
@@ -87,7 +87,7 @@ Analise a estrutura de paginas:
 ### 7. Bordas vs sombras
 
 ```bash
-grep -rn "shadow-\|border" src/**/*.tsx 2>/dev/null | head -30
+grep -rn "shadow-\|border" src --include=*.tsx 2>/dev/null | head -30
 ```
 
 Qual predominancia? (borders = denso, shadows = card/landing)
@@ -95,8 +95,8 @@ Qual predominancia? (borders = denso, shadows = card/landing)
 ### 8. Dark mode
 
 ```bash
-grep -rn "dark:" src/**/*.tsx 2>/dev/null | head -10
-grep -rn "dark\|theme" src/**/*.css 2>/dev/null | head -10
+grep -rn "dark:" src --include=*.tsx 2>/dev/null | head -10
+grep -rn "dark\|theme" src --include=*.css 2>/dev/null | head -10
 ```
 
 Existe? Como esta implementado? Tokens separados?

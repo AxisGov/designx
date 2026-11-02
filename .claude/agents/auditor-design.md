@@ -96,7 +96,7 @@ grep -rn "toast(" src/components src/pages --include=*.tsx
 
 # Acessibilidade (A7, A9)
 grep -rnE "outline-none|outline:\s*none" src --include=*.tsx | grep -vE "focus(-visible)?:ring-([1-9]|\[)"
-grep -rln "animate-\|transition-" src --include=*.tsx | grep -vL "motion-reduce"
+grep -rlZ "animate-\|transition-" src --include=*.tsx | xargs -0 -r grep -L "motion-reduce"
 
 # Medio
 grep -rn "onChange=.*setSearch" src --include=*.tsx

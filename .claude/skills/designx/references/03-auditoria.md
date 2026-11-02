@@ -49,7 +49,7 @@ grep -rn "text-primary\b" src --include=*.tsx | grep -v "dark:" | head -20
 
 # Acessibilidade (A7, A9)
 grep -rnE "outline-none|outline:\s*none" src --include=*.tsx | grep -vE "focus(-visible)?:ring-([1-9]|\[)"
-grep -rln "animate-\|transition-" src --include=*.tsx | grep -vL "motion-reduce"
+grep -rlZ "animate-\|transition-" src --include=*.tsx | xargs -0 -r grep -L "motion-reduce"
 
 # Tells de IA (T1, T2, T5, T6, T7, T9, T10)
 grep -rnE "gradient.*(purple|violet|indigo|fuchsia)" src --include=*.tsx
