@@ -1,0 +1,19 @@
+name: testes
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      # todo agente Claude declara `classe:` (orquestracao do ExpxDev)
+      - run: bash scripts/ci/test-classe-dos-agentes.sh
