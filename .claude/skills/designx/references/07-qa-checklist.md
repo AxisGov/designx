@@ -22,7 +22,7 @@ QA contra a especificacao do DS, nao contra memoria. Teste com conteudo real, na
 
 Deteccao:
 ```text
-Grep {"pattern": "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 ## 2. Estados do componente — 8, nao 5

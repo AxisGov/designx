@@ -18,6 +18,9 @@ Camada de design para o metodo Expx. Modifica o comportamento de `sprintx` e `ru
 
 ---
 
+
+> **As buscas desta skill estão na forma da ferramenta Grep**: `Grep` seguido do JSON da entrada, com `pattern`, `path`, `glob`, `output_mode` e `head_limit`. Os subagentes `cartografo-visual` e `auditor-design` têm essa ferramenta. Na sessao principal, que no Claude Code não tem a ferramenta Grep, faça a mesma busca com `rg` no Bash: `pattern` vira `-e`, `path` é o caminho, `glob` vira `-g`, `files_with_matches` vira `-l`, `-n` e `-i` ficam, e `head_limit: 0` é sem `head`. `Glob` vira `rg --files -g`, e `Read` é a ferramenta Read.
+
 ## 0. Primeiro: o que ja existe aqui?
 
 Antes de escrever qualquer componente, verifique o estado do design system:
@@ -142,11 +145,11 @@ Toda regra tem evidencia: o que acontece sem ela. Violar e violacao do metodo, n
 
 | # | Regra | Bug sem ela | Deteccao |
 |---|---|---|---|
-| B1 | Paginacao adaptativa, nunca fixa | Tela pela metade em monitor grande | `Grep {"pattern": "PAGE_SIZE", "path": "src"}` |
-| B2 | Detalhe em modal com secoes, nunca drawer | Usuario nao consegue comparar registros | `Grep {"pattern": "Sheet", "path": "src"}` |
-| B3 | Sub-navegacao em rail, nunca tabs | Perda de contexto em painel denso | `Grep {"pattern": "Tabs", "path": "src/pages"}` |
+| B1 | Paginacao adaptativa, nunca fixa | Tela pela metade em monitor grande | `Grep {"pattern": "PAGE_SIZE", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}` |
+| B2 | Detalhe em modal com secoes, nunca drawer | Usuario nao consegue comparar registros | `Grep {"pattern": "Sheet", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}` |
+| B3 | Sub-navegacao em rail, nunca tabs | Perda de contexto em painel denso | `Grep {"pattern": "Tabs", "path": "src/pages", "output_mode": "content", "-n": true, "head_limit": 0}` |
 | B4 | Estado vazio dentro da tabela | Usuario fica preso sem saida | Inspecionar retorno antecipado |
-| B5 | Acao destrutiva = AlertDialog com nome | Delete acidental sem confirmacao | `Grep {"pattern": "window.confirm", "path": "src"}` |
+| B5 | Acao destrutiva = AlertDialog com nome | Delete acidental sem confirmacao | `Grep {"pattern": "window.confirm", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}` |
 
 ### Regras de estilo (alto)
 
@@ -154,22 +157,22 @@ Toda regra tem evidencia: o que acontece sem ela. Violar e violacao do metodo, n
 |---|---|---|---|
 | A1 | hex hardcoded = proibido | Dark mode inutilizavel | a chamada `Grep` do A1, em `references/00-boas-praticas.md` |
 | A2 | Vocabulario fechado de cores de destaque | Coesao visual perdida | Verificar cores fora do token map |
-| A3 | Fonte de display nao-generica | Toda tela parece a mesma | `Grep {"pattern": "font-family.*Inter", "path": "src"}` |
-| A4 | Solid accent com variante dark | Cor desaparece em fundo escuro | `Grep {"pattern": "text-primary", "path": "src"}`, descartando as linhas com `dark:` |
+| A3 | Fonte de display nao-generica | Toda tela parece a mesma | `Grep {"pattern": "font-family.*Inter", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}` |
+| A4 | Solid accent com variante dark | Cor desaparece em fundo escuro | `Grep {"pattern": "text-primary", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}`, descartando as linhas com `dark:` |
 | A5 | Loading/error/empty sempre cobertos | Tela quebrada sem feedback | Inspecionar componentes de lista |
 | A6 | Contraste WCAG AA (4.5:1 texto, 3:1 grande) | Texto ilegivel para baixa visao | Verificar pares fg/bg dos tokens |
-| A7 | Focus ring visivel, nunca `outline: none` sem substituto | Navegacao por teclado invisivel | `Grep {"pattern": "outline-none", "path": "src"}` e `Grep {"pattern": "outline:\\s*none", "path": "src"}` |
+| A7 | Focus ring visivel, nunca `outline: none` sem substituto | Navegacao por teclado invisivel | `Grep {"pattern": "outline-none", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}` e `Grep {"pattern": "outline:\\s*none", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}` |
 | A8 | Alvo interativo minimo 36px com nome acessivel | Clique impreciso; botao sem nome para screen reader | Botoes so-icone: conferir `w-9 h-9` + `aria-label` |
-| A9 | `prefers-reduced-motion` respeitado | Animacao causa desconforto vestibular | `Grep {"pattern": "animate-", "path": "src"}` e `Grep {"pattern": "transition-", "path": "src"}`: linha sem `motion-reduce` é achado |
+| A9 | `prefers-reduced-motion` respeitado | Animacao causa desconforto vestibular | `Grep {"pattern": "animate-", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}` e `Grep {"pattern": "transition-", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}`: linha sem `motion-reduce` é achado |
 
 ### Regras de qualidade visual (medio)
 
 | # | Regra | Bug sem ela | Deteccao |
 |---|---|---|---|
 | M1 | Um tom estetico declarado por task | Mistura de estilos na mesma feature | Campo `tom_estetico` ausente |
-| M2 | Animacao com proposito, nao enfeite | Ruido visual que cansa | `Grep {"pattern": "transition", "path": "src"}` sem criterio |
+| M2 | Animacao com proposito, nao enfeite | Ruido visual que cansa | `Grep {"pattern": "transition", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}` sem criterio |
 | M3 | Densidade: controles h-9, rows ~52px | Painel parece landing page | Medir altura de componentes |
-| M4 | Numeros comparaveis com tabular-nums | Coluna de valores baguncada | `Grep {"pattern": "tabular-nums", "path": "src"}` |
+| M4 | Numeros comparaveis com tabular-nums | Coluna de valores baguncada | `Grep {"pattern": "tabular-nums", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}` |
 
 ### Valores de `tom_estetico`
 

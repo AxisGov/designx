@@ -22,7 +22,7 @@ Agente de leitura apenas do designx. Analisa um projeto e extrai o vocabulario v
 ### 1. Tokens CSS
 
 ```text
-Grep {"pattern": "--[a-z]", "path": "src", "glob": "**/*.{css,scss}", "output_mode": "content", "-n": true}
+Grep {"pattern": "--[a-z]", "path": "src", "glob": "**/*.{css,scss}", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 Para cada variavel encontrada:
@@ -36,7 +36,7 @@ Drift de tier: componente referenciando raw direto (sem passar por alias), dois 
 ### 2. Cores
 
 ```text
-Grep {"pattern": "#[0-9a-fA-F]{3,8}|rgb|hsl", "path": "src", "glob": "**/*.{tsx,css}", "output_mode": "content", "-n": true}
+Grep {"pattern": "#[0-9a-fA-F]{3,8}|rgb|hsl", "path": "src", "glob": "**/*.{tsx,css}", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 Para cada cor:
@@ -47,7 +47,7 @@ Para cada cor:
 ### 3. Tipografia
 
 ```text
-Grep {"pattern": "font-family|font-size|font-weight|text-\\[", "path": "src", "glob": "**/*.{tsx,css}", "output_mode": "content", "-n": true}
+Grep {"pattern": "font-family|font-size|font-weight|text-\\[", "path": "src", "glob": "**/*.{tsx,css}", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 Para cada padrao:

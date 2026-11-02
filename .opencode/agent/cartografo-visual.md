@@ -31,7 +31,7 @@ Agente de leitura apenas. Analisa o projeto e extrai o vocabulario visual.
 8. Dark mode
 9. Framework visual
 
-Busque com as ferramentas Grep e Glob, sem shell, como em `.claude/agents/cartografo-visual.md`.
+Busque com as ferramentas Grep e Glob, sem shell, como em `.claude/skills/designx/references/02-cartografia.md`.
 
 ## Saida
 

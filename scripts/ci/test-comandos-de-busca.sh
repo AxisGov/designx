@@ -13,7 +13,8 @@ d="$(cd "$(mktemp -d)" && pwd -P)"; trap 'rm -rf "$d"' EXIT
 mkdir -p "$d/src/a/b" "$d/src/components/ui" "$d/src/pages"
 printf ':root { --cor-base: #fff; }\n' > "$d/src/a/b/tema.css"
 printf 'export const X = () => <div style={{ color: "#abc" }} className="rgb(1,2,3) hsl(1,2%%,3%%)" />;\n' > "$d/src/a/b/Cor.tsx"
-printf 'export const Y = () => <div className="animate-spin" />;\nexport const W = () => <div className="animate-pulse motion-reduce:animate-none" />;\n' > "$d/src/a/b/Gira.tsx"
+printf 'export const Y = () => <div className="animate-spin" />;\nexport const W = () => <div className="animate-pulse motion-reduce:animate-none" />;\nexport const V = () => <div className="transition-transform motion-reduce:animate-none" />;\n' > "$d/src/a/b/Gira.tsx"
+printf 'export const P = () => <p className="text-primary dark:bg-zinc-900" />;\nexport const Q = () => <p className="text-primary dark:text-primary-foreground" />;\n' > "$d/src/a/b/Texto.tsx"
 python3 - "$RAIZ" "$d" <<'PY'
 import json, re, subprocess, sys
 from pathlib import Path
@@ -37,12 +38,23 @@ for f in arquivos:
         falhas.append(f"{nome}: manda usar grep de shell")
     if f.parent.name in ("agents", "agent") and re.search(r"^```(bash|sh)\b", texto, re.M):
         falhas.append(f"{nome}: bloco de shell num agente sem Bash")
+    pos = 0
+    while (pos := texto.find("Grep {", pos)) >= 0:
+        try:
+            d0, fim = json.JSONDecoder().raw_decode(texto, pos + 5)
+        except ValueError:
+            falhas.append(f"{nome}: Grep com JSON invalido perto de: {texto[pos:pos + 80]!r}"); pos += 6; continue
+        pos = fim
+        if d0.get("output_mode") not in ("content", "files_with_matches", "count"):
+            falhas.append(f"{nome}: Grep sem output_mode (o padrao lista so arquivos): {m.group(1)}")
+        if "head_limit" not in d0:
+            falhas.append(f"{nome}: Grep sem head_limit (o padrao corta em 250; 0 e sem limite): {m.group(1)}")
     if re.search(r"`Grep` de ", texto):
         falhas.append(f"{nome}: busca descrita em prosa (`Grep` de ...): use a entrada da ferramenta")
     for m in re.finditer(r"^\s*(?:grep|ls|cat|find|test -[fd]) ", texto, re.M):
         falhas.append(f"{nome}: comando de shell de busca: {texto[m.start():texto.find(chr(10), m.start())].strip()}")
     # o limite corta antes do descarte: os achados validos podiam sumir atras dos descartados
-    for m in re.finditer(r'"head_limit": \d+[^\n]*\n\s*# descarte', texto):
+    for m in re.finditer(r'"head_limit": [1-9]\d*[^\n]*\n\s*# descarte', texto):
         falhas.append(f"{nome}: head_limit antes do descarte")
     for m in re.finditer(r"Grep (\{[^`\n]*?\})(?=\s*(?:#|`|$))", texto, re.M):
         try:
@@ -55,10 +67,19 @@ for f in arquivos:
         r = rg(d)
         if r.returncode not in (0, 1): falhas.append(f"{nome}: rg rc {r.returncode} em {d}: {r.stderr.strip()}")
         chamadas.append((nome, d, r))
+def protegida(linha):
+    """A regra do agente: cada animate-* com motion-reduce:animate-*, cada transition-* com motion-reduce:transition-*."""
+    classes = re.findall(r"[\w:-]+", linha)
+    anima = [c for c in classes if c.startswith("animate-")]
+    trans = [c for c in classes if c.startswith("transition-")]
+    return (not anima or any(c.startswith("motion-reduce:animate-") for c in classes)) and (not trans or any(c.startswith("motion-reduce:transition-") for c in classes))
 def achou(trecho_padrao, esperado, nao=None):
     for nome, d, r in chamadas:
         if trecho_padrao in d["pattern"] and nome.endswith(("cartografo-visual.md", "auditor-design.md")):
-            linhas = [l for l in r.stdout.splitlines() if not (nao and nao in l)]
+            if nao == "motion-reduce":
+                linhas = [l for l in r.stdout.splitlines() if not protegida(l)]
+            else:
+                linhas = [l for l in r.stdout.splitlines() if not (nao and nao in l)]
             return any(esperado in l for l in linhas), linhas
     return None, []
 for trecho, esperado, nao, rotulo in [
@@ -66,6 +87,8 @@ for trecho, esperado, nao, rotulo in [
     ("{3,8}", "#abc", None, "cor hex (alternancia)"),
     ("{3,8}", "rgb(1,2,3)", None, "cor rgb (alternancia)"),
     ("animate-", "animate-spin", "motion-reduce", "animacao sem motion-reduce, por linha"),
+    ("animate-", "transition-transform", "motion-reduce", "transicao protegida so na animacao continua achado"),
+    ("text-primary", "dark:bg-zinc-900", "dark:text-", "accent sem dark:text- continua achado"),
 ]:
     ok, linhas = achou(trecho, esperado, nao)
     if ok is None: falhas.append(f"{rotulo}: chamada nao encontrada nos agentes")
@@ -74,6 +97,18 @@ for trecho, esperado, nao, rotulo in [
 ok, linhas = achou("animate-", "animate-pulse", "motion-reduce")
 if ok: falhas.append("a animacao com motion-reduce na linha virou achado")
 else: print("ok    animacao com motion-reduce fica de fora")
+ok, linhas = achou("text-primary", "dark:text-primary-foreground", "dark:text-")
+if ok: falhas.append("accent com dark:text- virou achado")
+else: print("ok    accent com dark:text- fica de fora")
+for f in sorted((raiz / ".opencode" / "agent").glob("*.md")):
+    if ".claude/agents/" in f.read_text(encoding="utf-8"):
+        falhas.append(f"{f.relative_to(raiz)}: aponta .claude/agents, que a instalacao so OpenCode nao copia")
+auditor = (raiz / ".claude/agents/auditor-design.md").read_text(encoding="utf-8")
+for regra in ("motion-reduce:transition-", "`dark:text-`", "mesma className"):
+    if regra not in auditor: falhas.append(f"auditor-design.md: a regra de descarte nao cita {regra}")
+skill = (raiz / ".claude/skills/designx/SKILL.md").read_text(encoding="utf-8")
+if "rg" not in skill or "sessao principal" not in skill:
+    falhas.append("SKILL.md: falta dizer como a sessao principal, sem Grep, faz a mesma busca com rg")
 print(f"      {len(chamadas)} chamadas de Grep rodadas no rg")
 for f in falhas: print("FALHA", f)
 sys.exit(1 if falhas else 0)

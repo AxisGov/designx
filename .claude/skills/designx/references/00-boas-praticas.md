@@ -14,7 +14,7 @@ Derivadas do cruzamento entre `saas-panel-design-system`, `frontend-design` (Ant
 
 **Deteccao:**
 ```text
-Grep {"pattern": "PAGE_SIZE\\s*=\\s*[0-9]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "PAGE_SIZE\\s*=\\s*[0-9]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 **Solucao:** `usePagination(items, { auto: true })` + `<ListCard ref availableHeight>`.
@@ -25,7 +25,7 @@ Grep {"pattern": "PAGE_SIZE\\s*=\\s*[0-9]", "path": "src", "glob": "**/*.tsx", "
 
 **Deteccao:**
 ```text
-Grep {"pattern": "components/ui/sheet", "path": "src", "glob": "**/*.tsx", "output_mode": "files_with_matches"}
+Grep {"pattern": "components/ui/sheet", "path": "src", "glob": "**/*.tsx", "output_mode": "files_with_matches", "head_limit": 0}
 ```
 
 **Solucao:** `<DetailModal>` com sidebar de secoes. Sheet e legitimo apenas em paineis de configuracao e no sidebar principal.
@@ -36,7 +36,7 @@ Grep {"pattern": "components/ui/sheet", "path": "src", "glob": "**/*.tsx", "outp
 
 **Deteccao:**
 ```text
-Grep {"pattern": "components/ui/tabs", "path": "src", "glob": "**/*.tsx", "output_mode": "files_with_matches"}
+Grep {"pattern": "components/ui/tabs", "path": "src", "glob": "**/*.tsx", "output_mode": "files_with_matches", "head_limit": 0}
 ```
 
 **Solucao:** `<PageSubnav>` (left rail). Tabs sao legitimos apenas para sub-tabs dentro de um builder.
@@ -62,7 +62,7 @@ Grep {"pattern": "components/ui/tabs", "path": "src", "glob": "**/*.tsx", "outpu
 
 **Deteccao:**
 ```text
-Grep {"pattern": "window.confirm", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "window.confirm", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 **Solucao:** `<AlertDialog>` nomeando o registro e a consequencia.
@@ -77,7 +77,7 @@ Grep {"pattern": "window.confirm", "path": "src", "glob": "**/*.tsx", "output_mo
 
 **Deteccao:**
 ```text
-Grep {"pattern": "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 **Solucao:** Usar tokens CSS ou o vocabulario fechado de cores de destaque.
@@ -96,7 +96,7 @@ Light usa solid 50/600/700; dark usa /10 + 300/400. Nunca hex novo.
 
 **Deteccao:**
 ```text
-Grep {"pattern": "font-family.*Inter", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "font-family.*Inter", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 **Solucao:** Escolher fonte com personalidade para titulos. Corpo pode ser generico. Este e o tell-zero; os outros nove padroes concretos de convergencia estao em `references/08-tells-ia.md`.
@@ -107,8 +107,8 @@ Grep {"pattern": "font-family.*Inter", "path": "src", "glob": "**/*.tsx", "outpu
 
 **Deteccao:**
 ```text
-Grep {"pattern": "text-primary\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
-# descarte as linhas que tambem casam com `dark:`
+Grep {"pattern": "text-primary\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+# descarte as linhas que tambem casam com `dark:text-` (a variante dark da cor do texto); outro `dark:` na linha nao conta
 ```
 
 **Solucao:** `dark:text-primary-glow` para accents solidos em dark mode.
@@ -135,8 +135,8 @@ Grep {"pattern": "text-primary\\b", "path": "src", "glob": "**/*.tsx", "output_m
 
 **Deteccao:**
 ```text
-Grep {"pattern": "outline-none|outline:\\s*none", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
-# descarte as linhas que tambem casam com `focus(-visible)?:ring-([1-9]|\[)`
+Grep {"pattern": "outline-none|outline:\\s*none", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+# descarte as linhas que tambem casam com `focus(-visible)?:ring-([1-9]|\[)`, depois de conferir que o ring esta na mesma className do elemento com `outline-none`; a busca e por linha
 ```
 
 **Solucao:** Todo interativo usa `focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`. `outline-none` so com substituto `ring` junto.
@@ -155,7 +155,7 @@ Grep {"pattern": "outline-none|outline:\\s*none", "path": "src", "glob": "**/*.t
 
 **Deteccao:**
 ```text
-Grep {"pattern": "animate-|transition-", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "animate-|transition-", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 O comando lista **todas as ocorrencias**, sem descartar um arquivo porque outra

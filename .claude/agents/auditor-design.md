@@ -83,40 +83,40 @@ Achados nomeados — cite o codigo do tell no veredito (`T3 — grid de 3 coluna
 
 ```text
 # Bloqueios
-Grep {"pattern": "PAGE_SIZE\\s*=\\s*[0-9]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
-Grep {"pattern": "components/ui/sheet", "path": "src", "glob": "**/*.tsx", "output_mode": "files_with_matches"}
-Grep {"pattern": "components/ui/tabs", "path": "src", "glob": "**/*.tsx", "output_mode": "files_with_matches"}
-Grep {"pattern": "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
-Grep {"pattern": "window.confirm", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "PAGE_SIZE\\s*=\\s*[0-9]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "components/ui/sheet", "path": "src", "glob": "**/*.tsx", "output_mode": "files_with_matches", "head_limit": 0}
+Grep {"pattern": "components/ui/tabs", "path": "src", "glob": "**/*.tsx", "output_mode": "files_with_matches", "head_limit": 0}
+Grep {"pattern": "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "window.confirm", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 
 # Alto
-Grep {"pattern": "h-\\[[0-9]+vh\\]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
-Grep {"pattern": "text-primary\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
-# descarte as linhas que tambem casam com `dark:`; das que sobram, bastam as 20 primeiras
-Grep {"pattern": "toast\\(", "path": "src/components", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
-Grep {"pattern": "toast\\(", "path": "src/pages", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "h-\\[[0-9]+vh\\]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "text-primary\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+# descarte as linhas que tambem casam com `dark:text-` (a variante dark da cor do texto); outro `dark:` na linha nao conta; das que sobram, bastam as 20 primeiras
+Grep {"pattern": "toast\\(", "path": "src/components", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "toast\\(", "path": "src/pages", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 
 # Acessibilidade (A7, A9)
-Grep {"pattern": "outline-none|outline:\\s*none", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
-# descarte as linhas que tambem casam com `focus(-visible)?:ring-([1-9]|\[)`
-Grep {"pattern": "animate-|transition-", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
-# descarte as linhas que tambem casam com `motion-reduce`; cada linha que sobra e achado, mesmo que o arquivo tenha `motion-reduce` em outra
+Grep {"pattern": "outline-none|outline:\\s*none", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+# descarte as linhas que tambem casam com `focus(-visible)?:ring-([1-9]|\[)`, depois de conferir que o ring esta na mesma className do elemento com `outline-none`; a busca e por linha
+Grep {"pattern": "animate-|transition-", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+# uma linha so sai se cada classe `animate-*` tiver `motion-reduce:animate-*` e cada `transition-*` tiver `motion-reduce:transition-*`, na mesma className; as demais sao achado, mesmo que o arquivo tenha `motion-reduce` em outra
 
 # Medio
-Grep {"pattern": "onChange=.*setSearch", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "onChange=.*setSearch", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 Glob {"pattern": "src/**/*.tsx"}
-Grep {"pattern": "tabular-nums", "path": "src", "glob": "**/*.tsx", "output_mode": "files_with_matches"}
+Grep {"pattern": "tabular-nums", "path": "src", "glob": "**/*.tsx", "output_mode": "files_with_matches", "head_limit": 0}
 # os arquivos do Glob que o Grep nao lista sao o achado
-Grep {"pattern": "ArrowLeft|ChevronLeft", "path": "src/pages", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
+Grep {"pattern": "ArrowLeft|ChevronLeft", "path": "src/pages", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 
 # Tells de IA (T1, T2, T5, T6, T7, T9, T10)
-Grep {"pattern": "gradient.*(purple|violet|indigo|fuchsia)", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
-Grep {"pattern": "bg-clip-text|background-clip:\\s*text", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
-Grep {"pattern": "border-l-[4-8]|border-r-[4-8]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
-Grep {"pattern": "min-h-screen|min-h-\\[100vh\\]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
-Grep {"pattern": "blur-3xl.*rounded-full|rounded-full.*blur-3xl", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
-Grep {"pattern": "transition-all|hover:scale-105", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true}
-Grep {"pattern": "acme|nexus|jane doe|john smith|lorem ipsum", "path": "src", "glob": "**/*.tsx", "-i": true, "output_mode": "content", "-n": true}
+Grep {"pattern": "gradient.*(purple|violet|indigo|fuchsia)", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "bg-clip-text|background-clip:\\s*text", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "border-l-[4-8]|border-r-[4-8]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "min-h-screen|min-h-\\[100vh\\]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "blur-3xl.*rounded-full|rounded-full.*blur-3xl", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "transition-all|hover:scale-105", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "acme|nexus|jane doe|john smith|lorem ipsum", "path": "src", "glob": "**/*.tsx", "-i": true, "output_mode": "content", "-n": true, "head_limit": 0}
 
 # Stamp
 Grep {"pattern": "designx ·", "path": "src", "glob": "**/*.{css,tsx}", "output_mode": "content", "-n": true, "head_limit": 20}
