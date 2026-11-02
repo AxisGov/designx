@@ -12,7 +12,7 @@ command -v rg >/dev/null || { echo "FALHA: rg (ripgrep) ausente; o CI o instala"
 d="$(cd "$(mktemp -d)" && pwd -P)"; trap 'rm -rf "$d"' EXIT
 mkdir -p "$d/src/a/b" "$d/src/components/ui" "$d/src/pages"
 printf ':root { --cor-base: #fff; }\n' > "$d/src/a/b/tema.css"
-printf 'export const X = () => <div style={{ color: "#abc" }} className="rgb(1,2,3) hsl(1,2%%,3%%)" />;\n' > "$d/src/a/b/Cor.tsx"
+printf 'export const X = () => <div style={{ color: "#abc" }} />;\nexport const X2 = () => <div style={{ color: "rgb(1,2,3)" }} />;\nexport const X3 = () => <div style={{ color: "hsl(1,2%%,3%%)" }} />;\n' > "$d/src/a/b/Cor.tsx"
 printf 'export const Y = () => <div className="animate-spin" />;\nexport const W = () => <div className="animate-pulse motion-reduce:animate-none" />;\nexport const V = () => <div className="transition-transform motion-reduce:animate-none" />;\nexport const U = () => <div className="animate-bounce motion-reduce:animate-ping" />;\nexport const S = () => <><i className="animate-wiggle" /><b className="motion-reduce:animate-none" /></>;\nexport const R = () => <><i className="transition-colors" /><b className="motion-reduce:transition-none" /></>;\nexport const Q = () => <><i className={`animate-flash`} /><b className={'"'"'motion-reduce:animate-none'"'"'} /></>;\n' > "$d/src/a/b/Gira.tsx"
 printf 'export const P = () => <p className="text-primary dark:bg-zinc-900" />;\nexport const Q = () => <p className="text-primary dark:text-primary-foreground" />;\n' > "$d/src/a/b/Texto.tsx"
 python3 - "$RAIZ" "$d" <<'PY'
@@ -54,7 +54,7 @@ for f in arquivos:
     for m in re.finditer(r"^\s*(?:grep|ls|cat|find|test -[fd]) ", texto, re.M):
         falhas.append(f"{nome}: comando de shell de busca: {texto[m.start():texto.find(chr(10), m.start())].strip()}")
     # o limite corta antes do descarte: os achados validos podiam sumir atras dos descartados
-    for m in re.finditer(r'"head_limit": [1-9]\d*[^\n]*\n\s*# descarte', texto):
+    for m in re.finditer(r'"head_limit": [1-9]\d*[^\n]*(?:descart|\n\s*# (?:descarte|uma linha so sai))', texto):
         falhas.append(f"{nome}: head_limit antes do descarte")
     for m in re.finditer(r"Grep (\{[^`\n]*?\})(?=\s*(?:#|`|$))", texto, re.M):
         try:
@@ -94,6 +94,7 @@ for trecho, esperado, nao, rotulo in [
     ("--[a-z]", "--cor-base", None, "tokens aninhados (glob recursivo)"),
     ("{3,8}", "#abc", None, "cor hex (alternancia)"),
     ("{3,8}", "rgb(1,2,3)", None, "cor rgb (alternancia)"),
+    ("{3,8}", "hsl(1,2", None, "cor hsl (alternancia)"),
     ("animate-", "animate-spin", "motion-reduce", "animacao sem motion-reduce, por linha"),
     ("animate-", "transition-transform", "motion-reduce", "transicao protegida so na animacao continua achado"),
     ("animate-", "animate-bounce", "motion-reduce", "motion-reduce que repete a animacao continua achado"),
@@ -106,6 +107,9 @@ for trecho, esperado, nao, rotulo in [
     if ok is None: falhas.append(f"{rotulo}: chamada nao encontrada nos agentes")
     elif not ok: falhas.append(f"{rotulo}: {esperado!r} nao achado em {linhas}")
     else: print(f"ok    {rotulo}")
+bruta = next((r.stdout for nome, d, r in chamadas if "animate-" in d["pattern"] and nome.endswith("auditor-design.md")), "")
+if "animate-pulse" not in bruta or "dark:text-primary-foreground" not in next((r.stdout for nome, d, r in chamadas if "text-primary" in d["pattern"] and nome.endswith("auditor-design.md")), ""):
+    falhas.append("a busca nao traz a linha protegida: o descarte nao foi testado")
 ok, linhas = achou("animate-", "animate-pulse", "motion-reduce")
 if ok: falhas.append("a animacao com motion-reduce na linha virou achado")
 else: print("ok    animacao com motion-reduce fica de fora")
@@ -113,14 +117,15 @@ ok, linhas = achou("text-primary", "dark:text-primary-foreground", "dark:text-")
 if ok: falhas.append("accent com dark:text- virou achado")
 else: print("ok    accent com dark:text- fica de fora")
 for f in sorted((raiz / ".opencode" / "agent").glob("*.md")):
-    if ".claude/agents/" in f.read_text(encoding="utf-8"):
-        falhas.append(f"{f.relative_to(raiz)}: aponta .claude/agents, que a instalacao so OpenCode nao copia")
+    if ".claude/" in f.read_text(encoding="utf-8"):
+        falhas.append(f"{f.relative_to(raiz)}: aponta .claude/, que a instalacao so OpenCode nao copia")
 # A regra do descarte e a mesma no agente e na tabela que a sessao principal le (revisao do Codex)
 for alvo in (".claude/agents/auditor-design.md", ".claude/skills/designx/SKILL.md", ".claude/skills/designx/references/03-auditoria.md"):
     texto_regra = (raiz / alvo).read_text(encoding="utf-8")
-    for regra in ("motion-reduce:transition-none", "motion-reduce:animate-none", "`dark:text-`", "mesma className"):
+    for regra in ("motion-reduce:transition-none", "motion-reduce:animate-none", "`dark:text-`", "mesma className", "className inteira"):
         if regra not in texto_regra: falhas.append(f"{alvo}: a regra de descarte nao cita {regra}")
     if re.search(r"descartando as linhas com `dark:`", texto_regra): falhas.append(f"{alvo}: descarta qualquer dark:")
+    if re.search(r"descart[a-z]* (?:o|todo o) arquivo", texto_regra, re.I): falhas.append(f"{alvo}: descarta o arquivo inteiro")
 skill = (raiz / ".claude/skills/designx/SKILL.md").read_text(encoding="utf-8")
 if "rg" not in skill or "sessao principal" not in skill:
     falhas.append("SKILL.md: falta dizer como a sessao principal, sem Grep, faz a mesma busca com rg")

@@ -100,7 +100,7 @@ Grep {"pattern": "toast\\(", "path": "src/pages", "glob": "**/*.tsx", "output_mo
 Grep {"pattern": "outline-none|outline:\\s*none", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 # descarte as linhas que tambem casam com `focus(-visible)?:ring-([1-9]|\[)`, depois de conferir que o ring esta na mesma className do elemento com `outline-none`; a busca e por linha
 Grep {"pattern": "animate-|transition-", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
-# uma linha so sai se, havendo `animate-*`, tiver `motion-reduce:animate-none`, e, havendo `transition-*`, tiver `motion-reduce:transition-none`, na mesma className; as demais sao achado, mesmo que o arquivo tenha `motion-reduce` em outra
+# uma linha so sai se, havendo `animate-*`, tiver `motion-reduce:animate-none`, e, havendo `transition-*`, tiver `motion-reduce:transition-none`, na mesma className; as demais sao achado, mesmo que o arquivo tenha `motion-reduce` em outra. Antes de descartar, leia com Read a className inteira do elemento: ela pode ocupar mais de uma linha
 
 # Medio
 Grep {"pattern": "onChange=.*setSearch", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}

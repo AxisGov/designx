@@ -25,7 +25,9 @@ Agente de leitura apenas. Audita codigo de UI contra o DS e boas praticas.
 2. As 18 boas praticas (B1-B5, A1-A9, M1-M4)
 3. Os 10 tells de IA (T1-T10, references/08-tells-ia.md) — dois na mesma tela = REPROVADO
 4. Stamp vs. tela: `/* designx · ... */` existe, corresponde a realidade, e o LOG.md varia
-5. Deteccao rapida: as buscas de `.claude/skills/designx/references/03-auditoria.md`, feitas com as ferramentas Grep e Glob (sem shell)
+5. Deteccao rapida: as buscas de `.opencode/skills/designx/references/03-auditoria.md`, feitas com as ferramentas de busca (sem shell)
+
+As buscas das referencias estao na forma da ferramenta Grep do Claude Code. No OpenCode, use os parametros equivalentes da ferramenta de busca dele: o padrao, a pasta e o filtro de arquivos (o `glob`). Nao limite o resultado antes de um descarte, e, se a ferramenta avisar que cortou o resultado, repita a busca por partes.
 
 ## Saida
 

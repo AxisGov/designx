@@ -31,7 +31,9 @@ Agente de leitura apenas. Analisa o projeto e extrai o vocabulario visual.
 8. Dark mode
 9. Framework visual
 
-Busque com as ferramentas Grep e Glob, sem shell, como em `.claude/skills/designx/references/02-cartografia.md`.
+Busque com as ferramentas de busca, sem shell, como em `.opencode/skills/designx/references/02-cartografia.md`.
+
+As buscas das referencias estao na forma da ferramenta Grep do Claude Code. No OpenCode, use os parametros equivalentes da ferramenta de busca dele: o padrao, a pasta e o filtro de arquivos (o `glob`). Nao limite o resultado antes de um descarte, e, se a ferramenta avisar que cortou o resultado, repita a busca por partes.
 
 ## Saida
 
