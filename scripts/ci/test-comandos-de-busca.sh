@@ -13,7 +13,7 @@ d="$(cd "$(mktemp -d)" && pwd -P)"; trap 'rm -rf "$d"' EXIT
 mkdir -p "$d/src/a/b" "$d/src/components/ui" "$d/src/pages"
 printf ':root { --cor-base: #fff; }\n' > "$d/src/a/b/tema.css"
 printf 'export const X = () => <div style={{ color: "#abc" }} className="rgb(1,2,3) hsl(1,2%%,3%%)" />;\n' > "$d/src/a/b/Cor.tsx"
-printf 'export const Y = () => <div className="animate-spin" />;\nexport const W = () => <div className="animate-pulse motion-reduce:animate-none" />;\nexport const V = () => <div className="transition-transform motion-reduce:animate-none" />;\nexport const U = () => <div className="animate-bounce motion-reduce:animate-ping" />;\n' > "$d/src/a/b/Gira.tsx"
+printf 'export const Y = () => <div className="animate-spin" />;\nexport const W = () => <div className="animate-pulse motion-reduce:animate-none" />;\nexport const V = () => <div className="transition-transform motion-reduce:animate-none" />;\nexport const U = () => <div className="animate-bounce motion-reduce:animate-ping" />;\nexport const S = () => <><i className="animate-wiggle" /><b className="motion-reduce:animate-none" /></>;\nexport const R = () => <><i className="transition-colors" /><b className="motion-reduce:transition-none" /></>;\n' > "$d/src/a/b/Gira.tsx"
 printf 'export const P = () => <p className="text-primary dark:bg-zinc-900" />;\nexport const Q = () => <p className="text-primary dark:text-primary-foreground" />;\n' > "$d/src/a/b/Texto.tsx"
 python3 - "$RAIZ" "$d" <<'PY'
 import json, re, subprocess, sys
@@ -69,11 +69,16 @@ for f in arquivos:
         chamadas.append((nome, d, r))
 def protegida(linha):
     """A regra do agente: com animate-*, motion-reduce:animate-none; com transition-*, motion-reduce:transition-none."""
-    classes = re.findall(r"[\w:-]+", linha)
-    anima = [c for c in classes if c.startswith("animate-")]
-    trans = [c for c in classes if c.startswith("transition-")]
-    # a protecao e o `-none`: `motion-reduce:animate-*` qualquer pode repetir a animacao (revisao do Codex)
-    return (not anima or "motion-reduce:animate-none" in classes) and (not trans or "motion-reduce:transition-none" in classes)
+    # className por className: a protecao de outro elemento da mesma linha nao vale
+    grupos = re.findall(r'className="([^"]*)"', linha) or [linha]
+    for grupo in grupos:
+        classes = grupo.split()
+        anima = any(c.startswith("animate-") for c in classes)
+        trans = any(c.startswith("transition-") for c in classes)
+        # a protecao e o `-none`: `motion-reduce:animate-*` qualquer pode repetir a animacao (revisao do Codex)
+        if anima and "motion-reduce:animate-none" not in classes: return False
+        if trans and "motion-reduce:transition-none" not in classes: return False
+    return True
 def achou(trecho_padrao, esperado, nao=None):
     for nome, d, r in chamadas:
         if trecho_padrao in d["pattern"] and nome.endswith(("cartografo-visual.md", "auditor-design.md")):
@@ -90,6 +95,8 @@ for trecho, esperado, nao, rotulo in [
     ("animate-", "animate-spin", "motion-reduce", "animacao sem motion-reduce, por linha"),
     ("animate-", "transition-transform", "motion-reduce", "transicao protegida so na animacao continua achado"),
     ("animate-", "animate-bounce", "motion-reduce", "motion-reduce que repete a animacao continua achado"),
+    ("animate-", "animate-wiggle", "motion-reduce", "protecao em outra className da linha nao vale (animacao)"),
+    ("transition-", "transition-colors", "motion-reduce", "protecao em outra className da linha nao vale (transicao)"),
     ("text-primary", "dark:bg-zinc-900", "dark:text-", "accent sem dark:text- continua achado"),
 ]:
     ok, linhas = achou(trecho, esperado, nao)
