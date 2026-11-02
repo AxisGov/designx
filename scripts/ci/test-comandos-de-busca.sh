@@ -103,9 +103,12 @@ else: print("ok    accent com dark:text- fica de fora")
 for f in sorted((raiz / ".opencode" / "agent").glob("*.md")):
     if ".claude/agents/" in f.read_text(encoding="utf-8"):
         falhas.append(f"{f.relative_to(raiz)}: aponta .claude/agents, que a instalacao so OpenCode nao copia")
-auditor = (raiz / ".claude/agents/auditor-design.md").read_text(encoding="utf-8")
-for regra in ("motion-reduce:transition-", "`dark:text-`", "mesma className"):
-    if regra not in auditor: falhas.append(f"auditor-design.md: a regra de descarte nao cita {regra}")
+# A regra do descarte e a mesma no agente e na tabela que a sessao principal le (revisao do Codex)
+for alvo in (".claude/agents/auditor-design.md", ".claude/skills/designx/SKILL.md", ".claude/skills/designx/references/03-auditoria.md"):
+    texto_regra = (raiz / alvo).read_text(encoding="utf-8")
+    for regra in ("motion-reduce:transition-", "`dark:text-`", "mesma className"):
+        if regra not in texto_regra: falhas.append(f"{alvo}: a regra de descarte nao cita {regra}")
+    if re.search(r"descartando as linhas com `dark:`", texto_regra): falhas.append(f"{alvo}: descarta qualquer dark:")
 skill = (raiz / ".claude/skills/designx/SKILL.md").read_text(encoding="utf-8")
 if "rg" not in skill or "sessao principal" not in skill:
     falhas.append("SKILL.md: falta dizer como a sessao principal, sem Grep, faz a mesma busca com rg")
