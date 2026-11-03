@@ -67,9 +67,9 @@ END {
       if (bloco) { if (c == "*" && prox == "/") { apaga(l, i); apaga(l, i + 1); i++; bloco = 0 } else apaga(l, i); continue }
       if (comlinha) { apaga(l, i); continue }
       if (c == "/" && prox == "*") { bloco = 1; apaga(l, i); apaga(l, i + 1); i++; continue }
-      if (c == "/" && prox == "/" && ant != ":" && !palavra(ant)) { comlinha = 1; apaga(l, i); continue }
+      if (c == "/" && prox == "/" && ant != ":" && ant != "/" && !palavra(ant)) { comlinha = 1; apaga(l, i); continue }
       if (token) { if (c == ";" || c == "}") token = 0; else { apaga(l, i); continue } }
-      if (c == "-" && prox == "-" && !palavra(ant) && ant != "-" && match(substr(linha[l], i), /^--[A-Za-z0-9_-]+[ \t]*:/)) { token = 1; apaga(l, i); continue }
+      if (c == "-" && prox == "-" && !palavra(ant) && ant != "-" && match(substr(linha[l], i), /^--[A-Za-z0-9_-]+([ \t]|\/\*([^*]|\*+[^*\/])*\*+\/)*:/)) { token = 1; apaga(l, i); continue }
       if (c == "u" && match(substr(linha[l], i), /^url\([ \t]*["\047]?#[A-Za-z0-9_-]+/)) { for (k = i; k < i + RLENGTH; k++) apaga(l, k); i += RLENGTH - 1; continue }
       if (css && (c == ";" || c == "}")) { sl = l; sc = i + 1; continue }
       if (css && c == "{") {

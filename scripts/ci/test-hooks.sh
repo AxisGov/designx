@@ -52,6 +52,7 @@ else falha "audit: rastro ausente ou invalido: $(cat "$r" 2>/dev/null)"; fi
 p="$(proj token)"
 cat > "$p/src/tema.css" <<'CSS'
 :root { --fundo: #0a111c; --texto: #fafafa; }
+:root { --nota/* comentario */: #abcdef; }
 /*
   paleta antiga #123abc
 */
@@ -80,9 +81,9 @@ p="$(proj tsx)"
 printf 'export const X = () => <div style={{ color: "#abc" }} />;\n' > "$p/src/X.tsx"
 audit "$p" src/X.tsx
 if printf '%s' "$ERR" | grep -q '#abc'; then ok "audit: hex em .tsx avisa"; else falha "audit: tsx: $ERR"; fi
-printf 'export const Z = () => <a href="https://x.com/#abc" />;\n' > "$p/src/Url.tsx"
+printf 'export const Z = () => <a href="https://x.com/#abc" />;\nexport const W = () => <a href="file:///tmp/#def" />;\n' > "$p/src/Url.tsx"
 audit "$p" src/Url.tsx
-if printf '%s' "$ERR" | grep -q 'x.com/#abc'; then ok "audit: o // de uma URL nao e comentario"; else falha "audit: URL: $ERR"; fi
+if printf '%s' "$ERR" | grep -q 'x.com/#abc' && printf '%s' "$ERR" | grep -q 'tmp/#def'; then ok "audit: o // e o /// de uma URL nao sao comentario"; else falha "audit: URL: $ERR"; fi
 printf '# nota #abc\n' > "$p/src/nota.md"
 audit "$p" src/nota.md
 if [ "$RC|$ERR" = "0|" ]; then ok "audit: arquivo que nao e de UI fica mudo"; else falha "audit: .md: $RC|$ERR"; fi
