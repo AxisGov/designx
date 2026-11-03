@@ -36,6 +36,10 @@ cat > "$d/src/a/b/movimento.css" <<'CSS'
 .coment { /* entrada */ animation: coment 1s; }
 .prefixo { -webkit-animation: prefixo 1s infinite; }
 .cor { transition: color .2s, opacity .2s; }
+.longa { animation: longa 1s infinite; }
+.longt { transition: transform .4s; }
+.durt { transition: transform .5s; }
+.inexistente { animation: inexistente 1s infinite; }
 .mista { transition: color .2s, height .2s; }
 .quebrada {
   @apply rounded
@@ -48,6 +52,10 @@ cat > "$d/src/a/b/movimento.css" <<'CSS'
   .teimosa { animation: teimosa 1s infinite; }
   .forte2 { animation: none; }
   .forte3 { animation: none !important; }
+  .longa { animation-name: none; }
+  .longt { transition-property: none; }
+  .durt { transition-duration: 0s; }
+  .inexistente { animation-property: none; }
 }
 @media (prefers-reduced-motion: no-preference) {
   .entra { animation: entra .3s; }
@@ -59,7 +67,7 @@ cat > "$d/src/a/b/invertida.css" <<'CSS'
 }
 .invertida { animation: invertida 1s infinite; }
 CSS
-printf 'export const Gira = styled.div`\n  animation: styled-gira 1s infinite;\n`;\nexport const Calma = styled.div`\n  animation: calma-gira 1s infinite;\n  @media (prefers-reduced-motion: reduce) {\n    animation: none;\n  }\n`;\n' > "$d/src/a/b/Estilo.tsx"
+printf 'export const Gira = styled.div`\n  animation: styled-gira 1s infinite;\n`;\nexport const Calma = styled.div`\n  animation: calma-gira 1s infinite;\n  @media (prefers-reduced-motion: reduce) {\n    animation: none;\n  }\n`;\nexport const Nome = styled.div`\n  animation: nome-gira 1s infinite;\n  @media (prefers-reduced-motion: reduce) {\n    animation-name: none;\n  }\n`;\nexport const Prop = styled.div`\n  transition: transform .6s;\n  @media (prefers-reduced-motion: reduce) {\n    transition-property: none;\n  }\n`;\nexport const Falso = styled.div`\n  animation: falso-gira 1s infinite;\n  @media (prefers-reduced-motion: reduce) {\n    animation-property: none;\n  }\n`;\n' > "$d/src/a/b/Estilo.tsx"
 printf 'export const sx = { animationName: "objeto-gira", animationDuration: "1s" };\nexport const sx2 = { WebkitTransition: "height .2s" };\n' > "$d/src/a/b/Objeto.tsx"
 printf '.sobe { transition: transform .3s; }\n.desce { transition: none; }\n' > "$d/src/a/b/movimento.scss"
 printf 'export const T = () => <div className="motion-safe:animate-spin animate-none transition-none" />;\n' > "$d/src/a/b/Segura.tsx"
@@ -275,23 +283,30 @@ def duracao_de_reset(valor):
 for valor, esperado in (("0.01ms !important", True), ("0s !important", True), ("0.1ms !important", False),
                         ("0.01s !important", False), ("0.01ms", False), ("0.01ms !important 2s", False)):
     if duracao_de_reset(valor) != esperado: falhas.append(f"modelo do reset: {valor!r} deu {not esperado}")
+def curta(valor):
+    """Duracao de no maximo 0.01ms, com ou sem !important."""
+    m = re.fullmatch(r"\s*(\d*\.?\d+)(ms|s)\s*(?:!important)?\s*", valor)
+    return bool(m) and float(m.group(1)) * (1000 if m.group(2) == "s" else 1) <= 0.01
 def blocos_reduce(textos):
     """Seletor -> zeramentos dentro de @media (prefers-reduced-motion: reduce), com arquivo e posicao; `*` e o reset global."""
     zerados = {}
     for arquivo, texto in textos:
-        for m in re.finditer(r"(?:^|[{;])\s*((?:animation|transition)(?:-duration)?)\s*:\s*([^;}]*)", texto, re.M):
+        for m in re.finditer(r"(?:^|[{;])\s*(animation(?:-duration|-name)?|transition(?:-duration|-property)?)\s*:\s*([^;}]*)", texto, re.M):
             pilha = pilha_em(texto, m.start(1))
             if not any(re.search(r"prefers-reduced-motion:\s*reduce", c) for c in pilha[:-1]): continue
             prop, valor = m.group(1), m.group(2)
             seletores = [s.strip() for s in pilha[-1].split(",")]
-            if prop.endswith("-duration") and duracao_de_reset(valor):
-                for s in seletores: zerados.setdefault(s, []).append((prop.split("-")[0], True, arquivo, m.start(1)))
-            elif not prop.endswith("-duration") and desligada(valor.replace("!important", "")):
-                for s in seletores: zerados.setdefault(s, []).append((prop, "!important" in valor, arquivo, m.start(1)))
+            base, imp = prop.split("-")[0], "!important" in valor
+            # o longhand tambem desliga: animation-name: none, transition-property: none, duracao 0s (CodeRabbit no designx#7)
+            if prop.endswith("-duration"): zera_ = curta(valor)
+            else: zera_ = desligada(valor.replace("!important", ""))
+            if zera_:
+                for s in seletores: zerados.setdefault(s, []).append((base, imp, arquivo, m.start(1)))
     return zerados
 def reset_global(zerados):
     """`*` nao seleciona ::before e ::after: o reset tem de nomear os tres."""
-    return all({"animation", "transition"} <= {z[0] for z in zerados.get(s, [])} for s in ("*", "*::before", "*::after"))
+    # sem !important, o `*` (especificidade zero) perde para qualquer classe
+    return all({"animation", "transition"} <= {z[0] for z in zerados.get(s, []) if z[1]} for s in ("*", "*::before", "*::after"))
 def zera(entradas, prop, importante_, arquivo, pos):
     """O zeramento vence na cascata: mesma prioridade (!important se a original tem) e depois dela no mesmo arquivo,
     ou !important contra declaracao normal; o `none` antes da regra original perde para ela (revisao do Codex)."""
@@ -330,7 +345,9 @@ def css_achados(r, onde):
         if not pilha:
             ini = texto.rfind("`", 0, pos + ini_prop); fim = texto.find("`", pos + ini_prop)
             resto = texto[pos + ini_prop:fim] if ini >= 0 and fim >= 0 else ""
-            if re.search(r"@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[^}]*\b" + prop + r"\s*:\s*none", resto): continue
+            desliga = {"animation": r"animation(?:-name)?\s*:\s*none|animation-duration\s*:\s*0m?s",
+                       "transition": r"transition(?:-property)?\s*:\s*none|transition-duration\s*:\s*0m?s"}[prop]
+            if re.search(r"@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[^}]*(?<![-\w])(?:" + desliga + r")\b", resto): continue
         seletores = [s.strip() for s in pilha[-1].split(",")] if pilha else []
         if seletores and all(zera(zerados.get(s, []), prop, "!important" in valor, Path(onde) / caminho, pos + ini_prop) for s in seletores): continue
         achados.append(l)
@@ -347,7 +364,9 @@ else:
                              ("coment 1s", "comentario antes da propriedade"), ("@apply rounded", "@apply em varias linhas"),
                              ("forte2 1s", "!important zerado sem !important no bloco reduce"),
                              ("invertida 1s", "regra original depois do bloco reduce"), ("styled-gira", "CSS-in-JS em .tsx"),
-                             ("objeto-gira", "propriedade camelCase em objeto de estilo"), ("prefixo 1s", "-webkit-animation"),
+                             ("objeto-gira", "propriedade camelCase em objeto de estilo"),
+                             ("inexistente 1s", "propriedade que nao existe (animation-property) nao desliga"),
+                             ("falso-gira", "CSS-in-JS com propriedade que nao existe nao desliga"), ("prefixo 1s", "-webkit-animation"),
                              ("WebkitTransition", "WebkitTransition em objeto de estilo"), ("height .2s;", "transicao de cor junto com espacial")):
         if not any(esperado in l for l in achados): falhas.append(f"A9 em CSS: {rotulo} nao virou achado: {achados}")
         else: print(f"ok    A9 em CSS: {rotulo} e achado")
@@ -355,7 +374,10 @@ else:
                          ("--transition-rapida", "propriedade customizada"), ("animate-pulse", "@apply com motion-reduce"),
                          ("entra .3s", "animacao dentro de no-preference"), ("animate-none transition-none", "@apply de animate-none e transition-none"),
                          (".desce", "valor none em .scss"), ("forte3 1s", "!important zerado com !important no bloco reduce"),
-                         ("calma-gira", "CSS-in-JS com @media reduce no mesmo componente"), ("color .2s, opacity", "transicao so de cor e opacidade")):
+                         ("calma-gira", "CSS-in-JS com @media reduce no mesmo componente"), ("color .2s, opacity", "transicao so de cor e opacidade"),
+                         ("longa 1s", "animation-name: none no bloco reduce"), ("transform .4s", "transition-property: none no bloco reduce"),
+                         ("transform .5s", "transition-duration: 0s no bloco reduce"),
+                         ("nome-gira", "CSS-in-JS com animation-name: none"), ("transform .6s", "CSS-in-JS com transition-property: none")):
         if any(fora in l for l in achados): falhas.append(f"A9 em CSS: {rotulo} virou achado")
         elif fora != "--transition-rapida" and fora not in r.stdout: falhas.append(f"A9 em CSS: a busca nao traz {fora!r}; o descarte nao foi testado")
         else: print(f"ok    A9 em CSS: {rotulo} fica de fora")
