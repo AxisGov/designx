@@ -20,7 +20,7 @@ Quando nenhum design system e encontrado, o agente `cartografo-visual` analisa o
 | Espacamento | padrao de gap/padding/margin | Analisar classes Tailwind |
 | Componentes | primitivas existentes | Listar `src/components/ui/` |
 | Padroes de tela | layouts recorrentes | Analisar imports e estrutura |
-| Bordas vs sombras | elevacao predominante | `Grep {"pattern": "shadow", "path": "src", "glob": "**/*.{js,jsx,tsx}", "output_mode": "content", "-n": true, "head_limit": 0}`, e o mesmo com `border` |
+| Bordas vs sombras | elevacao predominante | `Grep {"pattern": "shadow", "path": "src", "glob": "**/*.{css,scss,js,jsx,tsx}", "output_mode": "content", "-n": true, "head_limit": 0}`, e o mesmo com `border` |
 | Dark mode | se existe, como | Verificar `dark:` classes |
 | Framework visual | Tailwind, CSS modules, etc. | `package.json` + configs |
 

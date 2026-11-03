@@ -87,7 +87,7 @@ Analise a estrutura de paginas:
 ### 7. Bordas vs sombras
 
 ```text
-Grep {"pattern": "shadow-|border", "path": "src", "glob": "**/*.{js,jsx,tsx}", "output_mode": "content", "-n": true, "head_limit": 30}
+Grep {"pattern": "shadow|border", "path": "src", "glob": "**/*.{css,scss,js,jsx,tsx}", "output_mode": "content", "-n": true, "head_limit": 30}
 ```
 
 Qual predominancia? (borders = denso, shadows = card/landing)

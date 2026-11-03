@@ -171,7 +171,7 @@ opacidade (`transition-colors`, `transition-opacity`) não contam. O segundo faz
 terceiro acha os blocos `prefers-reduced-motion`: só `no-preference` dispensa, e
 dentro de `reduce` a animação tem de ser zerada por regra que vence na cascata
 (depois da original, ou com `!important`), e por seletor só a duração zero desliga. Um reset
-global no bloco `reduce` (`*, *::before, *::after`) protege as transições com
+global no bloco `reduce` (`*, *::before, *::after`, fora de outro seletor) protege as transições com
 `transition-duration` de no maximo `0.01ms !important`, e as animações só com
 `animation-duration` assim e `animation-iteration-count: 1 !important`, porque a
 animação `infinite` de 0.01ms continua repetindo. Ele não protege o que tem `!important` próprio, e a

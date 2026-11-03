@@ -74,6 +74,21 @@ printf 'export const T = () => <div className="motion-safe:animate-spin animate-
 # .js e .jsx tambem tem JSX e CSS-in-JS (CodeAnt no expxdev#135 e no conselhos#247)
 printf 'export const L = () => <div className="animate-legado" style={{ color: "#def" }} />;\n' > "$d/src/a/b/Legado.jsx"
 printf 'export const A = () => <div className="animate-antigo" />;\nexport const G = styled.div`\n  animation: js-gira 1s infinite;\n`;\n' > "$d/src/a/b/Antigo.js"
+# bordas e sombras definidas em CSS tambem entram na cartografia (CodeRabbit no designx#8)
+printf '.cartao { box-shadow: 0 1px 2px var(--sombra); }\n' > "$d/src/a/b/cartao.css"
+# reset dentro de outro seletor vale so para ele, nao e global (CodeRabbit no designx#8)
+cat > "$d/src/a/b/escopo.css" <<'CSS'
+.fora { animation: fora 1s infinite; }
+.card {
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+CSS
 # chave entre aspas no CSS-in-JS (CodeAnt no conselhos#247)
 cat > "$d/src/a/b/Aspas.tsx" <<'TSX'
 export const a1 = { 'animation-name': 'aspas-gira', 'animation-duration': '1s' };
@@ -266,6 +281,7 @@ for trecho, esperado, nao, rotulo in [
     ("animate-", "animate-legado", "motion-reduce", "animacao em .jsx"),
     ("animate-", "animate-antigo", "motion-reduce", "animacao com JSX em .js"),
     ("{3,8}", "#def", None, "cor hex em .jsx"),
+    ("shadow|border", "box-shadow", None, "sombra em CSS na cartografia"),
     ("text-primary", "dark:bg-zinc-900", "dark:text-", "accent sem dark:text- continua achado"),
 ]:
     ok, linhas = achou(trecho, esperado, nao)
@@ -347,7 +363,11 @@ def blocos_reduce(textos):
             if not any(re.search(r"prefers-reduced-motion:\s*reduce", c) for c in pilha[:-1]): continue
             prop = re.sub(r"[A-Z]", lambda c: "-" + c.group(0).lower(), m.group(2))
             valor = valor_de(m.group(3))
-            seletores = [s.strip() for s in seletor_de(pilha[-1]).split(",")]
+            # dentro de outro seletor (`.card { @media ... { * {...} } }`), o `*` e `.card *`: o reset nao e global
+            # (CodeRabbit no designx#8). No JS, so a chave entre aspas e seletor: `export const x = {` nao e
+            fora = [seletor_de(c) for c in pilha[:-1] if not seletor_de(c).startswith("@")
+                    and (seletor_de(c) != c or Path(str(arquivo)).suffix in (".css", ".scss"))]
+            seletores = [" ".join(fora + [s.strip()]) for s in seletor_de(pilha[-1]).split(",")]
             base, imp = prop.split("-")[0], "!important" in valor
             # o longhand tambem desliga: animation-name: none, transition-property: none, duracao 0s (CodeRabbit no designx#7);
             # a duracao zera so se for zero: com 0.01ms a animacao infinite continua repetindo, e o 0.01ms so vale no reset
@@ -440,7 +460,7 @@ else:
                              ("WebkitTransition", "WebkitTransition em objeto de estilo"), ("height .2s;", "transicao de cor junto com espacial"),
                              ("js-gira", "CSS-in-JS em .js"), ("aspas-gira", "chave entre aspas simples"),
                              ("transform .7s", "chave entre aspas duplas"), ("width .3s", "WebkitTransition entre aspas"),
-                             ("top .3s", "-webkit-transition entre aspas")):
+                             ("top .3s", "-webkit-transition entre aspas"), ("fora 1s", "reset dentro de outro seletor nao e global")):
         if not any(esperado in l for l in achados): falhas.append(f"A9 em CSS: {rotulo} nao virou achado: {achados}")
         else: print(f"ok    A9 em CSS: {rotulo} e achado")
     for fora, rotulo in (("transform .2s", "transicao zerada no bloco reduce"), ("parada", "valor none"),
