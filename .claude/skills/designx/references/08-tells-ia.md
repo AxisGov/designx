@@ -76,8 +76,10 @@ Esferas 3D genericas ou circulos coloridos borrados (`blur-3xl rounded-full`) fl
 
 **Deteccao:**
 ```text
-Grep {"pattern": "blur-3xl.*rounded-full|rounded-full.*blur-3xl", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "blur-3xl", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
+
+E achado a linha cuja className tambem tem `rounded-full`. Leia a className inteira do elemento: em `cn(`, `clsx(` ou crase ela ocupa varias linhas, e as duas classes podem estar em linhas diferentes.
 
 ## T8 — Emoji como icone
 

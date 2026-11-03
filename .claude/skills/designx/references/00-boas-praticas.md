@@ -155,13 +155,26 @@ Grep {"pattern": "outline-none|outline:\\s*none", "path": "src", "glob": "**/*.t
 
 **Deteccao:**
 ```text
-Grep {"pattern": "animate-|transition-", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "animate-|\\btransition\\b", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "(^|[^-\\w])(-(webkit|moz|ms|o)-)?(animation|transition)(-[a-z-]+|[A-Z][A-Za-z]*)?\\s*:|(Webkit|Moz|ms)(Animation|Transition)[A-Za-z]*\\s*:|@apply", "path": "src", "glob": "**/*.{css,scss,ts,tsx}", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "prefers-reduced-motion", "path": "src", "glob": "**/*.{css,scss,ts,tsx}", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
-O comando lista **todas as ocorrencias**, sem descartar um arquivo porque outra
+O primeiro comando lista **todas as ocorrencias** nas classes, sem descartar um arquivo porque outra
 animacao nele já usa `motion-reduce`. Revise cada classe retornada e confirme
-se ela própria está protegida ou se existe proteção equivalente via CSS global
-ou media query.
+se ela própria está protegida, também depois de variante (`hover:animate-spin` pede
+`motion-reduce:hover:animate-none`);
+`animate-none`, `transition-none`, `motion-safe:` e as transições só de cor ou
+opacidade (`transition-colors`, `transition-opacity`) não contam. O segundo faz o mesmo com `animation` e `transition` no CSS e no CSS-in-JS
+(também `animationName`, `-webkit-animation` e afins; vale o `@media` do mesmo
+componente), e o
+terceiro acha os blocos `prefers-reduced-motion`: só `no-preference` dispensa, e
+dentro de `reduce` a animação tem de ser zerada por regra que vence na cascata
+(depois da original, ou com `!important`). Um reset global no bloco `reduce`
+(`*, *::before, *::after` com `animation-duration` e `transition-duration` de no
+maximo `0.01ms !important`) protege tudo, menos o que tem `!important` próprio, e a
+proteção de uma animação com `!important` também precisa de `!important`. A regra
+completa de descarte esta em `references/03-auditoria.md`.
 
 **Solucao:** Animacoes de entrada e deslocamento guardadas com `motion-reduce:transition-none motion-reduce:animate-none` (ou media query global). Transicoes de cor/opacidade leves podem ficar.
 
