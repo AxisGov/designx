@@ -95,7 +95,7 @@ CSS
 mkdir -p "$d/src/.cache"; printf '.oculta { color: #0c0c0c; box-shadow: none; }\n' > "$d/src/.cache/oculta.css"
 printf '$marca: #fe0c0d;\n.selo { border-color: #c0ffee; }\n// legado #dddddd\n' > "$d/src/a/b/paleta.scss"
 # CSS-in-JS em .ts (makeStyles, objeto de tema): a cor, a sombra e a fonte tambem moram ali (CodeAnt no expxdev#137)
-printf 'export const useEstilos = makeStyles({ cartao: { color: "#5a5a5a", boxShadow: "0 1px 2px var(--sombra)", fontFamily: "Fraunces" } });\n' > "$d/src/a/b/estilos.ts"
+printf 'export const useEstilos = makeStyles({ cartao: { color: "#5a5a5a", boxShadow: "0 1px 2px var(--sombra)", fontFamily: "Fraunces" } });\nexport const titulo = { fontSize: "2rem" };\nexport const forte = { fontWeight: 700 };\n' > "$d/src/a/b/estilos.ts"
 printf 'export const tema = createTheme({ palette: { primary: { main: "#0d47a1" } } });\n' > "$d/src/a/b/theme.ts"
 # reset dentro de outro seletor vale so para ele, nao e global (CodeRabbit no designx#8)
 cat > "$d/src/a/b/escopo.css" <<'CSS'
@@ -358,8 +358,9 @@ for alvo in (".claude/agents/cartografo-visual.md", ".claude/skills/designx/refe
     else: print(f"ok    {alvo}: sombra e borda contadas separadamente, com CSS, SCSS e o boxShadow em .ts")
 tipo, tipo_r = next(((d, r) for nome, d, r in chamadas if nome == ".claude/agents/cartografo-visual.md" and "font-family" in d["pattern"]), (None, None))
 if not tipo or not {"css", "scss", "ts", "tsx"} <= {g.rsplit(".", 1)[-1] for g in include_do_grep(tipo.get("glob", ""))}: falhas.append("cartografo-visual.md: a tipografia nao olha .scss e .ts")
-elif "fontFamily" not in tipo_r.stdout: falhas.append("cartografo-visual.md: a tipografia nao acha o fontFamily do CSS-in-JS")
-else: print("ok    cartografo-visual.md: a tipografia olha .scss e .ts, e acha o fontFamily do CSS-in-JS")
+elif not all(x in tipo_r.stdout for x in ("fontFamily", 'fontSize: "2rem"', "fontWeight: 700")): falhas.append("cartografo-visual.md: a tipografia nao acha fontFamily, fontSize e fontWeight do CSS-in-JS")
+elif not all(x in (raiz / ".claude/skills/designx/references/02-cartografia.md").read_text(encoding="utf-8") for x in ("`font-weight`", "`fontFamily`", "`fontSize`", "`fontWeight`")): falhas.append("02-cartografia.md: a tipografia nao cita font-weight e o camelCase do CSS-in-JS")
+else: print("ok    cartografo-visual.md: a tipografia olha .scss e .ts, e acha fontFamily, fontSize e fontWeight do CSS-in-JS")
 # A1 e Cores: o hex solto em CSS e SCSS tambem e achado (CodeAnt no conselhos#249); o modelo do descarte
 def nao_e_cor(texto, css):
     """Os trechos do arquivo em que a busca acha cor que nao e cor solta."""
