@@ -36,7 +36,8 @@ Drift de tier: componente referenciando raw direto (sem passar por alias), dois 
 ### 2. Cores
 
 ```text
-Grep {"pattern": "#[0-9a-fA-F]{3,8}|rgb|hsl", "path": "src", "glob": "**/*.{css,js,jsx,tsx}", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "#[0-9a-fA-F]{3,8}|rgb|hsl", "path": "src", "glob": "**/*.{css,scss,js,jsx,tsx}", "output_mode": "content", "-n": true, "head_limit": 0}
+# descarte a cor que e so o valor de uma propriedade customizada `--nome:` (a definicao do token), o que esta em comentario (`/* */` ou `//`, tambem de varias linhas: confira com Read) e o seletor de id do CSS (`#add {`); a variavel do SCSS (`$nome:`) fica: e de compilacao e nao muda no dark mode
 ```
 
 Para cada cor:
@@ -87,7 +88,9 @@ Analise a estrutura de paginas:
 ### 7. Bordas vs sombras
 
 ```text
-Grep {"pattern": "shadow|border", "path": "src", "glob": "**/*.{css,scss,js,jsx,tsx}", "output_mode": "content", "-n": true, "head_limit": 30}
+Grep {"pattern": "shadow", "path": "src", "glob": "**/*.{css,scss,js,jsx,tsx}", "output_mode": "count", "head_limit": 0}
+Grep {"pattern": "border", "path": "src", "glob": "**/*.{css,scss,js,jsx,tsx}", "output_mode": "count", "head_limit": 0}
+# some as contagens de cada busca: sem corte, um arquivo cheio de `border` nao esconde as sombras dos outros
 ```
 
 Qual predominancia? (borders = denso, shadows = card/landing)
