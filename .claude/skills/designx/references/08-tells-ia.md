@@ -16,7 +16,7 @@ Gradiente purple-to-blue (ou cyan-to-magenta) em fundo de hero, geralmente com t
 
 **Deteccao:**
 ```text
-Grep {"pattern": "gradient.*(purple|violet|indigo|fuchsia)", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "gradient.*(purple|violet|indigo|fuchsia)", "path": "src", "glob": "**/*.{js,jsx,tsx}", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 ## T2 — Headline com gradiente
@@ -27,7 +27,7 @@ Grep {"pattern": "gradient.*(purple|violet|indigo|fuchsia)", "path": "src", "glo
 
 **Deteccao:**
 ```text
-Grep {"pattern": "bg-clip-text|background-clip:\\s*text", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "bg-clip-text|background-clip:\\s*text", "path": "src", "glob": "**/*.{js,jsx,tsx}", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 ## T3 — Grid de 3 colunas iguais
@@ -54,7 +54,7 @@ Borda grossa colorida em uma aresta (esquerda geralmente, 4-6px, roxo ou verde).
 
 **Deteccao:**
 ```text
-Grep {"pattern": "border-l-[4-8]|border-r-[4-8]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "border-l-[4-8]|border-r-[4-8]", "path": "src", "glob": "**/*.{js,jsx,tsx}", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 ## T6 — Hero centrado full-viewport
@@ -65,7 +65,7 @@ Grep {"pattern": "border-l-[4-8]|border-r-[4-8]", "path": "src", "glob": "**/*.t
 
 **Deteccao:**
 ```text
-Grep {"pattern": "min-h-screen|min-h-\\[100vh\\]", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "min-h-screen|min-h-\\[100vh\\]", "path": "src", "glob": "**/*.{js,jsx,tsx}", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 ## T7 — Aurora blobs
@@ -76,7 +76,7 @@ Esferas 3D genericas ou circulos coloridos borrados (`blur-3xl rounded-full`) fl
 
 **Deteccao:**
 ```text
-Grep {"pattern": "blur-3xl", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "blur-3xl", "path": "src", "glob": "**/*.{js,jsx,tsx}", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 E achado a linha cuja className tambem tem `rounded-full`. Leia a className inteira do elemento: em `cn(`, `clsx(` ou crase ela ocupa varias linhas, e as duas classes podem estar em linhas diferentes.
@@ -89,7 +89,7 @@ Glifo de emoji (✨ 🚀 ⚡ 🔥 🎯 ✅) como icone de card de feature, passo
 
 **Deteccao:**
 ```text
-Grep {"pattern": "✨|🚀|⚡|🔥|🎯|✅", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "✨|🚀|⚡|🔥|🎯|✅", "path": "src", "glob": "**/*.{js,jsx,tsx}", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 ## T9 — transition-all e hover-scale uniforme
@@ -100,8 +100,8 @@ Grep {"pattern": "✨|🚀|⚡|🔥|🎯|✅", "path": "src", "glob": "**/*.tsx"
 
 **Deteccao:**
 ```text
-Grep {"pattern": "transition-all", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
-Grep {"pattern": "hover:scale-105", "path": "src", "glob": "**/*.tsx", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "transition-all", "path": "src", "glob": "**/*.{js,jsx,tsx}", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "hover:scale-105", "path": "src", "glob": "**/*.{js,jsx,tsx}", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 ## T10 — Nome placeholder e cliche
@@ -112,7 +112,7 @@ Grep {"pattern": "hover:scale-105", "path": "src", "glob": "**/*.tsx", "output_m
 
 **Deteccao:**
 ```text
-Grep {"pattern": "acme|nexus|jane doe|john smith|lorem ipsum", "path": "src", "glob": "**/*.tsx", "-i": true, "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "acme|nexus|jane doe|john smith|lorem ipsum", "path": "src", "glob": "**/*.{js,jsx,tsx}", "-i": true, "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 ---
