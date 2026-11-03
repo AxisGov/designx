@@ -113,6 +113,10 @@ audit "$p" src/a.css
 if [ "$RC" = 2 ] && printf '%s' "$ERR" | grep -q '^designx:'; then ok "audit: bloqueio no .expx/hooks.json sai 2"; else falha "audit: bloqueio: rc $RC: $ERR"; fi
 if [ "$(jq -r '.resultado' "$p/docs/eventos/designx.jsonl" 2>/dev/null)" = aviso ]; then ok "audit: no PostToolUse a escrita ja aconteceu, e o rastro diz aviso tambem no bloqueio"
 else falha "audit: resultado do rastro no bloqueio: $(cat "$p/docs/eventos/designx.jsonl" 2>/dev/null)"; fi
+jq -n '{expx_hooks: 1, hooks: {}}' > "$p/.expx/hooks.json"
+e="$(jq -cn --arg f "$p/src/a.css" --arg c "$p" '{tool_input: {file_path: $f}, cwd: $c}')"
+ERR="$( cd / && printf '%s' "$e" | DESIGNX_AUDIT_MODO=bloqueio bash "$H/designx-audit.sh" 2>&1 >/dev/null )"; RC=$?
+if [ "$RC" = 2 ]; then ok "audit: sem a chave no .expx/hooks.json, DESIGNX_AUDIT_MODO vale"; else falha "audit: variavel antiga: rc $RC: $ERR"; fi
 printf '{ invalido\n' > "$p/.expx/hooks.json"
 audit "$p" src/a.css
 if [ "$RC|$ERR|$OUT" = "0||" ]; then ok "audit: .expx/hooks.json invalido e falha aberta"; else falha "audit: hooks.json invalido: $RC|$ERR"; fi
