@@ -59,7 +59,7 @@ function apaga(l, c) { if (M[l, c] != "\n") M[l, c] = " " }
   for (i = 1; i <= n; i++) M[NR, i] = substr($0, i, 1)
 }
 END {
-  bloco = 0; token = 0; sl = 1; sc = 1
+  bloco = 0; token = 0; tnome = 0; sl = 1; sc = 1
   for (l = 1; l <= NR; l++) {
     n = N[l]; comlinha = 0
     for (i = 1; i <= n; i++) {
@@ -69,7 +69,10 @@ END {
       if (c == "/" && prox == "*") { bloco = 1; apaga(l, i); apaga(l, i + 1); i++; continue }
       if (c == "/" && prox == "/" && ant != ":" && ant != "/" && !palavra(ant)) { comlinha = 1; apaga(l, i); continue }
       if (token) { if (c == ";" || c == "}") token = 0; else { apaga(l, i); continue } }
-      if (c == "-" && prox == "-" && !palavra(ant) && ant != "-" && match(substr(linha[l], i), /^--[A-Za-z0-9_-]+([ \t]|\/\*([^*]|\*+[^*\/])*\*+\/)*:/)) { token = 1; apaga(l, i); continue }
+      # o token: o nome `--x`, espacos e comentarios (tambem de varias linhas) e o `:`;
+      # o valor vai ate o `;` ou o `}`. Outro caractere depois do nome nao e definicao
+      if (tnome) { if (c == " " || c == "\t") continue; tnome = 0; if (c == ":") { token = 1; apaga(l, i); continue } }
+      if (c == "-" && prox == "-" && !palavra(ant) && ant != "-" && match(substr(linha[l], i), /^--[A-Za-z0-9_-]+/)) { tnome = 1; i += RLENGTH - 1; continue }
       if (c == "u" && match(substr(linha[l], i), /^url\([ \t]*["\047]?#[A-Za-z0-9_-]+/)) { for (k = i; k < i + RLENGTH; k++) apaga(l, k); i += RLENGTH - 1; continue }
       if (css && (c == ";" || c == "}")) { sl = l; sc = i + 1; continue }
       if (css && c == "{") {

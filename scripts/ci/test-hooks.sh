@@ -53,6 +53,8 @@ p="$(proj token)"
 cat > "$p/src/tema.css" <<'CSS'
 :root { --fundo: #0a111c; --texto: #fafafa; }
 :root { --nota/* comentario */: #abcdef; }
+:root { --longa /* comentario
+   de varias linhas */ : #fedcba; }
 /*
   paleta antiga #123abc
 */
@@ -72,9 +74,9 @@ if [ "$a" = "0|" ] && [ "$b" = "0|" ] && [ "$c" = "0|" ] && [ ! -e "$p/docs/even
 else falha "audit: descarte do A1: css [$a] scss [$b] tsx [$c]"; fi
 
 p="$(proj duo)"
-printf '.duo { --base: #111; color: #222222; }\n$marca: #fe0c0d;\n' > "$p/src/duo.scss"
+printf '.duo { --base: #111; color: #222222; }\n$marca: #fe0c0d;\n.uso { color: var(--base) #333333; }\n' > "$p/src/duo.scss"
 audit "$p" src/duo.scss
-if printf '%s' "$ERR" | grep -q '#222222' && printf '%s' "$ERR" | grep -q '#fe0c0d'; then ok "audit: a cor solta ao lado do token e a variavel do SCSS avisam"
+if printf '%s' "$ERR" | grep -q '#222222' && printf '%s' "$ERR" | grep -q '#fe0c0d' && printf '%s' "$ERR" | grep -q '#333333'; then ok "audit: a cor solta ao lado do token, depois de var(--x) e a variavel do SCSS avisam"
 else falha "audit: duo: $ERR"; fi
 
 p="$(proj tsx)"
