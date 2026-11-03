@@ -108,8 +108,18 @@ END {
           # `selector(...)` de `@supports`
           np = 0; ps = ""
           for (ll = sl; ll <= l; ll++) for (k = (ll == sl ? sc : 1); k <= (ll == l ? i - 1 : N[ll]); k++) { np++; PL[np] = ll; PC[np] = k; ps = ps M[ll, k] }
-          if (ps ~ /^[ \t]*@scope/) for (j = 1; j <= np; j++) apaga(PL[j], PC[j])
-          else { base = 0; while (match(substr(ps, base + 1), /selector\([^)]*\)/)) { for (j = base + RSTART; j < base + RSTART + RLENGTH; j++) apaga(PL[j], PC[j]); base += RSTART + RLENGTH - 1 } }
+          pl = tolower(ps)
+          if (pl ~ /^[ \t]*@scope([^a-z0-9_-]|$)/) for (j = 1; j <= np; j++) apaga(PL[j], PC[j])
+          else {
+            # `selector(` ate o `)` que fecha, com parenteses aninhados (`:not(.x)`)
+            base = 0
+            while (match(substr(pl, base + 1), /selector\(/)) {
+              ini = base + RSTART; j = ini + RLENGTH; prof = 1
+              while (j <= np && prof > 0) { ch = substr(pl, j, 1); if (ch == "(") prof++; else if (ch == ")") prof--; j++ }
+              for (q = ini; q < j; q++) apaga(PL[q], PC[q])
+              base = j - 1
+            }
+          }
         }
         sl = l; sc = i + 1
       }
