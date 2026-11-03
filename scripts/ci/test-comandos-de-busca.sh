@@ -103,10 +103,25 @@ d3="$(cd "$(mktemp -d)" && pwd -P)"; trap 'rm -rf "$d" "$d2" "$d3"' EXIT
 mkdir -p "$d3/src/estilos"
 printf '.gira { animation: gira 1s infinite; }\n.desliza { transition: transform .2s; }\n.curta { animation: curta 1s infinite; }\n.zerada { animation: zerada 1s infinite; }\n@media (prefers-reduced-motion: reduce) {\n  *, *::before, *::after {\n    animation-duration: 0.01ms !important;\n    transition-duration: 0.01ms !important;\n  }\n  .curta { animation-duration: 0.01ms; }\n  .zerada { animation-duration: 0s; }\n}\n' > "$d3/src/estilos/global.css"
 printf 'export const Y = () => <div className="animate-spin" />;\nexport const T = () => <div className="transition-transform" />;\n' > "$d3/src/estilos/Gira.tsx"
-python3 - "$RAIZ" "$d" "$d2" "$d3" <<'PY'
+# reset global em objeto de estilo do CSS-in-JS (Global do emotion, makeStyles): chaves camelCase ou entre aspas
+d4="$(cd "$(mktemp -d)" && pwd -P)"; trap 'rm -rf "$d" "$d2" "$d3" "$d4"' EXIT
+mkdir -p "$d4/src/estilos"
+cat > "$d4/src/estilos/Global.tsx" <<'TSX'
+export const globais = {
+  '@media (prefers-reduced-motion: reduce)': {
+    '*, *::before, *::after': {
+      animationDuration: '0.01ms !important',
+      animationIterationCount: '1 !important',
+      'transition-duration': '0.01ms !important',
+    },
+  },
+};
+TSX
+printf 'export const Y = () => <div className="animate-spin" />;\nexport const sx = { animationName: "objeto-roda", animationDuration: "1s" };\n' > "$d4/src/estilos/Gira.tsx"
+python3 - "$RAIZ" "$d" "$d2" "$d3" "$d4" <<'PY'
 import json, re, shutil, subprocess, sys
 from pathlib import Path
-raiz, arvore, arvore_reset, arvore_sem_contagem = Path(sys.argv[1]), sys.argv[2], sys.argv[3], sys.argv[4]
+raiz, arvore, arvore_reset, arvore_sem_contagem, arvore_objeto = Path(sys.argv[1]), sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5]
 arquivos = sorted((raiz / ".claude" / "agents").glob("*.md")) + sorted((raiz / ".opencode" / "agent").glob("*.md")) + [raiz / ".claude/skills/designx/SKILL.md"] + sorted((raiz / ".claude/skills/designx/references").glob("*.md"))
 CHAVES = {"pattern", "path", "glob", "output_mode", "-n", "-i", "head_limit", "type", "multiline"}
 falhas = []
@@ -313,15 +328,26 @@ def curta(valor):
     """Duracao de no maximo 0.01ms, com ou sem !important."""
     m = re.fullmatch(r"\s*(\d*\.?\d+)(ms|s)\s*(?:!important)?\s*", valor)
     return bool(m) and float(m.group(1)) * (1000 if m.group(2) == "s" else 1) <= 0.01
+def valor_de(bruto):
+    """O valor ate o fim da declaracao; entre aspas, ate a aspa que fecha (`{ transition: 'none', color: 'red' }`)."""
+    bruto = bruto.lstrip()
+    return bruto[1:].split(bruto[0], 1)[0] if bruto[:1] in ("'", '"') else bruto
+def seletor_de(cab):
+    """No objeto de estilo, o seletor e a chave entre aspas que abre o bloco: `'*, *::before, *::after': {`."""
+    m = re.search(r"([\"'`])([^\"'`]*)\1\s*:\s*$", cab)
+    return m.group(2) if m else cab
 def blocos_reduce(textos):
     """Seletor -> zeramentos dentro de @media (prefers-reduced-motion: reduce), com arquivo e posicao; `*` e o reset global."""
     zerados = {}
     for arquivo, texto in textos:
-        for m in re.finditer(r"(?:^|[{;])\s*(animation(?:-duration|-name|-iteration-count)?|transition(?:-duration|-property)?)\s*:\s*([^;}]*)", texto, re.M):
-            pilha = pilha_em(texto, m.start(1))
+        # tambem no objeto de estilo do CSS-in-JS: animationDuration, 'animation-duration', valor entre aspas (revisao do Codex);
+        # o valor fica num lookahead, porque no objeto ele vai ate o `}` e engoliria as chaves seguintes
+        for m in re.finditer(r"(?:^|[{;,])\s*([\"']?)(animation(?:-duration|-name|-iteration-count|Duration|Name|IterationCount)?|transition(?:-duration|-property|Duration|Property)?)\1\s*:\s*(?=([^;}]*))", texto, re.M):
+            pilha = pilha_em(texto, m.start(2))
             if not any(re.search(r"prefers-reduced-motion:\s*reduce", c) for c in pilha[:-1]): continue
-            prop, valor = m.group(1), m.group(2)
-            seletores = [s.strip() for s in pilha[-1].split(",")]
+            prop = re.sub(r"[A-Z]", lambda c: "-" + c.group(0).lower(), m.group(2))
+            valor = valor_de(m.group(3))
+            seletores = [s.strip() for s in seletor_de(pilha[-1]).split(",")]
             base, imp = prop.split("-")[0], "!important" in valor
             # o longhand tambem desliga: animation-name: none, transition-property: none, duracao 0s (CodeRabbit no designx#7);
             # a duracao zera so se for zero: com 0.01ms a animacao infinite continua repetindo, e o 0.01ms so vale no reset
@@ -331,7 +357,7 @@ def blocos_reduce(textos):
             elif prop.endswith("-iteration-count"): tipo = "uma" if re.fullmatch(r"\s*1\s*", v) else None
             else: tipo = "zera" if desligada(v) else None
             if tipo:
-                for s in seletores: zerados.setdefault(s, []).append((base, imp, arquivo, m.start(1), tipo, prop))
+                for s in seletores: zerados.setdefault(s, []).append((base, imp, arquivo, m.start(2), tipo, prop))
     return zerados
 def reset_de(zerados):
     """As bases que o reset global protege. `*` nao seleciona ::before e ::after: o reset tem de nomear os tres."""
@@ -353,14 +379,12 @@ if reset_de(blocos_reduce([("x.css", "@media (prefers-reduced-motion: reduce) { 
     falhas.append("modelo do reset: `*` sem ::before e ::after valeu como reset global")
 def textos_de(onde):
     return {p: p.read_text(encoding="utf-8") for p in Path(onde).rglob("*") if p.suffix in (".css", ".scss", ".js", ".jsx", ".ts", ".tsx")}
-def valor_de(bruto):
-    """O valor ate o fim da declaracao; entre aspas, ate a aspa que fecha (`{ transition: 'none', color: 'red' }`)."""
-    bruto = bruto.lstrip()
-    return bruto[1:].split(bruto[0], 1)[0] if bruto[:1] in ("'", '"') else bruto
 def css_achados(r, onde):
     textos = textos_de(onde)
     zerados = blocos_reduce(textos.items())
     reset = reset_de(zerados)
+    # a declaracao que zera, no bloco reduce, e a protecao, nao o achado
+    proprias = {(arq, posicao) for entradas in zerados.values() for _, _, arq, posicao, _, _ in entradas}
     achados = []
     for l in r.stdout.splitlines():
         caminho, n, conteudo = l.split(":", 2)
@@ -378,6 +402,7 @@ def css_achados(r, onde):
         m = (re.search(r"(?:^|[^-\w])(?:-(?:webkit|moz|ms|o)-)?(animation|transition)(-[a-z-]+|[A-Z][A-Za-z]*)?[\"']?\s*:\s*([^;}]*)", conteudo)
              or re.search(r"(?:Webkit|Moz|ms)(Animation|Transition)([A-Za-z]*)[\"']?\s*:\s*([^;}]*)", conteudo))
         prop, suf, valor, ini_prop = m.group(1).lower(), (m.group(2) or "").lower(), valor_de(m.group(3)), m.start(1)
+        if (Path(onde) / caminho, pos + ini_prop) in proprias: continue
         # transicao so de cor ou opacidade e leve e pode ficar (00-boas-praticas, A9)
         if prop == "transition" and suf in ("", "-property", "property") and leve(valor): continue
         if desligada(valor.replace("!important", "")): continue
@@ -459,6 +484,14 @@ else:
     if not any(".curta { animation:" in l for l in a3): falhas.append("A9: animation-duration: 0.01ms por seletor zerou a animacao infinite")
     elif any(".zerada { animation:" in l for l in a3): falhas.append("A9: animation-duration: 0s por seletor nao zerou")
     else: print("ok    A9: por seletor, so a duracao zero zera")
+    if any("0.01ms !important" in l or "iteration-count: 1" in l for l in a2): falhas.append(f"A9: a declaracao do reset global virou achado: {a2}")
+    else: print("ok    A9: as declaracoes do reset global nao sao achado")
+    # o reset em objeto de estilo protege igual ao do CSS
+    r4 = rg(d, arvore_objeto); a4 = css_achados(r4, arvore_objeto)
+    t4 = tsx_achados(rg(tsx, arvore_objeto).stdout, reset=reset_de(blocos_reduce(textos_de(arvore_objeto).items())))
+    if "objeto-roda" not in r4.stdout or "animationDuration: '0.01ms" not in r4.stdout: falhas.append("A9: o caso do reset em objeto nao foi exercitado")
+    elif a4 or t4: falhas.append(f"A9: o reset global em objeto de estilo nao protegeu: {a4 + t4}")
+    else: print("ok    A9: o reset global em objeto de estilo protege, e as chaves dele nao sao achado")
 # T7: a className inteira, que pode ocupar varias linhas
 def classname_de(texto, pos):
     """O texto da className do elemento que contem `pos`."""
