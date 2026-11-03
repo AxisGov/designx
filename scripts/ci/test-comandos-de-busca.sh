@@ -15,6 +15,7 @@ printf ':root { --cor-base: #fff; }\n' > "$d/src/a/b/tema.css"
 printf 'export const X = () => <div style={{ color: "#abc" }} />;\nexport const X2 = () => <div style={{ color: "rgb(1,2,3)" }} />;\nexport const X3 = () => <div style={{ color: "hsl(1,2%%,3%%)" }} />;\n' > "$d/src/a/b/Cor.tsx"
 printf 'export const Y = () => <div className="animate-spin" />;\nexport const W = () => <div className="animate-pulse motion-reduce:animate-none" />;\nexport const V = () => <div className="transition-transform motion-reduce:animate-none" />;\nexport const U = () => <div className="animate-bounce motion-reduce:animate-ping" />;\nexport const S = () => <><i className="animate-wiggle" /><b className="motion-reduce:animate-none" /></>;\nexport const R = () => <><i className="transition-all" /><b className="motion-reduce:transition-none" /></>;\nexport const Q = () => <><i className={`animate-flash`} /><b className={'"'"'motion-reduce:animate-none'"'"'} /></>;\n' > "$d/src/a/b/Gira.tsx"
 printf 'export const C = () => <a className="transition-colors hover:bg-muted transition-opacity" />;\n' >> "$d/src/a/b/Gira.tsx"
+printf 'export const M = () => <div className="!transition-transform motion-reduce:transition-none" />;\nexport const O = () => <div className="!transition-shadow motion-reduce:!transition-none" />;\n' >> "$d/src/a/b/Gira.tsx"
 printf 'export const K = () => <div className="hover:animate-wiggle motion-reduce:animate-none" />;\nexport const L = () => <div className="hover:animate-ping motion-reduce:hover:animate-none" />;\n' >> "$d/src/a/b/Gira.tsx"
 printf 'export const I = () => <div className="!animate-wiggle motion-reduce:animate-none" />;\nexport const J = () => <div className="!animate-ping motion-reduce:!animate-none" />;\n' >> "$d/src/a/b/Gira.tsx"
 printf 'export const H = () => <div className="hover:animate-spin group-hover:transition-transform" />;\nexport const N = () => <div className="transition hover:opacity-80" />;\n' >> "$d/src/a/b/Gira.tsx"
@@ -100,6 +101,15 @@ def grep_sem_rg(d):
     cmd = ["grep", "-rlE" if d.get("output_mode") == "files_with_matches" else "-rnE", "-e", d["pattern"], d["path"]]
     if "glob" in d: cmd += [f"--include={g}" for g in include_do_grep(d["glob"])]
     if d.get("-i"): cmd.append("-i")
+    return subprocess.run(cmd, cwd=arvore, capture_output=True, text=True)
+def find_sem_include(d):
+    """A rota sem --include: o filtro vai para o find, e o grep recebe so os arquivos."""
+    cmd = ["find", d["path"], "-type", "f"]
+    if "glob" in d:
+        nomes = include_do_grep(d["glob"]); cmd.append("(")
+        for i, g in enumerate(nomes): cmd += (["-o"] if i else []) + ["-name", g]
+        cmd.append(")")
+    cmd += ["-exec", "grep", "-lE" if d.get("output_mode") == "files_with_matches" else "-HnE"] + (["-i"] if d.get("-i") else []) + ["-e", d["pattern"], "{}", "+"]
     return subprocess.run(cmd, cwd=arvore, capture_output=True, text=True)
 GNU = shutil.which("grep") and "GNU" in subprocess.run(["grep", "--version"], capture_output=True, text=True).stdout
 chamadas = []
@@ -203,6 +213,7 @@ for trecho, esperado, nao, rotulo in [
     ("animate-", '<i className="transition-all"', "motion-reduce", "protecao em outra className da linha nao vale (transicao)"),
     ("animate-", "hover:animate-spin", "motion-reduce", "animacao com variante (hover:) continua achado"),
     ("animate-", "!animate-wiggle", "motion-reduce", "animacao com ! protegida sem ! continua achado"),
+    ("animate-", "!transition-transform", "motion-reduce", "transicao com ! protegida sem ! continua achado (CodeAnt no designx#7)"),
     ("animate-", "hover:animate-wiggle motion-reduce:animate-none", "motion-reduce", "animacao com hover: protegida sem hover: continua achado"),
     ("animate-", "transition hover:opacity-80", "motion-reduce", "transition sem sufixo e achado"),
     ("animate-", "animate-flash", "motion-reduce", "protecao em outra className com crase ou aspa simples nao vale"),
@@ -221,6 +232,9 @@ else: print("ok    animacao com motion-reduce fica de fora")
 ok, linhas = achou("animate-", "hover:animate-ping motion-reduce:hover:animate-none", "motion-reduce")
 if ok: falhas.append("animacao com hover: protegida com a mesma variante virou achado")
 else: print("ok    animacao com hover: protegida com a mesma variante fica de fora")
+ok, linhas = achou("animate-", "!transition-shadow motion-reduce:!transition-none", "motion-reduce")
+if ok: falhas.append("transicao com ! protegida com ! virou achado")
+else: print("ok    transicao com ! protegida com ! fica de fora")
 ok, linhas = achou("animate-", "!animate-ping motion-reduce:!animate-none", "motion-reduce")
 if ok: falhas.append("animacao com ! protegida com ! virou achado")
 else: print("ok    animacao com ! protegida com ! fica de fora")
@@ -393,17 +407,18 @@ else:
 if GNU:
     divergentes = []
     for nome, d, r in chamadas:
-        g = grep_sem_rg(d)
-        if g.returncode not in (0, 1): divergentes.append(f"{nome}: grep rc {g.returncode} em {d['pattern']!r}: {g.stderr.strip()}"); continue
-        if sorted(g.stdout.splitlines()) != sorted(r.stdout.splitlines()):
-            divergentes.append(f"{nome}: {d['pattern']!r} com {d.get('glob')!r}: rg {len(r.stdout.splitlines())} linhas, grep {len(g.stdout.splitlines())}")
+        for rota, g in (("grep", grep_sem_rg(d)), ("find", find_sem_include(d))):
+            if g.returncode not in (0, 1): divergentes.append(f"{nome}: {rota} rc {g.returncode} em {d['pattern']!r}: {g.stderr.strip()}"); continue
+            if sorted(g.stdout.splitlines()) != sorted(r.stdout.splitlines()):
+                divergentes.append(f"{nome}: {rota}: {d['pattern']!r} com {d.get('glob')!r}: rg {len(r.stdout.splitlines())} linhas, {rota} {len(g.stdout.splitlines())}")
     falhas.extend(f"rota sem rg: {x}" for x in divergentes)
-    if not divergentes: print("ok    rota sem rg: o grep acha o mesmo que o rg em todas as chamadas")
+    if not divergentes: print("ok    rota sem rg: o grep, com --include e pelo find, acha o mesmo que o rg em todas as chamadas")
 else:
     print("pulo  rota sem rg: o grep do PATH nao e o GNU")
 rota = (raiz / ".claude/skills/designx/SKILL.md").read_text(encoding="utf-8")
 if 'grep -rnE -e "<pattern>"' not in rota: falhas.append("SKILL.md: a rota sem rg nao passa o padrao com -e (`--[a-z]` vira opcao)")
 if "-rlE" not in rota: falhas.append("SKILL.md: a rota sem rg nao diz que files_with_matches vira -rlE")
+if "-exec grep -HnE -e" not in rota: falhas.append("SKILL.md: falta a rota sem --include, pelo find")
 if '--include="<glob>"' in rota: falhas.append("SKILL.md: a rota sem rg passa o glob inteiro ao --include, que so compara o nome do arquivo")
 for f in sorted((raiz / ".opencode" / "agent").glob("*.md")):
     if ".claude/" in f.read_text(encoding="utf-8"):
@@ -411,7 +426,7 @@ for f in sorted((raiz / ".opencode" / "agent").glob("*.md")):
 # A regra do descarte e a mesma no agente e na tabela que a sessao principal le (revisao do Codex)
 for alvo in (".claude/agents/auditor-design.md", ".claude/skills/designx/SKILL.md", ".claude/skills/designx/references/03-auditoria.md"):
     texto_regra = (raiz / alvo).read_text(encoding="utf-8")
-    for regra in ("motion-reduce:transition-none", "motion-reduce:animate-none", "`dark:text-`", "mesma className", "className inteira", "prefers-reduced-motion: reduce", "no-preference", "reset global", "`!important` proprio", "motion-safe:", "`animate-none`", "*::before"):
+    for regra in ("motion-reduce:transition-none", "motion-reduce:animate-none", "`dark:text-`", "mesma className", "className inteira", "prefers-reduced-motion: reduce", "no-preference", "reset global", "`!important` proprio", "motion-safe:", "`animate-none`", "*::before", "motion-reduce:!transition-none"):
         if regra not in texto_regra: falhas.append(f"{alvo}: a regra de descarte nao cita {regra}")
     if re.search(r"descartando as linhas com `dark:`", texto_regra): falhas.append(f"{alvo}: descarta qualquer dark:")
     if re.search(r"descart[a-z]* (?:o|todo o) arquivo", texto_regra, re.I): falhas.append(f"{alvo}: descarta o arquivo inteiro")

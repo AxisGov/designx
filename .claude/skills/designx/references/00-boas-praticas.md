@@ -173,7 +173,8 @@ dentro de `reduce` a animação tem de ser zerada por regra que vence na cascata
 (depois da original, ou com `!important`). Um reset global no bloco `reduce`
 (`*, *::before, *::after` com `animation-duration` e `transition-duration` de no
 maximo `0.01ms !important`) protege tudo, menos o que tem `!important` próprio, e a
-proteção de uma animação com `!important` também precisa de `!important`. A regra
+proteção de uma animação ou transição com `!important` também precisa de `!important`
+(`motion-reduce:!animate-none`, `motion-reduce:!transition-none`). A regra
 completa de descarte esta em `references/03-auditoria.md`.
 
 **Solucao:** Animacoes de entrada e deslocamento guardadas com `motion-reduce:transition-none motion-reduce:animate-none` (ou media query global). Transicoes de cor/opacidade leves podem ficar.
