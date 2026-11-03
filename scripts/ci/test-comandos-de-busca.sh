@@ -94,6 +94,9 @@ cat > "$d/src/a/b/paleta.css" <<'CSS'
 CSS
 mkdir -p "$d/src/.cache"; printf '.oculta { color: #0c0c0c; box-shadow: none; }\n' > "$d/src/.cache/oculta.css"
 printf '$marca: #fe0c0d;\n.selo { border-color: #c0ffee; }\n// legado #dddddd\n' > "$d/src/a/b/paleta.scss"
+# CSS-in-JS em .ts (makeStyles, objeto de tema): a cor, a sombra e a fonte tambem moram ali (CodeAnt no expxdev#137)
+printf 'export const useEstilos = makeStyles({ cartao: { color: "#5a5a5a", boxShadow: "0 1px 2px var(--sombra)", fontFamily: "Fraunces" } });\nexport const titulo = { fontSize: "2rem" };\nexport const forte = { fontWeight: 700 };\n' > "$d/src/a/b/estilos.ts"
+printf 'export const tema = createTheme({ palette: { primary: { main: "#0d47a1" } } });\n' > "$d/src/a/b/theme.ts"
 # reset dentro de outro seletor vale so para ele, nao e global (CodeRabbit no designx#8)
 cat > "$d/src/a/b/escopo.css" <<'CSS'
 .fora { animation: fora 1s infinite; }
@@ -345,12 +348,19 @@ else: print("ok    accent com dark:text- fica de fora")
 # Bordas e sombras: contadas separadamente, sem corte (nitpick do CodeAnt no expxdev#136); com
 # `shadow|border` e `head_limit: 30`, um arquivo cheio de border inclinava a comparacao
 for alvo in (".claude/agents/cartografo-visual.md", ".claude/skills/designx/references/02-cartografia.md"):
-    elevacao = {d["pattern"]: (d, r) for nome, d, r in chamadas if nome == alvo and d["pattern"] in ("shadow", "border", "shadow|border")}
-    if set(elevacao) != {"shadow", "border"}: falhas.append(f"{alvo}: bordas e sombras nao estao em duas buscas separadas: {sorted(elevacao)}")
+    elevacao = {d["pattern"]: (d, r) for nome, d, r in chamadas if nome == alvo and d["pattern"] in ("[sS]hadow", "shadow", "border", "shadow|border")}
+    if set(elevacao) != {"[sS]hadow", "border"}: falhas.append(f"{alvo}: bordas e sombras nao estao em duas buscas separadas: {sorted(elevacao)}")
     elif any(d.get("output_mode") != "count" or d.get("head_limit") != 0 for d, _ in elevacao.values()): falhas.append(f"{alvo}: bordas e sombras sem count ou com corte")
-    elif not any(l.endswith("cartao.css:1") for l in elevacao["shadow"][1].stdout.splitlines()): falhas.append(f"{alvo}: a sombra em CSS nao foi contada: {elevacao['shadow'][1].stdout!r}")
+    elif any("ts" not in {g.rsplit(".", 1)[-1] for g in include_do_grep(d.get("glob", ""))} for d, _ in elevacao.values()): falhas.append(f"{alvo}: bordas e sombras sem .ts")
+    elif not any(l.endswith("estilos.ts:1") for l in elevacao["[sS]hadow"][1].stdout.splitlines()): falhas.append(f"{alvo}: o boxShadow do CSS-in-JS em .ts nao foi contado")
+    elif not any(l.endswith("cartao.css:1") for l in elevacao["[sS]hadow"][1].stdout.splitlines()): falhas.append(f"{alvo}: a sombra em CSS nao foi contada: {elevacao['[sS]hadow'][1].stdout!r}")
     elif not any(l.endswith("paleta.scss:1") for l in elevacao["border"][1].stdout.splitlines()): falhas.append(f"{alvo}: a borda em SCSS nao foi contada")
-    else: print(f"ok    {alvo}: sombra e borda contadas separadamente, com CSS e SCSS")
+    else: print(f"ok    {alvo}: sombra e borda contadas separadamente, com CSS, SCSS e o boxShadow em .ts")
+tipo, tipo_r = next(((d, r) for nome, d, r in chamadas if nome == ".claude/agents/cartografo-visual.md" and "font-family" in d["pattern"]), (None, None))
+if not tipo or not {"css", "scss", "ts", "tsx"} <= {g.rsplit(".", 1)[-1] for g in include_do_grep(tipo.get("glob", ""))}: falhas.append("cartografo-visual.md: a tipografia nao olha .scss e .ts")
+elif not all(x in tipo_r.stdout for x in ("fontFamily", 'fontSize: "2rem"', "fontWeight: 700")): falhas.append("cartografo-visual.md: a tipografia nao acha fontFamily, fontSize e fontWeight do CSS-in-JS")
+elif not all(x in (raiz / ".claude/skills/designx/references/02-cartografia.md").read_text(encoding="utf-8") for x in ("`font-weight`", "`fontFamily`", "`fontSize`", "`fontWeight`")): falhas.append("02-cartografia.md: a tipografia nao cita font-weight e o camelCase do CSS-in-JS")
+else: print("ok    cartografo-visual.md: a tipografia olha .scss e .ts, e acha fontFamily, fontSize e fontWeight do CSS-in-JS")
 # A1 e Cores: o hex solto em CSS e SCSS tambem e achado (CodeAnt no conselhos#249); o modelo do descarte
 def nao_e_cor(texto, css):
     """Os trechos do arquivo em que a busca acha cor que nao e cor solta."""
@@ -378,17 +388,20 @@ for nome in sorted({nome for nome, _, _ in cores}):
     if not re.search(r"`--nome:`[^\n]*seletor de id[^\n]*`\$nome:`", (raiz / nome).read_text(encoding="utf-8")):
         falhas.append(f"{nome}: a busca de cor nao diz o descarte (`--nome:`, comentario, seletor de id) nem que `$nome:` continua achado")
 for nome, d, r in cores:
-    if not {"css", "scss", "js", "jsx", "tsx"} <= {g.rsplit(".", 1)[-1] for g in include_do_grep(d.get("glob", ""))}:
-        falhas.append(f"{nome}: busca de cor sem CSS, SCSS, JS, JSX ou TSX: {d.get('glob')!r}"); continue
+    if not {"css", "scss", "js", "jsx", "ts", "tsx"} <= {g.rsplit(".", 1)[-1] for g in include_do_grep(d.get("glob", ""))}:
+        falhas.append(f"{nome}: busca de cor sem CSS, SCSS, JS, JSX, TS ou TSX: {d.get('glob')!r}"); continue
     achados = cor_achados(d, r, arvore)
-    faltam = [x for x in ("#0a111c", "#222222", "#c0ffee", "#fe0c0d", "#abc", "#def", "#333") if not any(x in l for l in achados)]
+    faltam = [x for x in ("#0a111c", "#222222", "#c0ffee", "#fe0c0d", "#abc", "#def", "#333", "#5a5a5a") if not any(x in l for l in achados)]
     sobram = [x for x in ("--cor-base", "--fundo-escuro", "#123abc", "#a1b2c3", "#add", "#dddddd", "#bad", "#fade") if any(x in l for l in achados)]
     if "#abcde" in r.stdout or "#0c0c0c" in r.stdout: falhas.append(f"{nome}: a busca traz hex de cinco digitos ou arquivo oculto"); continue
     sem_prova = [x for x in ("--cor-base", "--fundo-escuro", "#123abc", "#a1b2c3", "#add", "#dddddd", "#bad", "#fade") if x not in r.stdout]
     if faltam: falhas.append(f"{nome}: cor solta nao virou achado: {faltam} em {achados}")
     elif sobram: falhas.append(f"{nome}: token, comentario ou seletor de id virou achado: {sobram}")
     elif sem_prova: falhas.append(f"{nome}: a busca nao traz {sem_prova}; o descarte nao foi testado")
-    else: print(f"ok    {nome}: hex solto em CSS e SCSS e achado; token, comentario e seletor de id ficam de fora")
+    elif "#0d47a1" not in r.stdout: falhas.append(f"{nome}: a busca nao traz o hex do objeto de tema, que o auditor julga lendo")
+    else: print(f"ok    {nome}: hex solto em CSS, SCSS e .ts e achado; token, comentario e seletor de id ficam de fora")
+for nome in sorted({nome for nome, _, _ in cores}):
+    if "objeto de tema" not in (raiz / nome).read_text(encoding="utf-8"): falhas.append(f"{nome}: a busca de cor nao diz como julgar o objeto de tema")
 if len({nome for nome, _, _ in cores}) < 6: falhas.append(f"buscas de cor: esperava A1 e Cores em seis arquivos, achei {sorted({n for n, _, _ in cores})}")
 # A9 em CSS: o modelo da regra do auditor, que le os blocos com Read
 def pilha_em(texto, pos):
