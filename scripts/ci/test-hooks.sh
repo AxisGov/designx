@@ -53,6 +53,7 @@ p="$(proj token)"
 cat > "$p/src/tema.css" <<'CSS'
 :root { --fundo: #0a111c; --texto: #fafafa; }
 :root { --nota/* comentario */: #abcdef; }
+[data-x="a{b"] #fad { color: var(--texto); }
 :root { --longa /* comentario
    de varias linhas */ : #fedcba; }
 /*
@@ -66,7 +67,7 @@ cat > "$p/src/tema.css" <<'CSS'
 .container #bad, .menu #fade:hover { color: var(--texto); }
 CSS
 printf '$marca: var(--fundo);\n// legado #dddddd\n' > "$p/src/tema.scss"
-printf 'export const X = () => <div />; // antes #abcdef\nexport const Y = () => <div>{/* cor #fedcba */}</div>;\n' > "$p/src/Comenta.tsx"
+printf 'export const k = cor// legado #a1a1a1;\nexport const t = "a"; // nota #b2b2b2\nexport const P = () => <p>Don\047t</p>;\n// nota #b3b3b3\nexport const X = () => <div />; // antes #abcdef\nexport const Y = () => <div>{/* cor #fedcba */}</div>;\n' > "$p/src/Comenta.tsx"
 audit "$p" src/tema.css; a="$RC|$ERR"
 audit "$p" src/tema.scss; b="$RC|$ERR"
 audit "$p" src/Comenta.tsx; c="$RC|$ERR"
@@ -83,9 +84,13 @@ p="$(proj tsx)"
 printf 'export const X = () => <div style={{ color: "#abc" }} />;\n' > "$p/src/X.tsx"
 audit "$p" src/X.tsx
 if printf '%s' "$ERR" | grep -q '#abc'; then ok "audit: hex em .tsx avisa"; else falha "audit: tsx: $ERR"; fi
-printf 'export const Z = () => <a href="https://x.com/#abc" />;\nexport const W = () => <a href="file:///tmp/#def" />;\n' > "$p/src/Url.tsx"
+printf 'export const Z = () => <a href="https://x.com/#abc" />;\nexport const W = () => <a href="file:///tmp/#def" />;\nexport const V = () => <a href="//cdn.exemplo/#e1e1e1" />;\nexport const s = "a//b #f1f1f1";\n' > "$p/src/Url.tsx"
+printf '.u { background: url(//cdn.exemplo/#c1c1c1); }\n' > "$p/src/u.scss"
+printf '.u { background: url(//cdn.exemplo/#d1d1d1); }\n' > "$p/src/u.css"
 audit "$p" src/Url.tsx
-if printf '%s' "$ERR" | grep -q 'x.com/#abc' && printf '%s' "$ERR" | grep -q 'tmp/#def'; then ok "audit: o // e o /// de uma URL nao sao comentario"; else falha "audit: URL: $ERR"; fi
+u="$ERR"; audit "$p" src/u.scss; u="$u|$ERR"; audit "$p" src/u.css; u="$u|$ERR"; ERR="$u"
+if printf '%s' "$ERR" | grep -q 'x.com/#abc' && printf '%s' "$ERR" | grep -q 'tmp/#def' && printf '%s' "$ERR" | grep -q '#e1e1e1' \
+  && printf '%s' "$ERR" | grep -q '#f1f1f1' && printf '%s' "$ERR" | grep -q '#c1c1c1' && printf '%s' "$ERR" | grep -q '#d1d1d1'; then ok "audit: o // de URL (com e sem protocolo), de string e de url() sem aspas nao e comentario"; else falha "audit: URL: $ERR"; fi
 printf '# nota #abc\n' > "$p/src/nota.md"
 audit "$p" src/nota.md
 if [ "$RC|$ERR" = "0|" ]; then ok "audit: arquivo que nao e de UI fica mudo"; else falha "audit: .md: $RC|$ERR"; fi

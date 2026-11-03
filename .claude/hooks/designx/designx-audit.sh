@@ -59,20 +59,32 @@ function apaga(l, c) { if (M[l, c] != "\n") M[l, c] = " " }
   for (i = 1; i <= n; i++) M[NR, i] = substr($0, i, 1)
 }
 END {
-  bloco = 0; token = 0; tnome = 0; sl = 1; sc = 1
+  bloco = 0; token = 0; tnome = 0; str = ""; sl = 1; sc = 1
   for (l = 1; l <= NR; l++) {
     n = N[l]; comlinha = 0
+    # aspa simples ou dupla nao atravessa a linha; a crase (template do JS), sim
+    if (str == "\"" || str == "\047") str = ""
     for (i = 1; i <= n; i++) {
       c = M[l, i]; prox = (i < n) ? M[l, i + 1] : ""; ant = (i > 1) ? substr(linha[l], i - 1, 1) : ""
       if (bloco) { if (c == "*" && prox == "/") { apaga(l, i); apaga(l, i + 1); i++; bloco = 0 } else apaga(l, i); continue }
       if (comlinha) { apaga(l, i); continue }
+      # dentro de string, `//`, `/*`, `;`, `{` e `}` sao texto; o `url(#...)` continua descartado
+      if (str != "") {
+        if (c == "\\") { i++; continue }
+        if (c == str) { str = ""; continue }
+        if (c == "u" && match(substr(linha[l], i), /^url\([ \t]*["\047]?#[A-Za-z0-9_-]+/)) { for (k = i; k < i + RLENGTH; k++) apaga(l, k); i += RLENGTH - 1 }
+        continue
+      }
       if (c == "/" && prox == "*") { bloco = 1; apaga(l, i); apaga(l, i + 1); i++; continue }
-      if (c == "/" && prox == "/" && ant != ":" && ant != "/" && !palavra(ant)) { comlinha = 1; apaga(l, i); continue }
+      # `//` fora de string e comentario, menos depois de `:` (`https://`), de outra
+      # barra (`file:///`) ou de `(` (`url(//cdn...)` sem aspas)
+      if (c == "/" && prox == "/" && ant != ":" && ant != "/" && ant != "(") { comlinha = 1; apaga(l, i); continue }
       if (token) { if (c == ";" || c == "}") token = 0; else { apaga(l, i); continue } }
       # o token: o nome `--x`, espacos e comentarios (tambem de varias linhas) e o `:`;
       # o valor vai ate o `;` ou o `}`. Outro caractere depois do nome nao e definicao
       if (tnome) { if (c == " " || c == "\t") continue; tnome = 0; if (c == ":") { token = 1; apaga(l, i); continue } }
       if (c == "-" && prox == "-" && !palavra(ant) && ant != "-" && match(substr(linha[l], i), /^--[A-Za-z0-9_-]+/)) { tnome = 1; i += RLENGTH - 1; continue }
+      if (c == "\"" || c == "\047" || c == "`") { str = c; continue }
       if (c == "u" && match(substr(linha[l], i), /^url\([ \t]*["\047]?#[A-Za-z0-9_-]+/)) { for (k = i; k < i + RLENGTH; k++) apaga(l, k); i += RLENGTH - 1; continue }
       if (css && (c == ";" || c == "}")) { sl = l; sc = i + 1; continue }
       if (css && c == "{") {
