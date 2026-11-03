@@ -111,11 +111,20 @@ END {
           pl = tolower(ps)
           if (pl ~ /^[ \t]*@scope([^a-z0-9_-]|$)/) for (j = 1; j <= np; j++) apaga(PL[j], PC[j])
           else {
-            # `selector(` ate o `)` que fecha, com parenteses aninhados (`:not(.x)`)
+            # `selector(` ate o `)` que fecha, com parenteses aninhados (`:not(.x)`) e
+            # sem contar o que esta entre aspas (`[data-x=")"]`)
             base = 0
             while (match(substr(pl, base + 1), /selector\(/)) {
               ini = base + RSTART; j = ini + RLENGTH; prof = 1
-              while (j <= np && prof > 0) { ch = substr(pl, j, 1); if (ch == "(") prof++; else if (ch == ")") prof--; j++ }
+              aspa = ""
+              while (j <= np && prof > 0) {
+                ch = substr(pl, j, 1)
+                if (aspa != "") { if (ch == "\\") j++; else if (ch == aspa) aspa = "" }
+                else if (ch == "\"" || ch == "\047") aspa = ch
+                else if (ch == "(") prof++
+                else if (ch == ")") prof--
+                j++
+              }
               for (q = ini; q < j; q++) apaga(PL[q], PC[q])
               base = j - 1
             }

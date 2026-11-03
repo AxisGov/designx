@@ -78,11 +78,11 @@ else falha "audit: descarte do A1: css [$a] scss [$b] tsx [$c]"; fi
 
 p="$(proj duo)"
 printf '.duo { --base: #111; color: #222222; }\n$marca: #fe0c0d;\n.uso { color: var(--base) #333333; }\n@include botao(#444444) { }\n@if $c == #555555 {\n}\n' > "$p/src/duo.scss"
-printf '@scope (#abc) to (#def) {\n  .x { color: var(--a); }\n}\n@supports selector(#bad) {\n  .y { color: var(--a); }\n}\n@supports (color: #a2a2a2) {\n  .z { color: var(--a); }\n}\n@supports selector(:not(.x) #cab) {\n  .w { color: var(--a); }\n}\n@SCOPE (#fab) {\n  .v { color: var(--a); }\n}\n@scoped-x (#a3a3a3) {\n}\n' > "$p/src/regras.css"
+printf '@scope (#abc) to (#def) {\n  .x { color: var(--a); }\n}\n@supports selector(#bad) {\n  .y { color: var(--a); }\n}\n@supports (color: #a2a2a2) {\n  .z { color: var(--a); }\n}\n@supports selector(:not(.x) #cab) {\n  .w { color: var(--a); }\n}\n@supports selector([data-x=\")\"] #dab) {\n  .w { color: var(--a); }\n}\n@SCOPE (#fab) {\n  .v { color: var(--a); }\n}\n@scoped-x (#a3a3a3) {\n}\n' > "$p/src/regras.css"
 audit "$p" src/duo.scss
 audit "$p" src/regras.css; regras="$ERR"
 audit "$p" src/duo.scss
-if ! printf '%s' "$regras" | grep -q '#abc\|#def\|#bad\|#cab\|#fab' && printf '%s' "$regras" | grep -q '#a2a2a2' && printf '%s' "$regras" | grep -q '#a3a3a3'; then ok "audit: o seletor de @scope e de @supports selector() sai, e a cor de @supports (color:) avisa"
+if ! printf '%s' "$regras" | grep -q '#abc\|#def\|#bad\|#cab\|#dab\|#fab' && printf '%s' "$regras" | grep -q '#a2a2a2' && printf '%s' "$regras" | grep -q '#a3a3a3'; then ok "audit: o seletor de @scope e de @supports selector() sai, e a cor de @supports (color:) avisa"
 else falha "audit: at-rules com seletor: $regras"; fi
 if printf '%s' "$ERR" | grep -q '#222222' && printf '%s' "$ERR" | grep -q '#fe0c0d' && printf '%s' "$ERR" | grep -q '#333333' \
   && printf '%s' "$ERR" | grep -q '#444444' && printf '%s' "$ERR" | grep -q '#555555'; then ok "audit: a cor solta ao lado do token, depois de var(--x), na at-rule do SCSS e a variavel do SCSS avisam"
