@@ -89,7 +89,10 @@ cat > "$d/src/a/b/paleta.css" <<'CSS'
 #add { color: var(--fundo-escuro); }
 .container #bad, .menu #fade:hover { color: var(--fundo-escuro); }
 .lista #c0de { color: #333; }
+.recorte { clip-path: url(#fade); }
+.cinco { content: "#abcde"; }
 CSS
+mkdir -p "$d/src/.cache"; printf '.oculta { color: #0c0c0c; box-shadow: none; }\n' > "$d/src/.cache/oculta.css"
 printf '$marca: #fe0c0d;\n.selo { border-color: #c0ffee; }\n// legado #dddddd\n' > "$d/src/a/b/paleta.scss"
 # reset dentro de outro seletor vale so para ele, nao e global (CodeRabbit no designx#8)
 cat > "$d/src/a/b/escopo.css" <<'CSS'
@@ -165,9 +168,11 @@ def rg(d, onde=None):
     cmd.append(d["path"])
     return subprocess.run(cmd, cwd=onde or arvore, capture_output=True, text=True)
 def sem_zero(r, d):
-    """Com count, o grep lista tambem o arquivo com zero; o rg e a ferramenta Grep, nao."""
-    if d.get("output_mode") == "count":
-        r.stdout = "".join(l for l in r.stdout.splitlines(keepends=True) if not re.search(r":0$", l.rstrip("\n")))
+    """O que o SKILL.md manda descartar da rota sem rg: com count, o arquivo com zero, que o grep lista e o rg
+    nao; e o arquivo oculto ou em pasta oculta, que o rg pula (CodeRabbit no designx#9)."""
+    linhas = [l for l in r.stdout.splitlines(keepends=True) if not re.search(r"(^|/)\.[^/:]", l.split(":", 1)[0])]
+    if d.get("output_mode") == "count": linhas = [l for l in linhas if not re.search(r":0$", l.rstrip("\n"))]
+    r.stdout = "".join(linhas)
     return r
 def opcao_grep(d, recursivo):
     modo = {"files_with_matches": "l", "count": "c"}.get(d.get("output_mode"), "n")
@@ -288,9 +293,9 @@ def achou(trecho_padrao, esperado, nao=None):
     return None, []
 for trecho, esperado, nao, rotulo in [
     ("--[a-z]", "--cor-base", None, "tokens aninhados (glob recursivo)"),
-    ("{3,8}", "#abc", None, "cor hex (alternancia)"),
-    ("{3,8}", "rgb(1,2,3)", None, "cor rgb (alternancia)"),
-    ("{3,8}", "hsl(1,2", None, "cor hsl (alternancia)"),
+    ("|rgb|hsl", "#abc", None, "cor hex (alternancia)"),
+    ("|rgb|hsl", "rgb(1,2,3)", None, "cor rgb (alternancia)"),
+    ("|rgb|hsl", "hsl(1,2", None, "cor hsl (alternancia)"),
     ("animate-", "animate-spin", "motion-reduce", "animacao sem motion-reduce, por linha"),
     ("animate-", "transition-transform", "motion-reduce", "transicao protegida so na animacao continua achado"),
     ("animate-", "animate-bounce", "motion-reduce", "motion-reduce que repete a animacao continua achado"),
@@ -304,7 +309,7 @@ for trecho, esperado, nao, rotulo in [
     ("animate-", "animate-flash", "motion-reduce", "protecao em outra className com crase ou aspa simples nao vale"),
     ("animate-", "animate-legado", "motion-reduce", "animacao em .jsx"),
     ("animate-", "animate-antigo", "motion-reduce", "animacao com JSX em .js"),
-    ("{3,8}", "#def", None, "cor hex em .jsx"),
+    ("|rgb|hsl", "#def", None, "cor hex em .jsx"),
     ("text-primary", "dark:bg-zinc-900", "dark:text-", "accent sem dark:text- continua achado"),
 ]:
     ok, linhas = achou(trecho, esperado, nao)
@@ -354,6 +359,8 @@ def nao_e_cor(texto, css):
     trechos += [m.span() for m in re.finditer(r"(?<![\w-])--[\w-]+\s*:[^;}]*", texto)]
     # o seletor do bloco, entre o `;`, `{` ou `}` anterior e a chave: todo `#id` nele e seletor de id,
     # tambem depois de outro seletor (`.container #add {`; revisao do Codex)
+    # a referencia a um elemento do SVG: `url(#fade)` (CodeRabbit no designx#9)
+    trechos += [m.span() for m in re.finditer(r"url\(\s*['\"]?#[\w-]+", texto)]
     if css:
         trechos += [m.span(1) for m in re.finditer(r"(?:^|[;{}])([^;{}]*)(?=\{)", texto)]
     return trechos
@@ -375,8 +382,9 @@ for nome, d, r in cores:
         falhas.append(f"{nome}: busca de cor sem CSS, SCSS, JS, JSX ou TSX: {d.get('glob')!r}"); continue
     achados = cor_achados(d, r, arvore)
     faltam = [x for x in ("#0a111c", "#222222", "#c0ffee", "#fe0c0d", "#abc", "#def", "#333") if not any(x in l for l in achados)]
-    sobram = [x for x in ("--cor-base", "--fundo-escuro", "#123abc", "#a1b2c3", "#add", "#dddddd", "#bad") if any(x in l for l in achados)]
-    sem_prova = [x for x in ("--cor-base", "--fundo-escuro", "#123abc", "#a1b2c3", "#add", "#dddddd", "#bad") if x not in r.stdout]
+    sobram = [x for x in ("--cor-base", "--fundo-escuro", "#123abc", "#a1b2c3", "#add", "#dddddd", "#bad", "#fade") if any(x in l for l in achados)]
+    if "#abcde" in r.stdout or "#0c0c0c" in r.stdout: falhas.append(f"{nome}: a busca traz hex de cinco digitos ou arquivo oculto"); continue
+    sem_prova = [x for x in ("--cor-base", "--fundo-escuro", "#123abc", "#a1b2c3", "#add", "#dddddd", "#bad", "#fade") if x not in r.stdout]
     if faltam: falhas.append(f"{nome}: cor solta nao virou achado: {faltam} em {achados}")
     elif sobram: falhas.append(f"{nome}: token, comentario ou seletor de id virou achado: {sobram}")
     elif sem_prova: falhas.append(f"{nome}: a busca nao traz {sem_prova}; o descarte nao foi testado")
@@ -625,6 +633,7 @@ rota = (raiz / ".claude/skills/designx/SKILL.md").read_text(encoding="utf-8")
 if 'grep -rnE -e "<pattern>"' not in rota: falhas.append("SKILL.md: a rota sem rg nao passa o padrao com -e (`--[a-z]` vira opcao)")
 if "-rlE" not in rota: falhas.append("SKILL.md: a rota sem rg nao diz que files_with_matches vira -rlE")
 if "-exec grep -HnE -e" not in rota: falhas.append("SKILL.md: falta a rota sem --include, pelo find")
+if "pasta oculta" not in rota: falhas.append("SKILL.md: a rota sem rg nao descarta o arquivo em pasta oculta, que o rg pula")
 if not all(x in rota for x in ("`count` vira `-c`", "`grep -rcE`", "`-Hc`", "`:0`")): falhas.append("SKILL.md: a rota sem rg nao diz que count vira -c, e no grep -rcE ou -Hc sem as linhas :0")
 if '--include="<glob>"' in rota: falhas.append("SKILL.md: a rota sem rg passa o glob inteiro ao --include, que so compara o nome do arquivo")
 for f in sorted((raiz / ".opencode" / "agent").glob("*.md")):
