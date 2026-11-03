@@ -87,6 +87,8 @@ cat > "$d/src/a/b/paleta.css" <<'CSS'
   rascunho #a1b2c3
 */
 #add { color: var(--fundo-escuro); }
+.container #bad, .menu #fade:hover { color: var(--fundo-escuro); }
+.lista #c0de { color: #333; }
 CSS
 printf '$marca: #fe0c0d;\n.selo { border-color: #c0ffee; }\n// legado #dddddd\n' > "$d/src/a/b/paleta.scss"
 # reset dentro de outro seletor vale so para ele, nao e global (CodeRabbit no designx#8)
@@ -345,13 +347,15 @@ for alvo in (".claude/agents/cartografo-visual.md", ".claude/skills/designx/refe
     elif not any(l.endswith("paleta.scss:1") for l in elevacao["border"][1].stdout.splitlines()): falhas.append(f"{alvo}: a borda em SCSS nao foi contada")
     else: print(f"ok    {alvo}: sombra e borda contadas separadamente, com CSS e SCSS")
 # A1 e Cores: o hex solto em CSS e SCSS tambem e achado (CodeAnt no conselhos#249); o modelo do descarte
-def nao_e_cor(texto):
+def nao_e_cor(texto, css):
     """Os trechos do arquivo em que a busca acha cor que nao e cor solta."""
     trechos = [m.span() for m in re.finditer(r"/\*.*?\*/|(?<![:\w])//[^\n]*", texto, re.S)]
     # a definicao do token: `--nome: valor` ate o `;` ou o `}`
     trechos += [m.span() for m in re.finditer(r"(?<![\w-])--[\w-]+\s*:[^;}]*", texto)]
-    # o seletor de id, antes da chave do bloco
-    trechos += [m.span(1) for m in re.finditer(r"(?:^|[},])\s*(#[\w-]+)(?=[^{};]*\{)", texto, re.M)]
+    # o seletor do bloco, entre o `;`, `{` ou `}` anterior e a chave: todo `#id` nele e seletor de id,
+    # tambem depois de outro seletor (`.container #add {`; revisao do Codex)
+    if css:
+        trechos += [m.span(1) for m in re.finditer(r"(?:^|[;{}])([^;{}]*)(?=\{)", texto)]
     return trechos
 def cor_achados(d, r, onde):
     achados = []
@@ -359,7 +363,7 @@ def cor_achados(d, r, onde):
         caminho, n, conteudo = l.split(":", 2)
         texto = (Path(onde) / caminho).read_text(encoding="utf-8")
         pos = sum(len(x) + 1 for x in texto.split("\n")[:int(n) - 1])
-        trechos = nao_e_cor(texto)
+        trechos = nao_e_cor(texto, caminho.endswith((".css", ".scss")))
         if any(not any(a <= pos + m.start() < b for a, b in trechos) for m in re.finditer(d["pattern"], conteudo)): achados.append(l)
     return achados
 cores = [(nome, d, r) for nome, d, r in chamadas if "0-9a-fA-F" in d["pattern"]]
@@ -370,9 +374,9 @@ for nome, d, r in cores:
     if not {"css", "scss", "js", "jsx", "tsx"} <= {g.rsplit(".", 1)[-1] for g in include_do_grep(d.get("glob", ""))}:
         falhas.append(f"{nome}: busca de cor sem CSS, SCSS, JS, JSX ou TSX: {d.get('glob')!r}"); continue
     achados = cor_achados(d, r, arvore)
-    faltam = [x for x in ("#0a111c", "#222222", "#c0ffee", "#fe0c0d", "#abc", "#def") if not any(x in l for l in achados)]
-    sobram = [x for x in ("--cor-base", "--fundo-escuro", "#123abc", "#a1b2c3", "#add", "#dddddd") if any(x in l for l in achados)]
-    sem_prova = [x for x in ("--cor-base", "--fundo-escuro", "#123abc", "#a1b2c3", "#add", "#dddddd") if x not in r.stdout]
+    faltam = [x for x in ("#0a111c", "#222222", "#c0ffee", "#fe0c0d", "#abc", "#def", "#333") if not any(x in l for l in achados)]
+    sobram = [x for x in ("--cor-base", "--fundo-escuro", "#123abc", "#a1b2c3", "#add", "#dddddd", "#bad") if any(x in l for l in achados)]
+    sem_prova = [x for x in ("--cor-base", "--fundo-escuro", "#123abc", "#a1b2c3", "#add", "#dddddd", "#bad") if x not in r.stdout]
     if faltam: falhas.append(f"{nome}: cor solta nao virou achado: {faltam} em {achados}")
     elif sobram: falhas.append(f"{nome}: token, comentario ou seletor de id virou achado: {sobram}")
     elif sem_prova: falhas.append(f"{nome}: a busca nao traz {sem_prova}; o descarte nao foi testado")
