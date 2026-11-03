@@ -356,9 +356,10 @@ for alvo in (".claude/agents/cartografo-visual.md", ".claude/skills/designx/refe
     elif not any(l.endswith("cartao.css:1") for l in elevacao["[sS]hadow"][1].stdout.splitlines()): falhas.append(f"{alvo}: a sombra em CSS nao foi contada: {elevacao['[sS]hadow'][1].stdout!r}")
     elif not any(l.endswith("paleta.scss:1") for l in elevacao["border"][1].stdout.splitlines()): falhas.append(f"{alvo}: a borda em SCSS nao foi contada")
     else: print(f"ok    {alvo}: sombra e borda contadas separadamente, com CSS, SCSS e o boxShadow em .ts")
-tipo = next((d for nome, d, r in chamadas if nome == ".claude/agents/cartografo-visual.md" and "font-family" in d["pattern"]), None)
+tipo, tipo_r = next(((d, r) for nome, d, r in chamadas if nome == ".claude/agents/cartografo-visual.md" and "font-family" in d["pattern"]), (None, None))
 if not tipo or not {"css", "scss", "ts", "tsx"} <= {g.rsplit(".", 1)[-1] for g in include_do_grep(tipo.get("glob", ""))}: falhas.append("cartografo-visual.md: a tipografia nao olha .scss e .ts")
-else: print("ok    cartografo-visual.md: a tipografia olha .scss e .ts")
+elif "fontFamily" not in tipo_r.stdout: falhas.append("cartografo-visual.md: a tipografia nao acha o fontFamily do CSS-in-JS")
+else: print("ok    cartografo-visual.md: a tipografia olha .scss e .ts, e acha o fontFamily do CSS-in-JS")
 # A1 e Cores: o hex solto em CSS e SCSS tambem e achado (CodeAnt no conselhos#249); o modelo do descarte
 def nao_e_cor(texto, css):
     """Os trechos do arquivo em que a busca acha cor que nao e cor solta."""

@@ -48,7 +48,7 @@ Para cada cor:
 ### 3. Tipografia
 
 ```text
-Grep {"pattern": "font-family|font-size|font-weight|text-\\[", "path": "src", "glob": "**/*.{css,scss,js,jsx,ts,tsx}", "output_mode": "content", "-n": true, "head_limit": 0}
+Grep {"pattern": "font-family|font-size|font-weight|fontFamily|fontSize|fontWeight|text-\\[", "path": "src", "glob": "**/*.{css,scss,js,jsx,ts,tsx}", "output_mode": "content", "-n": true, "head_limit": 0}
 ```
 
 Para cada padrao:

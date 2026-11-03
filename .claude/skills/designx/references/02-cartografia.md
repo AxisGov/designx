@@ -16,7 +16,7 @@ Quando nenhum design system e encontrado, o agente `cartografo-visual` analisa o
 |---|---|---|
 | Tokens CSS | Variaveis `--*` em CSS/SCSS | `Grep {"pattern": "--[a-z]", "path": "src", "glob": "**/*.{css,scss}", "output_mode": "content", "-n": true, "head_limit": 0}` |
 | Cores | hex, rgb, hsl em componentes | `Grep {"pattern": "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b", "path": "src", "glob": "**/*.{css,scss,js,jsx,ts,tsx}", "output_mode": "content", "-n": true, "head_limit": 0}`, e o mesmo com `rgb` e com `hsl`, descartando a cor que e so o valor de uma propriedade customizada `--nome:` (a definicao do token), o que esta em comentario (`/* */` ou `//`, tambem de varias linhas: confira com Read), o seletor de id do CSS (`#add {`) e a referencia `url(#fade)`, que aponta para um elemento do SVG; a variavel do SCSS (`$nome:`) fica, porque nao muda no dark mode; a cor de um objeto de tema (`createTheme`, `theme.ts`) e a definicao do token: liste-a com os tokens |
-| Tipografia | font-family, pesos, tamanhos | `Grep {"pattern": "font-family", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}`, e o mesmo com `font-size` e com `text-\\[` |
+| Tipografia | font-family, pesos, tamanhos | `Grep {"pattern": "font-family", "path": "src", "output_mode": "content", "-n": true, "head_limit": 0}`, e o mesmo com `font-size`, com `text-\\[` e, no CSS-in-JS, com `fontFamily` e `fontSize` |
 | Espacamento | padrao de gap/padding/margin | Analisar classes Tailwind |
 | Componentes | primitivas existentes | Listar `src/components/ui/` |
 | Padroes de tela | layouts recorrentes | Analisar imports e estrutura |
