@@ -103,6 +103,14 @@ END {
         primeiro = ""
         for (ll = sl; ll <= l && primeiro == ""; ll++) for (k = (ll == sl ? sc : 1); k <= (ll == l ? i - 1 : N[ll]); k++) if (M[ll, k] !~ /[ \t]/) { primeiro = M[ll, k]; break }
         if (primeiro != "@") for (ll = sl; ll <= l; ll++) for (k = (ll == sl ? sc : 1); k <= (ll == l ? i - 1 : N[ll]); k++) apaga(ll, k)
+        else {
+          # na at-rule que recebe seletor, ele sai: `@scope (#a)` inteiro, e o
+          # `selector(...)` de `@supports`
+          np = 0; ps = ""
+          for (ll = sl; ll <= l; ll++) for (k = (ll == sl ? sc : 1); k <= (ll == l ? i - 1 : N[ll]); k++) { np++; PL[np] = ll; PC[np] = k; ps = ps M[ll, k] }
+          if (ps ~ /^[ \t]*@scope/) for (j = 1; j <= np; j++) apaga(PL[j], PC[j])
+          else { base = 0; while (match(substr(ps, base + 1), /selector\([^)]*\)/)) { for (j = base + RSTART; j < base + RSTART + RLENGTH; j++) apaga(PL[j], PC[j]); base += RSTART + RLENGTH - 1 } }
+        }
         sl = l; sc = i + 1
       }
     }

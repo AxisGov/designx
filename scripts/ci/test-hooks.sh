@@ -78,7 +78,12 @@ else falha "audit: descarte do A1: css [$a] scss [$b] tsx [$c]"; fi
 
 p="$(proj duo)"
 printf '.duo { --base: #111; color: #222222; }\n$marca: #fe0c0d;\n.uso { color: var(--base) #333333; }\n@include botao(#444444) { }\n@if $c == #555555 {\n}\n' > "$p/src/duo.scss"
+printf '@scope (#abc) to (#def) {\n  .x { color: var(--a); }\n}\n@supports selector(#bad) {\n  .y { color: var(--a); }\n}\n@supports (color: #a2a2a2) {\n  .z { color: var(--a); }\n}\n' > "$p/src/regras.css"
 audit "$p" src/duo.scss
+audit "$p" src/regras.css; regras="$ERR"
+audit "$p" src/duo.scss
+if ! printf '%s' "$regras" | grep -q '#abc\|#def\|#bad' && printf '%s' "$regras" | grep -q '#a2a2a2'; then ok "audit: o seletor de @scope e de @supports selector() sai, e a cor de @supports (color:) avisa"
+else falha "audit: at-rules com seletor: $regras"; fi
 if printf '%s' "$ERR" | grep -q '#222222' && printf '%s' "$ERR" | grep -q '#fe0c0d' && printf '%s' "$ERR" | grep -q '#333333' \
   && printf '%s' "$ERR" | grep -q '#444444' && printf '%s' "$ERR" | grep -q '#555555'; then ok "audit: a cor solta ao lado do token, depois de var(--x), na at-rule do SCSS e a variavel do SCSS avisam"
 else falha "audit: duo: $ERR"; fi
@@ -148,9 +153,14 @@ printf '{ invalido\n' > "$p/.expx/hooks.json"
 cartografa "$p"
 if [ "$RC" = 0 ]; then ok "cartografa: .expx/hooks.json invalido e falha aberta"; else falha "cartografa: hooks.json invalido: rc $RC"; fi
 SEM_JQ="$d/semjq"; mkdir -p "$SEM_JQ"; for b in bash cat git find head env dirname; do ln -sf "$(command -v "$b")" "$SEM_JQ/$b"; done
+q="$(proj outro sem-ds)"; printf '{}\n' > "$q/.expx/designx.json"; printf 'export const X = () => <div />;\n' > "$q/src/X.tsx"
 modo "$p" designx-cartografa desligado
-cartografa "$p"
-if [ "$RC" = 0 ]; then ok "cartografa: sem jq, com .expx/hooks.json, e falha aberta"; else falha "cartografa: sem jq: rc $RC: $SAIDA"; fi
+SAIDA="$( cd "$q" && printf '{"cwd":"%s"}' "$p" | env PATH="$SEM_JQ" bash "$H/designx-cartografa.sh" 2>&1 )"; RC=$?
+if [ "$RC" = 0 ]; then ok "cartografa: sem jq e com entrada, falha aberta, sem tomar o diretorio atual (outro projeto) como raiz"; else falha "cartografa: sem jq: rc $RC: $SAIDA"; fi
+rm -f "$q/.expx/hooks.json"
+SAIDA="$( cd "$q" && env PATH="$SEM_JQ" DESIGNX_CARTOGRAFA_MODO=aviso bash "$H/designx-cartografa.sh" 2>/dev/null </dev/null )"; RC=$?
+if [ "$RC" = 0 ] && printf '%s' "$SAIDA" | jq -e '.hookSpecificOutput.additionalContext | contains("NAO foi bloqueada")' >/dev/null 2>&1; then ok "cartografa: sem jq e sem entrada (OpenCode), o aviso sai em JSON valido"
+else falha "cartografa: aviso sem jq: $RC|$SAIDA"; fi
 SEM_JQ=""
 jq -n '{expx_hooks: 1, hooks: {}}' > "$p/.expx/hooks.json"
 SAIDA="$( cd / && printf '{"cwd":"%s"}' "$p" | DESIGNX_CARTOGRAFA_MODO=aviso bash "$H/designx-cartografa.sh" 2>/dev/null )"; RC=$?

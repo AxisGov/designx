@@ -11,12 +11,16 @@ HOOK="designx-cartografa"
 PADRAO="bloqueio"
 DS_PATH="docs/design-system/DESIGN-SYSTEM.md"
 
-# a raiz pelo `cwd` da entrada do Claude Code; sem jq ou sem entrada, o diretorio atual
+# a raiz pelo `cwd` da entrada do Claude Code. Sem jq, a entrada nao se le, e o
+# diretorio atual pode ser de outro projeto: falha aberta. Sem entrada (o plugin
+# do OpenCode), o diretorio atual
 ENTRADA=""
 [ -t 0 ] || ENTRADA="$(cat)"
 CWD=""
 if command -v jq >/dev/null 2>&1; then
   CWD="$(printf '%s' "$ENTRADA" | jq -r '.cwd // empty' 2>/dev/null)" || CWD=""
+elif [ -n "$ENTRADA" ]; then
+  exit 0
 fi
 CWD="${CWD:-$PWD}"
 RAIZ="$(git -C "$CWD" rev-parse --show-toplevel 2>/dev/null)" || RAIZ="$CWD"
@@ -52,7 +56,8 @@ fi
 if [ "$MODO" = "aviso" ]; then
   MSG="[designx/hooks — aviso, a acao NAO foi bloqueada] Nenhum DESIGN-SYSTEM.md encontrado. Rode a cartografia visual antes de continuar."
   printf '%s\n' "$MSG" >&2
-  command -v jq >/dev/null 2>&1 && jq -cn --arg ctx "$MSG" '{hookSpecificOutput:{hookEventName:"PreToolUse", additionalContext:$ctx}}' 2>/dev/null
+  # a mensagem e fixa, sem aspa nem barra invertida: o JSON sai sem jq
+  printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"%s"}}\n' "$MSG"
   exit 0
 fi
 
