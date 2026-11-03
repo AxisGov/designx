@@ -30,13 +30,13 @@ modo() { jq -n --arg h "$2" --arg m "$3" '{expx_hooks: 1, hooks: {($h): {modo: $
 audit() {
   local e
   e="$(jq -cn --arg f "$1/$2" --arg c "$1" '{hook_event_name: "PostToolUse", tool_name: "Write", tool_input: {file_path: $f, content: ""}, cwd: $c}')"
-  ERR="$( cd / && printf '%s' "$e" | bash "$H/designx-audit.sh" 2>&1 >/dev/null )"; RC=$?
+  OUT="$( cd / && printf '%s' "$e" | bash "$H/designx-audit.sh" 2>"$d/err" )"; RC=$?; ERR="$(cat "$d/err")"
 }
 # cartografa <proj> — PreToolUse de Bash do Claude Code, rodado em /
 cartografa() {
   local e
   e="$(jq -cn --arg c "$1" '{hook_event_name: "PreToolUse", tool_name: "Bash", tool_input: {command: "ls"}, cwd: $c}')"
-  SAIDA="$( cd / && printf '%s' "$e" | bash "$H/designx-cartografa.sh" 2>&1 )"; RC=$?
+  SAIDA="$( cd / && printf '%s' "$e" | ${SEM_JQ:+env PATH="$SEM_JQ"} bash "$H/designx-cartografa.sh" 2>&1 )"; RC=$?
 }
 
 # --- designx-audit -----------------------------------------------------------
@@ -45,6 +45,8 @@ printf '.fundo { background-color: #0a111c; }\n' > "$p/src/a.css"
 audit "$p" src/a.css
 if [ "$RC" = 0 ] && printf '%s' "$ERR" | grep -q 'hex hardcoded' && printf '%s' "$ERR" | grep -q '#0a111c'; then ok "audit: hex solto em .css, com a entrada do Claude Code, avisa"
 else falha "audit: hex solto nao avisou (rc $RC): $ERR"; fi
+if printf '%s' "$OUT" | jq -e '.hookSpecificOutput.hookEventName == "PostToolUse" and (.hookSpecificOutput.additionalContext | contains("#0a111c"))' >/dev/null 2>&1; then ok "audit: o aviso chega ao Claude no stdout, em additionalContext"
+else falha "audit: sem additionalContext no stdout: $OUT"; fi
 r="$p/docs/eventos/designx.jsonl"
 if [ -f "$r" ] && jq -e 'select(.evento == "design_violacao_detectada" and .arquivos == ["src/a.css"] and .resultado == "aviso")' "$r" >/dev/null; then ok "audit: uma linha JSON valida no rastro, com o arquivo relativo a raiz"
 else falha "audit: rastro ausente ou invalido: $(cat "$r" 2>/dev/null)"; fi
@@ -75,9 +77,10 @@ if [ "$a" = "0|" ] && [ "$b" = "0|" ] && [ "$c" = "0|" ] && [ ! -e "$p/docs/even
 else falha "audit: descarte do A1: css [$a] scss [$b] tsx [$c]"; fi
 
 p="$(proj duo)"
-printf '.duo { --base: #111; color: #222222; }\n$marca: #fe0c0d;\n.uso { color: var(--base) #333333; }\n' > "$p/src/duo.scss"
+printf '.duo { --base: #111; color: #222222; }\n$marca: #fe0c0d;\n.uso { color: var(--base) #333333; }\n@include botao(#444444) { }\n@if $c == #555555 {\n}\n' > "$p/src/duo.scss"
 audit "$p" src/duo.scss
-if printf '%s' "$ERR" | grep -q '#222222' && printf '%s' "$ERR" | grep -q '#fe0c0d' && printf '%s' "$ERR" | grep -q '#333333'; then ok "audit: a cor solta ao lado do token, depois de var(--x) e a variavel do SCSS avisam"
+if printf '%s' "$ERR" | grep -q '#222222' && printf '%s' "$ERR" | grep -q '#fe0c0d' && printf '%s' "$ERR" | grep -q '#333333' \
+  && printf '%s' "$ERR" | grep -q '#444444' && printf '%s' "$ERR" | grep -q '#555555'; then ok "audit: a cor solta ao lado do token, depois de var(--x), na at-rule do SCSS e a variavel do SCSS avisam"
 else falha "audit: duo: $ERR"; fi
 
 p="$(proj tsx)"
@@ -108,6 +111,11 @@ if [ "$RC|$ERR" = "0|" ] && [ ! -e "$p/docs/eventos/designx.jsonl" ]; then ok "a
 modo "$p" designx-audit bloqueio
 audit "$p" src/a.css
 if [ "$RC" = 2 ] && printf '%s' "$ERR" | grep -q '^designx:'; then ok "audit: bloqueio no .expx/hooks.json sai 2"; else falha "audit: bloqueio: rc $RC: $ERR"; fi
+if [ "$(jq -r '.resultado' "$p/docs/eventos/designx.jsonl" 2>/dev/null)" = aviso ]; then ok "audit: no PostToolUse a escrita ja aconteceu, e o rastro diz aviso tambem no bloqueio"
+else falha "audit: resultado do rastro no bloqueio: $(cat "$p/docs/eventos/designx.jsonl" 2>/dev/null)"; fi
+printf '{ invalido\n' > "$p/.expx/hooks.json"
+audit "$p" src/a.css
+if [ "$RC|$ERR|$OUT" = "0||" ]; then ok "audit: .expx/hooks.json invalido e falha aberta"; else falha "audit: hooks.json invalido: $RC|$ERR"; fi
 
 p="$(proj antiga)"
 printf '.x { color: #0a111c; }\n' > "$p/src/a.css"
@@ -132,10 +140,26 @@ if [ "$RC" = 2 ]; then ok "cartografa: sem DS, com UI e designx ativo, bloqueia 
 modo "$p" designx-cartografa desligado
 cartografa "$p"
 if [ "$RC|$SAIDA" = "0|" ]; then ok "cartografa: desligado no .expx/hooks.json nao bloqueia"; else falha "cartografa: desligado: $RC|$SAIDA"; fi
+printf '{ invalido\n' > "$p/.expx/hooks.json"
+cartografa "$p"
+if [ "$RC" = 0 ]; then ok "cartografa: .expx/hooks.json invalido e falha aberta"; else falha "cartografa: hooks.json invalido: rc $RC"; fi
+SEM_JQ="$d/semjq"; mkdir -p "$SEM_JQ"; for b in bash cat git find head env dirname; do ln -sf "$(command -v "$b")" "$SEM_JQ/$b"; done
+modo "$p" designx-cartografa desligado
+cartografa "$p"
+if [ "$RC" = 0 ]; then ok "cartografa: sem jq, com .expx/hooks.json, e falha aberta"; else falha "cartografa: sem jq: rc $RC: $SAIDA"; fi
+SEM_JQ=""
+jq -n '{expx_hooks: 1, hooks: {}}' > "$p/.expx/hooks.json"
+SAIDA="$( cd / && printf '{"cwd":"%s"}' "$p" | DESIGNX_CARTOGRAFA_MODO=aviso bash "$H/designx-cartografa.sh" 2>/dev/null )"; RC=$?
+if [ "$RC" = 0 ] && printf '%s' "$SAIDA" | jq -e '.hookSpecificOutput.additionalContext | contains("NAO foi bloqueada")' >/dev/null 2>&1; then ok "cartografa: sem a chave no .expx/hooks.json, DESIGNX_CARTOGRAFA_MODO vale, e o aviso vai em additionalContext"
+else falha "cartografa: variavel antiga: $RC|$SAIDA"; fi
 modo "$p" designx-cartografa aviso
 cartografa "$p"
 if [ "$RC" = 0 ] && printf '%s' "$SAIDA" | grep -q 'NAO foi bloqueada'; then ok "cartografa: aviso avisa e nao bloqueia"; else falha "cartografa: aviso: $RC|$SAIDA"; fi
-printf '# DS\n' > "$p/docs/design-system/DESIGN-SYSTEM.md"; rm -f "$p/.expx/hooks.json"
+rm -f "$p/.expx/hooks.json"
+mkdir -p "$p/src/muitos"; for i in $(seq 1 3000); do : > "$p/src/muitos/C$i.tsx"; done
+cartografa "$p"
+if [ "$RC" = 2 ]; then ok "cartografa: com milhares de arquivos de UI, bloqueia (sem o SIGPIPE do find)"; else falha "cartografa: muitos arquivos: rc $RC"; fi
+printf '# DS\n' > "$p/docs/design-system/DESIGN-SYSTEM.md"
 cartografa "$p"
 if [ "$RC|$SAIDA" = "0|" ]; then ok "cartografa: com DESIGN-SYSTEM.md nao faz nada"; else falha "cartografa: com DS: $RC|$SAIDA"; fi
 

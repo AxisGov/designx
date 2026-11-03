@@ -2,7 +2,10 @@
 # designx-audit.sh — Hook PostToolUse para auditoria continua de design
 # Evento: PostToolUse em Write/Edit
 # Modo padrao: AVISO. O modo vem de .expx/hooks.json (`.hooks["designx-audit"].modo`),
-# como nos outros hooks do metodo; `desligado` desliga.
+# como nos outros hooks do metodo; `desligado` desliga. Sem a chave, vale
+# DESIGNX_AUDIT_MODO, a forma antiga. O aviso vai ao Claude no stdout, em JSON
+# (`additionalContext`), e ao stderr. Em PostToolUse a escrita ja aconteceu:
+# `bloqueio` nao a desfaz, so devolve a mensagem ao Claude como erro (exit 2).
 # Verifica: hex hardcoded, com o descarte do A1, e cor arbitraria do Tailwind
 set -uo pipefail
 
@@ -28,7 +31,14 @@ case "$ARQUIVO" in
   *) ARQUIVO="$CWD/$ARQUIVO" ;;
 esac
 
-MODO="$(jq -r --arg h "$HOOK" '.hooks[$h].modo // .modos[$h] // empty' "$RAIZ/.expx/hooks.json" 2>/dev/null)" || MODO=""
+CFG="$RAIZ/.expx/hooks.json"
+MODO=""
+if [ -f "$CFG" ]; then
+  # arquivo presente que nao se le: falha aberta
+  jq -e . "$CFG" >/dev/null 2>&1 || exit 0
+  MODO="$(jq -r --arg h "$HOOK" '.hooks[$h].modo // .modos[$h] // empty' "$CFG" 2>/dev/null)" || MODO=""
+fi
+[ -n "$MODO" ] || MODO="${DESIGNX_AUDIT_MODO:-}"
 case "$MODO" in aviso|bloqueio|desligado) ;; *) MODO="$PADRAO" ;; esac
 [ "$MODO" = "desligado" ] && exit 0
 
@@ -88,8 +98,11 @@ END {
       if (c == "u" && match(substr(linha[l], i), /^url\([ \t]*["\047]?#[A-Za-z0-9_-]+/)) { for (k = i; k < i + RLENGTH; k++) apaga(l, k); i += RLENGTH - 1; continue }
       if (css && (c == ";" || c == "}")) { sl = l; sc = i + 1; continue }
       if (css && c == "{") {
-        # o seletor do bloco: do ultimo `;`, `{` ou `}` ate esta chave
-        for (ll = sl; ll <= l; ll++) for (k = (ll == sl ? sc : 1); k <= (ll == l ? i - 1 : N[ll]); k++) apaga(ll, k)
+        # o seletor do bloco: do ultimo `;`, `{` ou `}` ate esta chave. A at-rule
+        # (`@include x(#f00) {`, `@if $c == #fff {`) nao e seletor e fica
+        primeiro = ""
+        for (ll = sl; ll <= l && primeiro == ""; ll++) for (k = (ll == sl ? sc : 1); k <= (ll == l ? i - 1 : N[ll]); k++) if (M[ll, k] !~ /[ \t]/) { primeiro = M[ll, k]; break }
+        if (primeiro != "@") for (ll = sl; ll <= l; ll++) for (k = (ll == sl ? sc : 1); k <= (ll == l ? i - 1 : N[ll]); k++) apaga(ll, k)
         sl = l; sc = i + 1
       }
     }
@@ -130,20 +143,21 @@ fi
 
 # Registrar no rastro, com o arquivo relativo a raiz
 REL="${ARQUIVO#"$RAIZ"/}"
-RESULTADO=aviso
-[ "$MODO" = "bloqueio" ] && RESULTADO=bloqueado
 RASTRO="$RAIZ/docs/eventos/designx.jsonl"
 mkdir -p "$(dirname "$RASTRO")"
 TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 # As ocorrencias vem do arquivo com aspas, barras e quebras de linha: o jq (o mesmo
 # que ja leu o evento) serializa, e cada evento sai numa linha JSON valida.
-jq -cn --arg ts "$TIMESTAMP" --arg detalhe "$VIOLACOES" --arg arquivo "$REL" --arg resultado "$RESULTADO" \
-  '{ts:$ts, expx_eventos:1, trabalho_id:"designx", ferramenta:"designx", origem:"hook", evento:"design_violacao_detectada", fase:"audit", task:null, agente:"principal", resultado:$resultado, detalhe:$detalhe, arquivos:[$arquivo]}' \
+jq -cn --arg ts "$TIMESTAMP" --arg detalhe "$VIOLACOES" --arg arquivo "$REL" \
+  '{ts:$ts, expx_eventos:1, trabalho_id:"designx", ferramenta:"designx", origem:"hook", evento:"design_violacao_detectada", fase:"audit", task:null, agente:"principal", resultado:"aviso", detalhe:$detalhe, arquivos:[$arquivo]}' \
   >> "$RASTRO"
 
-# Se modo e aviso, so registra
+# Modo aviso: registra e avisa, nos dois canais. O Claude Code nao mostra ao Claude
+# o stderr de um PostToolUse que sai 0; o `additionalContext` do stdout, sim
 if [ "$MODO" = "aviso" ]; then
-  echo "[designx/hooks — aviso, a acao NAO foi bloqueada] Violacao de design detectada em ${REL}: ${VIOLACOES}" >&2
+  MSG="[designx/hooks — aviso, a acao NAO foi bloqueada] Violacao de design detectada em ${REL}: ${VIOLACOES}"
+  printf '%s\n' "$MSG" >&2
+  jq -cn --arg ctx "$MSG" '{hookSpecificOutput:{hookEventName:"PostToolUse", additionalContext:$ctx}}' 2>/dev/null || true
   exit 0
 fi
 
