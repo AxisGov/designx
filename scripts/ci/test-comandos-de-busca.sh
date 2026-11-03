@@ -76,6 +76,24 @@ printf 'export const L = () => <div className="animate-legado" style={{ color: "
 printf 'export const A = () => <div className="animate-antigo" />;\nexport const G = styled.div`\n  animation: js-gira 1s infinite;\n`;\n' > "$d/src/a/b/Antigo.js"
 # bordas e sombras definidas em CSS tambem entram na cartografia (CodeRabbit no designx#8)
 printf '.cartao { box-shadow: 0 1px 2px var(--sombra); }\n' > "$d/src/a/b/cartao.css"
+# cor hex solta em CSS e SCSS (CodeAnt no conselhos#249); a definicao do token, o comentario e o
+# seletor de id nao sao cor solta, e a variavel do SCSS e de compilacao: nao muda no dark mode
+cat > "$d/src/a/b/paleta.css" <<'CSS'
+.fundo { background-color: #0a111c; }
+:root { --fundo-escuro: #0b1220; }
+.duo { --duo-base: #111; color: #222222; }
+/* cor antiga: #123abc */
+/*
+  rascunho #a1b2c3
+*/
+#add { color: var(--fundo-escuro); }
+.container #bad, .menu #fade:hover { color: var(--fundo-escuro); }
+.lista #c0de { color: #333; }
+.recorte { clip-path: url(#fade); }
+.cinco { content: "#abcde"; }
+CSS
+mkdir -p "$d/src/.cache"; printf '.oculta { color: #0c0c0c; box-shadow: none; }\n' > "$d/src/.cache/oculta.css"
+printf '$marca: #fe0c0d;\n.selo { border-color: #c0ffee; }\n// legado #dddddd\n' > "$d/src/a/b/paleta.scss"
 # reset dentro de outro seletor vale so para ele, nao e global (CodeRabbit no designx#8)
 cat > "$d/src/a/b/escopo.css" <<'CSS'
 .fora { animation: fora 1s infinite; }
@@ -145,9 +163,20 @@ def rg(d, onde=None):
     if "glob" in d: cmd += ["--glob", d["glob"]]
     if d.get("-i"): cmd.append("-i")
     if d.get("output_mode") == "files_with_matches": cmd.append("-l")
+    elif d.get("output_mode") == "count": cmd.append("-c")
     else: cmd.append("-n")
     cmd.append(d["path"])
     return subprocess.run(cmd, cwd=onde or arvore, capture_output=True, text=True)
+def sem_zero(r, d):
+    """O que o SKILL.md manda descartar da rota sem rg: com count, o arquivo com zero, que o grep lista e o rg
+    nao; e o arquivo oculto ou em pasta oculta, que o rg pula (CodeRabbit no designx#9)."""
+    linhas = [l for l in r.stdout.splitlines(keepends=True) if not re.search(r"(^|/)\.[^/:]", l.split(":", 1)[0])]
+    if d.get("output_mode") == "count": linhas = [l for l in linhas if not re.search(r":0$", l.rstrip("\n"))]
+    r.stdout = "".join(linhas)
+    return r
+def opcao_grep(d, recursivo):
+    modo = {"files_with_matches": "l", "count": "c"}.get(d.get("output_mode"), "n")
+    return ("-r" if recursivo else "-H" if modo != "l" else "-") + modo + "E"
 def include_do_grep(glob):
     """A traducao do SKILL.md: o --include do grep compara so o nome do arquivo, sem `**/` e sem chaves."""
     nome = glob.rsplit("/", 1)[-1]
@@ -155,10 +184,10 @@ def include_do_grep(glob):
     return [f"{m.group(1)}{alt}{m.group(3)}" for alt in m.group(2).split(",")] if m else [nome]
 def grep_sem_rg(d):
     """A busca sem rg no PATH, como o SKILL.md manda montar."""
-    cmd = ["grep", "-rlE" if d.get("output_mode") == "files_with_matches" else "-rnE", "-e", d["pattern"], d["path"]]
+    cmd = ["grep", opcao_grep(d, True), "-e", d["pattern"], d["path"]]
     if "glob" in d: cmd += [f"--include={g}" for g in include_do_grep(d["glob"])]
     if d.get("-i"): cmd.append("-i")
-    return subprocess.run(cmd, cwd=arvore, capture_output=True, text=True)
+    return sem_zero(subprocess.run(cmd, cwd=arvore, capture_output=True, text=True), d)
 def find_sem_include(d):
     """A rota sem --include: o filtro vai para o find, e o grep recebe so os arquivos."""
     cmd = ["find", d["path"], "-type", "f"]
@@ -166,8 +195,8 @@ def find_sem_include(d):
         nomes = include_do_grep(d["glob"]); cmd.append("(")
         for i, g in enumerate(nomes): cmd += (["-o"] if i else []) + ["-name", g]
         cmd.append(")")
-    cmd += ["-exec", "grep", "-lE" if d.get("output_mode") == "files_with_matches" else "-HnE"] + (["-i"] if d.get("-i") else []) + ["-e", d["pattern"], "{}", "+"]
-    return subprocess.run(cmd, cwd=arvore, capture_output=True, text=True)
+    cmd += ["-exec", "grep", opcao_grep(d, False)] + (["-i"] if d.get("-i") else []) + ["-e", d["pattern"], "{}", "+"]
+    return sem_zero(subprocess.run(cmd, cwd=arvore, capture_output=True, text=True), d)
 GNU = shutil.which("grep") and "GNU" in subprocess.run(["grep", "--version"], capture_output=True, text=True).stdout
 chamadas = []
 for f in arquivos:
@@ -264,9 +293,9 @@ def achou(trecho_padrao, esperado, nao=None):
     return None, []
 for trecho, esperado, nao, rotulo in [
     ("--[a-z]", "--cor-base", None, "tokens aninhados (glob recursivo)"),
-    ("{3,8}", "#abc", None, "cor hex (alternancia)"),
-    ("{3,8}", "rgb(1,2,3)", None, "cor rgb (alternancia)"),
-    ("{3,8}", "hsl(1,2", None, "cor hsl (alternancia)"),
+    ("|rgb|hsl", "#abc", None, "cor hex (alternancia)"),
+    ("|rgb|hsl", "rgb(1,2,3)", None, "cor rgb (alternancia)"),
+    ("|rgb|hsl", "hsl(1,2", None, "cor hsl (alternancia)"),
     ("animate-", "animate-spin", "motion-reduce", "animacao sem motion-reduce, por linha"),
     ("animate-", "transition-transform", "motion-reduce", "transicao protegida so na animacao continua achado"),
     ("animate-", "animate-bounce", "motion-reduce", "motion-reduce que repete a animacao continua achado"),
@@ -280,8 +309,7 @@ for trecho, esperado, nao, rotulo in [
     ("animate-", "animate-flash", "motion-reduce", "protecao em outra className com crase ou aspa simples nao vale"),
     ("animate-", "animate-legado", "motion-reduce", "animacao em .jsx"),
     ("animate-", "animate-antigo", "motion-reduce", "animacao com JSX em .js"),
-    ("{3,8}", "#def", None, "cor hex em .jsx"),
-    ("shadow|border", "box-shadow", None, "sombra em CSS na cartografia"),
+    ("|rgb|hsl", "#def", None, "cor hex em .jsx"),
     ("text-primary", "dark:bg-zinc-900", "dark:text-", "accent sem dark:text- continua achado"),
 ]:
     ok, linhas = achou(trecho, esperado, nao)
@@ -314,6 +342,54 @@ else: print("ok    motion-safe:, animate-none e transition-none ficam de fora")
 ok, linhas = achou("text-primary", "dark:text-primary-foreground", "dark:text-")
 if ok: falhas.append("accent com dark:text- virou achado")
 else: print("ok    accent com dark:text- fica de fora")
+# Bordas e sombras: contadas separadamente, sem corte (nitpick do CodeAnt no expxdev#136); com
+# `shadow|border` e `head_limit: 30`, um arquivo cheio de border inclinava a comparacao
+for alvo in (".claude/agents/cartografo-visual.md", ".claude/skills/designx/references/02-cartografia.md"):
+    elevacao = {d["pattern"]: (d, r) for nome, d, r in chamadas if nome == alvo and d["pattern"] in ("shadow", "border", "shadow|border")}
+    if set(elevacao) != {"shadow", "border"}: falhas.append(f"{alvo}: bordas e sombras nao estao em duas buscas separadas: {sorted(elevacao)}")
+    elif any(d.get("output_mode") != "count" or d.get("head_limit") != 0 for d, _ in elevacao.values()): falhas.append(f"{alvo}: bordas e sombras sem count ou com corte")
+    elif not any(l.endswith("cartao.css:1") for l in elevacao["shadow"][1].stdout.splitlines()): falhas.append(f"{alvo}: a sombra em CSS nao foi contada: {elevacao['shadow'][1].stdout!r}")
+    elif not any(l.endswith("paleta.scss:1") for l in elevacao["border"][1].stdout.splitlines()): falhas.append(f"{alvo}: a borda em SCSS nao foi contada")
+    else: print(f"ok    {alvo}: sombra e borda contadas separadamente, com CSS e SCSS")
+# A1 e Cores: o hex solto em CSS e SCSS tambem e achado (CodeAnt no conselhos#249); o modelo do descarte
+def nao_e_cor(texto, css):
+    """Os trechos do arquivo em que a busca acha cor que nao e cor solta."""
+    trechos = [m.span() for m in re.finditer(r"/\*.*?\*/|(?<![:\w])//[^\n]*", texto, re.S)]
+    # a definicao do token: `--nome: valor` ate o `;` ou o `}`
+    trechos += [m.span() for m in re.finditer(r"(?<![\w-])--[\w-]+\s*:[^;}]*", texto)]
+    # o seletor do bloco, entre o `;`, `{` ou `}` anterior e a chave: todo `#id` nele e seletor de id,
+    # tambem depois de outro seletor (`.container #add {`; revisao do Codex)
+    # a referencia a um elemento do SVG: `url(#fade)` (CodeRabbit no designx#9)
+    trechos += [m.span() for m in re.finditer(r"url\(\s*['\"]?#[\w-]+", texto)]
+    if css:
+        trechos += [m.span(1) for m in re.finditer(r"(?:^|[;{}])([^;{}]*)(?=\{)", texto)]
+    return trechos
+def cor_achados(d, r, onde):
+    achados = []
+    for l in r.stdout.splitlines():
+        caminho, n, conteudo = l.split(":", 2)
+        texto = (Path(onde) / caminho).read_text(encoding="utf-8")
+        pos = sum(len(x) + 1 for x in texto.split("\n")[:int(n) - 1])
+        trechos = nao_e_cor(texto, caminho.endswith((".css", ".scss")))
+        if any(not any(a <= pos + m.start() < b for a, b in trechos) for m in re.finditer(d["pattern"], conteudo)): achados.append(l)
+    return achados
+cores = [(nome, d, r) for nome, d, r in chamadas if "0-9a-fA-F" in d["pattern"]]
+for nome in sorted({nome for nome, _, _ in cores}):
+    if not re.search(r"`--nome:`[^\n]*seletor de id[^\n]*`\$nome:`", (raiz / nome).read_text(encoding="utf-8")):
+        falhas.append(f"{nome}: a busca de cor nao diz o descarte (`--nome:`, comentario, seletor de id) nem que `$nome:` continua achado")
+for nome, d, r in cores:
+    if not {"css", "scss", "js", "jsx", "tsx"} <= {g.rsplit(".", 1)[-1] for g in include_do_grep(d.get("glob", ""))}:
+        falhas.append(f"{nome}: busca de cor sem CSS, SCSS, JS, JSX ou TSX: {d.get('glob')!r}"); continue
+    achados = cor_achados(d, r, arvore)
+    faltam = [x for x in ("#0a111c", "#222222", "#c0ffee", "#fe0c0d", "#abc", "#def", "#333") if not any(x in l for l in achados)]
+    sobram = [x for x in ("--cor-base", "--fundo-escuro", "#123abc", "#a1b2c3", "#add", "#dddddd", "#bad", "#fade") if any(x in l for l in achados)]
+    if "#abcde" in r.stdout or "#0c0c0c" in r.stdout: falhas.append(f"{nome}: a busca traz hex de cinco digitos ou arquivo oculto"); continue
+    sem_prova = [x for x in ("--cor-base", "--fundo-escuro", "#123abc", "#a1b2c3", "#add", "#dddddd", "#bad", "#fade") if x not in r.stdout]
+    if faltam: falhas.append(f"{nome}: cor solta nao virou achado: {faltam} em {achados}")
+    elif sobram: falhas.append(f"{nome}: token, comentario ou seletor de id virou achado: {sobram}")
+    elif sem_prova: falhas.append(f"{nome}: a busca nao traz {sem_prova}; o descarte nao foi testado")
+    else: print(f"ok    {nome}: hex solto em CSS e SCSS e achado; token, comentario e seletor de id ficam de fora")
+if len({nome for nome, _, _ in cores}) < 6: falhas.append(f"buscas de cor: esperava A1 e Cores em seis arquivos, achei {sorted({n for n, _, _ in cores})}")
 # A9 em CSS: o modelo da regra do auditor, que le os blocos com Read
 def pilha_em(texto, pos):
     """Os cabecalhos dos blocos abertos ate `pos`, do mais externo ao mais interno."""
@@ -557,6 +633,8 @@ rota = (raiz / ".claude/skills/designx/SKILL.md").read_text(encoding="utf-8")
 if 'grep -rnE -e "<pattern>"' not in rota: falhas.append("SKILL.md: a rota sem rg nao passa o padrao com -e (`--[a-z]` vira opcao)")
 if "-rlE" not in rota: falhas.append("SKILL.md: a rota sem rg nao diz que files_with_matches vira -rlE")
 if "-exec grep -HnE -e" not in rota: falhas.append("SKILL.md: falta a rota sem --include, pelo find")
+if "pasta oculta" not in rota: falhas.append("SKILL.md: a rota sem rg nao descarta o arquivo em pasta oculta, que o rg pula")
+if not all(x in rota for x in ("`count` vira `-c`", "`grep -rcE`", "`-Hc`", "`:0`")): falhas.append("SKILL.md: a rota sem rg nao diz que count vira -c, e no grep -rcE ou -Hc sem as linhas :0")
 if '--include="<glob>"' in rota: falhas.append("SKILL.md: a rota sem rg passa o glob inteiro ao --include, que so compara o nome do arquivo")
 for f in sorted((raiz / ".opencode" / "agent").glob("*.md")):
     if ".claude/" in f.read_text(encoding="utf-8"):
