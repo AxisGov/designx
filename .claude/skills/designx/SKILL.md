@@ -204,14 +204,18 @@ Alem das 18 regras (principios), o auditor procura **padroes concretos de conver
 
 Nasce em **bloqueio** porque sem DS a auditoria nao tem referencia — auditar sem referencia e violacao falsa.
 
+O modo de cada hook vem de `.expx/hooks.json` (`.hooks["<id>"].modo`), que o `expx init` compoe: `aviso`, `bloqueio` ou `desligado`. Sem a chave, vale a variavel antiga (`DESIGNX_CARTOGRAFA_MODO`, `DESIGNX_AUDIT_MODO`); com o arquivo ilegivel (sem `jq`, JSON invalido), o hook sai sem fazer nada. Os hooks acham a raiz do projeto pelo `cwd` da entrada do Claude Code. O aviso vai ao Claude no stdout, em JSON (`hookSpecificOutput.additionalContext`), e ao stderr. O `designx-audit` roda depois da escrita: em `bloqueio`, ele nao a desfaz, so devolve a mensagem ao Claude como erro.
+
 ### `designx-audit` — auditoria continua
 
 ```bash
 # hooks/designx/designx-audit.sh
 # Evento: PostToolUse em Write/Edit
 # Modo padrao: AVISO
-# Verifica: tokens hardcoded, componentes nao padronizados, padroes ignorados
+# Verifica: hex hardcoded e cor arbitraria do Tailwind (bg-[#...])
 ```
+
+Le o arquivo de `tool_input.file_path`. O hex segue o descarte do A1: sai o valor de `--nome:`, o comentario, o `url(#...)` e, em `.css` e `.scss`, o seletor de id; a variavel do SCSS (`$nome:`) continua aviso. Olha `.tsx`, `.jsx`, `.css` e `.scss`; o objeto de tema em `.ts` fica para o `auditor-design`, que o julga lendo.
 
 ### `designx-token-check` — verificacao pesada (sob demanda)
 
