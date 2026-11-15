@@ -1,30 +1,30 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/banner-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/banner-light.svg">
-  <img alt="designx — a camada de design do metodo Expx" src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/banner-light.svg" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/AxisGov/designx/main/.github/assets/banner-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/AxisGov/designx/main/.github/assets/banner-light.svg">
+  <img alt="designx — a camada de design do metodo Expx" src="https://raw.githubusercontent.com/AxisGov/designx/main/.github/assets/banner-light.svg" width="100%">
 </picture>
 
 <p>
-  <img alt="harness: Claude Code" src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/badge-claude.svg">
-  <img alt="harness: OpenCode" src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/badge-opencode.svg">
-  <img alt="18 boas praticas" src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/badge-18regras.svg">
-  <img alt="acessibilidade WCAG AA" src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/badge-a11y.svg">
-  <img alt="cartografia visual" src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/badge-cartografia.svg">
-  <img alt="schema expx v1" src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/badge-schema.svg">
-  <img alt="docs pt-BR" src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/badge-lang.svg">
-  <img alt="licenca MIT" src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/badge-license.svg">
+  <img alt="harness: Claude Code" src="https://raw.githubusercontent.com/AxisGov/designx/main/.github/assets/badge-claude.svg">
+  <img alt="harness: OpenCode" src="https://raw.githubusercontent.com/AxisGov/designx/main/.github/assets/badge-opencode.svg">
+  <img alt="18 boas praticas" src="https://raw.githubusercontent.com/AxisGov/designx/main/.github/assets/badge-18regras.svg">
+  <img alt="acessibilidade WCAG AA" src="https://raw.githubusercontent.com/AxisGov/designx/main/.github/assets/badge-a11y.svg">
+  <img alt="cartografia visual" src="https://raw.githubusercontent.com/AxisGov/designx/main/.github/assets/badge-cartografia.svg">
+  <img alt="schema expx v1" src="https://raw.githubusercontent.com/AxisGov/designx/main/.github/assets/badge-schema.svg">
+  <img alt="docs pt-BR" src="https://raw.githubusercontent.com/AxisGov/designx/main/.github/assets/badge-lang.svg">
+  <img alt="licenca MIT" src="https://raw.githubusercontent.com/AxisGov/designx/main/.github/assets/badge-license.svg">
 </p>
 
 <p>
-  <a href="https://bittencourtthulio.github.io/expxdev/#designx"><strong>📘 Documentacao do metodo</strong></a>
+  <a href="https://axisgov.github.io/expxdev/#designx"><strong>📘 Documentacao do metodo</strong></a>
   &nbsp;·&nbsp;
   <a href="#as-18-boas-praticas">18 boas praticas</a>
   &nbsp;·&nbsp;
   <a href="#a-auditoria">Auditoria</a>
   &nbsp;·&nbsp;
-  <a href="https://bittencourtthulio.github.io/expxdev/#ecossistema">O ecossistema</a>
+  <a href="https://axisgov.github.io/expxdev/#ecossistema">O ecossistema</a>
 </p>
 
 <strong>A camada de design do metodo Expx</strong> — detecta, cartografa e audita<br>
@@ -40,22 +40,22 @@ o design system para <a href="https://claude.com/claude-code">Claude Code</a> e 
 
 ## O ecossistema Expx
 
-O metodo Expx e um conjunto de skills que se compoem, instaladas e mantidas pelo CLI [`expxdev`](https://github.com/bittencourtthulio/expxdev).
+O metodo Expx e um conjunto de skills que se compoem, instaladas e mantidas pelo CLI [`expxdev`](https://github.com/AxisGov/expxdev).
 
 | Peca | Papel | Relacao com a `designx` |
 |---|---|---|
-| **[expxdev](https://github.com/bittencourtthulio/expxdev)** | o CLI: instala, atualiza e diagnostica o ecossistema | e quem instala esta skill (`npx expxdev init`) |
-| **[sprintx](https://github.com/bittencourtthulio/sprintx)** | **Build** — feature nova, F1…F6 | designx audita o plano na F5 e injeta contexto de UI na F1/F3/F6 |
-| **[runx](https://github.com/bittencourtthulio/runx)** | **Run** — ocorrencia em producao, E1…E5 | designx consulta o DS na E1 e audita no E4 quando a ocorrencia e visual |
-| **[legadox](https://github.com/bittencourtthulio/legadox)** | **camada** de codigo legado | — |
-| **[stackx](https://github.com/bittencourtthulio/stackx)** | **camada** de convencoes do repositorio | stackx descobre convencoes de codigo; designx descobre convencoes visuais |
-| **[mergex](https://github.com/bittencourtthulio/mergex)** | entrega: branch, commit, PR | — |
-| **[memox](https://github.com/bittencourtthulio/MemoX)** | **camada** de memoria do projeto | — |
-| **[prodx](https://github.com/bittencourtthulio/prodx)** | **camada** de produto | — |
+| **[expxdev](https://github.com/AxisGov/expxdev)** | o CLI: instala, atualiza e diagnostica o ecossistema | e quem instala esta skill (`expx init`) |
+| **[sprintx](https://github.com/AxisGov/sprintx)** | **Build** — feature nova, F1…F6 | designx audita o plano na F5 e injeta contexto de UI na F1/F3/F6 |
+| **[runx](https://github.com/AxisGov/runx)** | **Run** — ocorrencia em producao, E1…E5 | designx consulta o DS na E1 e audita no E4 quando a ocorrencia e visual |
+| **[legadox](https://github.com/AxisGov/legadox)** | **camada** de codigo legado | — |
+| **[stackx](https://github.com/AxisGov/stackx)** | **camada** de convencoes do repositorio | stackx descobre convencoes de codigo; designx descobre convencoes visuais |
+| **[mergex](https://github.com/AxisGov/mergex)** | entrega: branch, commit, PR | — |
+| **[memox](https://github.com/AxisGov/MemoX)** | **camada** de memoria do projeto | — |
+| **[prodx](https://github.com/AxisGov/prodx)** | **camada** de produto | — |
 
 **Camadas** (`legadox`, `stackx`, `memox`, `prodx`, `designx`) sozinhas nao fazem nada — elas modificam o comportamento da `sprintx` e da `runx`. A ausencia de qualquer irma nunca quebra o fluxo: insumo que nao existe vira aviso do que falta, nunca invencao.
 
-Detalhes do ecossistema inteiro no [README do expxdev](https://github.com/bittencourtthulio/expxdev).
+Detalhes do ecossistema inteiro no [README do expxdev](https://github.com/AxisGov/expxdev).
 
 ---
 
@@ -74,7 +74,7 @@ Agentes de IA convergem para escolhas genericas — Inter em toda fonte, purple 
 
 ## Como a camada se encaixa
 
-<img src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/diagrama-fluxo.svg" alt="Diagrama: onde o designx toca sprintx e runx — F1/F3/F5/F6 no build, E1-E4 no run, com DESIGN-SYSTEM.md, RESUMO.md, AUDIT.md e DIVIDA.md no meio" width="100%">
+<img src="https://raw.githubusercontent.com/AxisGov/designx/main/.github/assets/diagrama-fluxo.svg" alt="Diagrama: onde o designx toca sprintx e runx — F1/F3/F5/F6 no build, E1-E4 no run, com DESIGN-SYSTEM.md, RESUMO.md, AUDIT.md e DIVIDA.md no meio" width="100%">
 
 A camada expoe quatro artefatos de estado: `DESIGN-SYSTEM.md` (o sistema), `RESUMO.md` (o contexto carregado por quem executa), `AUDIT.md` (o veredito + metrica de adocao de tokens) e `DIVIDA.md` (o registro vivo do que ficou para tras).
 
@@ -101,14 +101,16 @@ Os dois harnesses descobrem a skill pelo `name` e `description` do frontmatter. 
 
 ### Pelo CLI do metodo (recomendado)
 
+Com o CLI `expx` instalado pela [release do expxdev](https://github.com/AxisGov/expxdev#instalar-a-partir-da-release):
+
 ```bash
-npx expxdev init --skills sprintx,runx,mergex,designx
+expx init --skills sprintx,runx,mergex,designx
 ```
 
 ### Pelo instalador do repositorio
 
 ```bash
-git clone https://github.com/bittencourtthulio/designx.git
+git clone https://github.com/AxisGov/designx.git
 cd designx
 ./install.sh
 ```
@@ -155,7 +157,7 @@ Quero criar uma tela de listagem de clientes com busca e filtro.
 
 ## As 18 boas praticas
 
-<img src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/diagrama-regras.svg" alt="Quadro das 18 boas praticas organizadas por severidade: bloqueio (B1-B5), alto (A1-A9, incluindo as regras de acessibilidade A6-A9) e medio (M1-M4)" width="100%">
+<img src="https://raw.githubusercontent.com/AxisGov/designx/main/.github/assets/diagrama-regras.svg" alt="Quadro das 18 boas praticas organizadas por severidade: bloqueio (B1-B5), alto (A1-A9, incluindo as regras de acessibilidade A6-A9) e medio (M1-M4)" width="100%">
 
 Toda regra tem evidencia: o que acontece sem ela. Violar uma regra e violacao do metodo, nao preferencia de estilo.
 
@@ -203,7 +205,7 @@ Toda regra tem evidencia: o que acontece sem ela. Violar uma regra e violacao do
 
 Se o projeto nao tem um design system declarado, `designx` roda uma **cartografia visual** — o agente `cartografo-visual` analisa o codigo existente e gera o `DESIGN-SYSTEM.md` candidato.
 
-<img src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/diagrama-ciclo.svg" alt="Diagrama do ciclo de vida do design system: ausente, cartografado, consistente, declarado e auditando — com saidas para o painel de violacoes e o registro de divida" width="100%">
+<img src="https://raw.githubusercontent.com/AxisGov/designx/main/.github/assets/diagrama-ciclo.svg" alt="Diagrama do ciclo de vida do design system: ausente, cartografado, consistente, declarado e auditando — com saidas para o painel de violacoes e o registro de divida" width="100%">
 
 A cartografia e leitura apenas — o agente nao inventa, nao sugere, nao corrige. Espelha o estado atual, incluindo os problemas.
 
@@ -211,7 +213,7 @@ A cartografia e leitura apenas — o agente nao inventa, nao sugere, nao corrige
 
 Todo token encontrado e classificado em um de tres tiers — e o componente nunca fala com o valor bruto:
 
-<img src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/diagrama-tokens.svg" alt="Diagrama dos tiers de token: global (raw), alias (semantico) e componente — com os padroes de drift de tier que a cartografia lista" width="100%">
+<img src="https://raw.githubusercontent.com/AxisGov/designx/main/.github/assets/diagrama-tokens.svg" alt="Diagrama dos tiers de token: global (raw), alias (semantico) e componente — com os padroes de drift de tier que a cartografia lista" width="100%">
 
 ---
 
@@ -219,7 +221,7 @@ Todo token encontrado e classificado em um de tres tiers — e o componente nunc
 
 O agente `auditor-design` verifica conformidade com o DS e as 18 regras. Cada achado sai em tres partes — **observacao** (o que se ve), **problema** (o que esta quebrado e por que importa) e **fix** (a mudanca especifica) — e a auditoria produz dois artefatos:
 
-<img src="https://raw.githubusercontent.com/bittencourtthulio/designx/main/.github/assets/diagrama-auditoria.svg" alt="Diagrama da auditoria: escopo passa pelo auditor-design, gera veredito com observacao, problema e fix, e alimenta AUDIT.md com adocao de tokens e DIVIDA.md com prioridade severidade vezes frequencia sobre esforco" width="100%">
+<img src="https://raw.githubusercontent.com/AxisGov/designx/main/.github/assets/diagrama-auditoria.svg" alt="Diagrama da auditoria: escopo passa pelo auditor-design, gera veredito com observacao, problema e fix, e alimenta AUDIT.md com adocao de tokens e DIVIDA.md com prioridade severidade vezes frequencia sobre esforco" width="100%">
 
 ### Adocao de tokens
 
@@ -361,12 +363,12 @@ MIT
 
 <div align="center">
 <sub>Parte do metodo <strong>Expx</strong> ·
-<a href="https://github.com/bittencourtthulio/expxdev">expxdev</a> ·
-<a href="https://github.com/bittencourtthulio/buildx">buildx</a> ·
-<a href="https://github.com/bittencourtthulio/sprintx">sprintx</a> ·
-<a href="https://github.com/bittencourtthulio/runx">runx</a> ·
-<a href="https://github.com/bittencourtthulio/legadox">legadox</a> ·
-<a href="https://github.com/bittencourtthulio/stackx">stackx</a> ·
-<a href="https://github.com/bittencourtthulio/mergex">mergex</a> ·
+<a href="https://github.com/AxisGov/expxdev">expxdev</a> ·
+<a href="https://github.com/AxisGov/buildx">buildx</a> ·
+<a href="https://github.com/AxisGov/sprintx">sprintx</a> ·
+<a href="https://github.com/AxisGov/runx">runx</a> ·
+<a href="https://github.com/AxisGov/legadox">legadox</a> ·
+<a href="https://github.com/AxisGov/stackx">stackx</a> ·
+<a href="https://github.com/AxisGov/mergex">mergex</a> ·
 designx</sub>
 </div>
